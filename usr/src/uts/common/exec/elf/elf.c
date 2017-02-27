@@ -29,6 +29,9 @@
  * Copyright (c) 2019, Joyent, Inc.
  * Copyright 2021 Oxide Computer Company
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 #include <sys/types.h>
 #include <sys/param.h>
@@ -837,7 +840,7 @@ elfexec(vnode_t *vp, execa_t *uap, uarg_t *args, intpdata_t *idatap,
 		 * Used for choosing faster library routines.
 		 * (Potentially different between 32-bit and 64-bit ABIs)
 		 */
-#if defined(_LP64)
+#if defined _LP64 && defined _MULTI_DATAMODEL
 		if (args->to_model == DATAMODEL_NATIVE) {
 			ADDAUX(aux, AT_SUN_HWCAP, auxv_hwcap)
 			ADDAUX(aux, AT_SUN_HWCAP2, auxv_hwcap_2)
@@ -2329,7 +2332,7 @@ exclude:
 			killinfo.prk_info.si_code = SI_NOINFO;
 		}
 
-#if (defined(_SYSCALL32_IMPL) || defined(_LP64))
+#if (defined(_SYSCALL32_IMPL) || (defined(_LP64) && defined(_MULTI_DATAMODEL)))
 		/*
 		 * If this is a 32-bit process, we need to translate from the
 		 * native siginfo to the 32-bit variant.  (Core readers must
@@ -2429,7 +2432,7 @@ static struct modlexec modlexec = {
 	&mod_execops, "exec module for elf", &esw
 };
 
-#ifdef	_LP64
+#if defined _LP64 && defined _MULTI_DATAMODEL
 extern int elf32exec(vnode_t *vp, execa_t *uap, uarg_t *args,
 			intpdata_t *idatap, int level, long *execsz,
 			int setid, caddr_t exec_file, cred_t *cred,
@@ -2453,7 +2456,7 @@ static struct modlexec modlexec32 = {
 static struct modlinkage modlinkage = {
 	MODREV_1,
 	(void *)&modlexec,
-#ifdef	_LP64
+#if defined _LP64 && defined _MULTI_DATAMODEL
 	(void *)&modlexec32,
 #endif	/* _LP64 */
 	NULL
