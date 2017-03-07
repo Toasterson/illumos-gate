@@ -26,6 +26,9 @@
  * Copyright 2019 OmniOS Community Edition (OmniOSce) Association.
  * Copyright 2020 RackTop Systems Inc.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 /*
  * Copyright 2011 Nexenta Systems, Inc.  All rights reserved.
@@ -209,7 +212,7 @@ autofs_cleanup(zoneid_t zoneid)
 	 * Handle ENOSYS in the case that the autofs kernel module is not
 	 * installed.
 	 */
-	r = _autofssys(AUTOFS_UNMOUNTALL, (void *)zoneid);
+	r = _autofssys(AUTOFS_UNMOUNTALL, (void *)(uintptr_t)zoneid);
 	if (r != 0 && errno == ENOSYS) {
 		return (0);
 	}
