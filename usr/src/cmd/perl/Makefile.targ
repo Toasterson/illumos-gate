@@ -19,8 +19,8 @@ LDLIBS += -lc
 # Allow for undefined symbols satisfied by perl
 ZDEFS =
 
-$(ROOTPERLEXT) := FILEMODE = 0555
-$(ROOTPERLMOD) := FILEMODE = 0444
+$(ROOTPERLEXT) :  FILEMODE = 0555
+$(ROOTPERLMOD) :  FILEMODE = 0444
 
 SMATCH=off
 

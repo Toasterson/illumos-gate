@@ -65,7 +65,7 @@ CERRWARN	+= -_gcc=-Wno-unused-label
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/iwk2.o := SMOFF += precedence
+$(OBJS_DIR)/iwk2.o :  SMOFF += precedence
 
 #
 #	Default build targets.

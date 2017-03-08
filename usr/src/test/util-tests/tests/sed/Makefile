@@ -25,7 +25,7 @@ ROOTOPTPKG = $(ROOT)/opt/util-tests
 TESTDIR = $(ROOTOPTPKG)/tests/sed
 
 TESTS = $(PROG:%=$(TESTDIR)/%)
-$(TESTS) := FILEMODE = 0555
+$(TESTS) :  FILEMODE = 0555
 
 all clean clobber:
 

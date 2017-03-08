@@ -59,15 +59,15 @@ CFLAGS		+= -D_FILE_OFFSET_BITS=64
 # dump_expr() is too hairy
 SMATCH=off
 
-$(LIB) :=	LDFLAGS += $(GSHARED) -Wl,-h$@ $(ZTEXT) $(ZDEFS) $(BDIRECT) \
+$(LIB) : 	LDFLAGS += $(GSHARED) -Wl,-h$@ $(ZTEXT) $(ZDEFS) $(BDIRECT) \
 		$(C_PICFLAGS) $(MAPFILE:%=-Wl,-M%)			\
 		$(MAPFILE.PGA:%=-Wl,-M%) $(MAPFILE.NED:%=-Wl,-M%)
-$(LIB) :=	CPPFLAGS += -D_REENTRANT
-$(LIB) :=	sparc_CFLAGS += -xregs=no%appl
-$(LIB) :=	sparcv9_CFLAGS += -xregs=no%appl
-$(LIB) :=	LDLIBS += -lc
+$(LIB) : 	CPPFLAGS += -D_REENTRANT
+$(LIB) : 	sparc_CFLAGS += -xregs=no%appl
+$(LIB) : 	sparcv9_CFLAGS += -xregs=no%appl
+$(LIB) : 	LDLIBS += -lc
 
-$(PROG) :=	LDLIBS += -lgen
+$(PROG) : 	LDLIBS += -lgen
 
 .KEEP_STATE:
 

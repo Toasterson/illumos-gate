@@ -51,14 +51,14 @@ ROOTLINKS= $(LINKS:%=$(ROOTDIR)/%)
 
 CHECKHDRS= $(HDRS:%.h=%.check)
 
-$(ROOTDIR)/asm_linkage.h	:= LINK_TARGET = ../../sys/asm_linkage.h
-$(ROOTDIR)/machtypes.h		:= LINK_TARGET = ../../sys/machtypes.h
-$(ROOTDIR)/psw.h		:= LINK_TARGET = ../../sys/psw.h
-$(ROOTDIR)/pte.h		:= LINK_TARGET = ../../sys/pte.h
-$(ROOTDIR)/reg.h		:= LINK_TARGET = ../../sys/reg.h
-$(ROOTDIR)/stack.h		:= LINK_TARGET = ../../sys/stack.h
-$(ROOTDIR)/trap.h		:= LINK_TARGET = ../../sys/trap.h
-$(ROOTDIR)/traptrace.h		:= LINK_TARGET = ../../sys/traptrace.h
+$(ROOTDIR)/asm_linkage.h	:  LINK_TARGET = ../../sys/asm_linkage.h
+$(ROOTDIR)/machtypes.h		:  LINK_TARGET = ../../sys/machtypes.h
+$(ROOTDIR)/psw.h		:  LINK_TARGET = ../../sys/psw.h
+$(ROOTDIR)/pte.h		:  LINK_TARGET = ../../sys/pte.h
+$(ROOTDIR)/reg.h		:  LINK_TARGET = ../../sys/reg.h
+$(ROOTDIR)/stack.h		:  LINK_TARGET = ../../sys/stack.h
+$(ROOTDIR)/trap.h		:  LINK_TARGET = ../../sys/trap.h
+$(ROOTDIR)/traptrace.h		:  LINK_TARGET = ../../sys/traptrace.h
 
 # install rules
 $(ROOTDIR)/%: %

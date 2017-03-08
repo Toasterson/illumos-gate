@@ -55,8 +55,8 @@ include $(UTSBASE)/intel/Makefile.intel
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/mptsas_raid.o := SMOFF += index_overflow
-$(OBJS_DIR)/mptsas.o := SMOFF += deref_check
+$(OBJS_DIR)/mptsas_raid.o :  SMOFF += index_overflow
+$(OBJS_DIR)/mptsas.o :  SMOFF += deref_check
 
 #
 #	Default build targets.

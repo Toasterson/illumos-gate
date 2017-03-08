@@ -74,7 +74,7 @@ CERRWARN	+= $(CNOWARN_UNINIT)
 CERRWARN	+= -_gcc=-Wno-parentheses
 
 # needs work
-$(OBJS_DIR)/port_fop.o := SMOFF += deref_check
+$(OBJS_DIR)/port_fop.o :  SMOFF += deref_check
 
 #
 #	Default build targets.

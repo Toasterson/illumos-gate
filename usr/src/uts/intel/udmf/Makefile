@@ -42,7 +42,7 @@ CERRWARN	+= -_gcc=-Wno-unused-label
 
 
 # needs work
-$(OBJS_DIR)/udmf_usbgem.o := SMOFF += indenting
+$(OBJS_DIR)/udmf_usbgem.o :  SMOFF += indenting
 
 #
 #	Define targets

@@ -54,7 +54,7 @@ include $(UTSBASE)/intel/Makefile.intel
 CERRWARN	+= -_gcc=-Wno-parentheses
 
 # needs work
-$(OBJS_DIR)/strategy.o := SMOFF += all_func_returns
+$(OBJS_DIR)/strategy.o :  SMOFF += all_func_returns
 
 #
 #	Define targets

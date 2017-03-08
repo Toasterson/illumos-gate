@@ -51,7 +51,7 @@ CFLAGS += $(CCVERBOSE)
 LDFLAGS		+= -N misc/mac
 
 # needs work
-$(OBJS_DIR)/sfxge_ev.o := SMOFF += index_overflow
+$(OBJS_DIR)/sfxge_ev.o :  SMOFF += index_overflow
 SMOFF += all_func_returns
 
 #

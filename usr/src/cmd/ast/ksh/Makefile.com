@@ -57,7 +57,7 @@ CFLAGS += $(ASTCFLAGS)
 CFLAGS64 += $(ASTCFLAGS64)
 
 # Workaround for CR#6628728 ("|memcntl()| prototype not available for C99/XPG6")
-pmain.o	:= CERRWARN += -_gcc=-Wno-implicit-function-declaration
+pmain.o	:  CERRWARN += -_gcc=-Wno-implicit-function-declaration
 
 # not linted
 SMATCH=off

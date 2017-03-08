@@ -77,9 +77,9 @@ CERRWARN += $(CNOWARN_UNINIT)
 # these look like real bugs here, but ...
 SMOFF += impossible_mask,signed_integer_overflow_check
 
-$(OBJS) := CPPFLAGS += -D_FILE_OFFSET_BITS=64 -D_REENTRANT
+$(OBJS) :  CPPFLAGS += -D_FILE_OFFSET_BITS=64 -D_REENTRANT
 
-proc.o := CPPFLAGS += -D_REENTRANT
+proc.o :  CPPFLAGS += -D_REENTRANT
 
 %.o:	../common/%.c
 	$(COMPILE.c) $(OUTPUT_OPTION) $<

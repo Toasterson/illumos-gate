@@ -33,13 +33,13 @@ SUBDIRS=	$(COMMON_SUBDIRS) .WAIT \
 		$(IDF_SUBDIRS) .WAIT \
 		$(VRF_SUBDIRS)
 
-all :=          TARGET= all
-clean :=        TARGET= clean
-clobber :=      TARGET= clobber
-check :=	TARGET= check
-install :=      TARGET= install
-install_h :=	TARGET= install_h
-_msg :=         TARGET= _msg
+all :           TARGET= all
+clean :         TARGET= clean
+clobber :       TARGET= clobber
+check : 	TARGET= check
+install :       TARGET= install
+install_h : 	TARGET= install_h
+_msg :          TARGET= _msg
 
 all clean clobber install _msg: $(SUBDIRS)
 check install_h: $(COMMON_SUBDIRS)

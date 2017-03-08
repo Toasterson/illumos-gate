@@ -34,8 +34,8 @@ HEADERS= $(FICLDIR)/ficl.h $(FICLDIR)/ficlplatform/unix.h ../ficllocal.h
 #
 
 # disable inner loop variable 'fw' check
-objs/vm.o := SMOFF += check_check_deref
-pics/vm.o := SMOFF += check_check_deref
+objs/vm.o :  SMOFF += check_check_deref
+pics/vm.o :  SMOFF += check_check_deref
 
 MAJOR = 4
 MINOR = 1.0

@@ -793,12 +793,12 @@ AUDITSUBDIRS=		\
 	auditstat	\
 	praudit
 
-all :=		TARGET = all
-install :=	TARGET = install
-clean :=	TARGET = clean
-clobber :=	TARGET = clobber
-_msg :=		TARGET = _msg
-_dc :=		TARGET = _dc
+all : 		TARGET = all
+install : 	TARGET = install
+clean : 	TARGET = clean
+clobber : 	TARGET = clobber
+_msg : 		TARGET = _msg
+_dc : 		TARGET = _dc
 
 .KEEP_STATE:
 

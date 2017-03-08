@@ -41,12 +41,12 @@ ARCH32_i386= i86
 ARCH32_sparc= sparcv7
 ARCH32= $(ARCH32_$(MACH))
 
-all		:=	TARGET = all
-install		:=	TARGET = install
-clean		:=	TARGET = clean
-clobber		:=	TARGET = clobber
-lint		:=	TARGET = lint
-testshell	:=	TARGET = testshell
+all		: 	TARGET = all
+install		: 	TARGET = install
+clean		: 	TARGET = clean
+clobber		: 	TARGET = clobber
+lint		: 	TARGET = lint
+testshell	: 	TARGET = testshell
 
 .KEEP_STATE:
 # Serialise the build to avoid running the test suite for 32-bit

@@ -24,7 +24,7 @@
 # Use is subject to license terms.
 #
 
-debug := TARGET += debug
+debug :  TARGET += debug
 
 SUBDIRS = esc eftinfo native files
 

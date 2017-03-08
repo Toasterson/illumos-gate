@@ -19,7 +19,7 @@ include ../../Makefile.iffe
 FEATURE/acct FEATURE/execargs FEATURE/pstat:
 	PATH=$(IFFEPATH) \
 	    $(AST_IFFE) $(IFFEFLAGS) -c '$(IFFEC)' def $(@F)
-FEATURE/math := IFFE_EXTRA = $(ASTSRC)/data/math.tab
+FEATURE/math :  IFFE_EXTRA = $(ASTSRC)/data/math.tab
 
 cleaniffe: FRC
 	$(RM) $(FEATURES:%=FEATURE/%)

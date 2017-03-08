@@ -29,11 +29,11 @@ include ../../Makefile.tools
 
 SUBDIRS=py3
 
-all :=		TARGET= all
-install :=	TARGET= install
-clean :=	TARGET= clean
-clobber :=	TARGET= clobber
-lint :=		TARGET= lint
+all : 		TARGET= all
+install : 	TARGET= install
+clean : 	TARGET= clean
+clobber : 	TARGET= clobber
+lint : 		TARGET= lint
 
 all install clean clobber lint: $(SUBDIRS)
 

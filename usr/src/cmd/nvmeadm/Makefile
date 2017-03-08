@@ -34,7 +34,7 @@ CSTD=	$(CSTD_GNU99)
 # nvme_print_uint128() uses VLAs which understandably confuses smatch.
 # It should probably be rewritten so we can smatch the file.
 #
-nvmeadm_print.o := SMATCH=off
+nvmeadm_print.o :  SMATCH=off
 
 all: $(PROG)
 

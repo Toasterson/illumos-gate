@@ -29,10 +29,10 @@ include	../Makefile.lib
 SUBDIRS= py3
 $(BUILDPY3b)SUBDIRS += py3b
 
-all :=		TARGET= all
-install :=	TARGET= install
-clean :=	TARGET= clean
-clobber :=	TARGET= clobber
+all : 		TARGET= all
+install : 	TARGET= install
+clean : 	TARGET= clean
+clobber : 	TARGET= clobber
 
 PYCFIND =	$(FIND) . -name '*.pyc'
 PYCFILES =	$(PYCFIND:sh)

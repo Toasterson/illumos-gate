@@ -31,7 +31,7 @@ ROOTOPTPKG = $(ROOT)/opt/bhyve-tests
 TESTDIR = $(ROOTOPTPKG)/tests/inst_emul
 
 CMDS = $(PROG:%=$(TESTDIR)/%)
-$(CMDS) := FILEMODE = 0555
+$(CMDS) :  FILEMODE = 0555
 
 CSTD=		$(CSTD_GNU99)
 CPPFLAGS =	-I$(COMPAT)/bhyve -I$(CONTRIB)/bhyve \
@@ -45,7 +45,7 @@ ASFLAGS += -P -D__STDC__ -D_ASM
 
 
 CFLAGS = -m64
-$(PROG) :=	LDLIBS += -lvmmapi
+$(PROG) : 	LDLIBS += -lvmmapi
 
 all: $(PROG)
 

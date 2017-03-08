@@ -63,7 +63,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE) $(ROOT_CONFFILE)
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/fd.o := SMOFF += all_func_returns
+$(OBJS_DIR)/fd.o :  SMOFF += all_func_returns
 
 #
 #	Default build targets.

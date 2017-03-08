@@ -72,9 +72,9 @@ $(OBJS_DIR)/%.o:		$(UTSBASE)/sparc/zfs/%.c
 # _RELSEG indicates that the dynamic syms are put in a separate ELF
 #	section so they can be freed later.
 #
-$(OBJS_DIR)/kobj_bootflags.o	:= CPPFLAGS += -I$(SRC)/common
-$(OBJS_DIR)/kobj.o		:= CPPFLAGS += -DMODDIR_SUFFIX=\"sparcv9\"
-$(OBJS_DIR)/kobj.o		:= CPPFLAGS += -D_RELSEG
+$(OBJS_DIR)/kobj_bootflags.o	:  CPPFLAGS += -I$(SRC)/common
+$(OBJS_DIR)/kobj.o		:  CPPFLAGS += -DMODDIR_SUFFIX=\"sparcv9\"
+$(OBJS_DIR)/kobj.o		:  CPPFLAGS += -D_RELSEG
 
 $(OBJS_DIR)/%.o:		$(UTSBASE)/sparc/krtld/%.s
 	$(COMPILE.s) -o $@ $<

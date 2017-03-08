@@ -22,7 +22,7 @@ ROOTOPTPKG = $(ROOT)/opt/libmlrpc-tests
 RUNFILES = $(ROOTOPTPKG)/runfiles
 
 CMDS = $(SRCS:%=$(RUNFILES)/%)
-$(CMDS) := FILEMODE = 0444
+$(CMDS) :  FILEMODE = 0444
 
 all: $(SRCS)
 

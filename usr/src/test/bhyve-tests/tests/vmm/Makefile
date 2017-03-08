@@ -31,7 +31,7 @@ ROOTOPTPKG = $(ROOT)/opt/bhyve-tests
 TESTDIR = $(ROOTOPTPKG)/tests/vmm
 
 CMDS = $(PROG:%=$(TESTDIR)/%)
-$(CMDS) := FILEMODE = 0555
+$(CMDS) :  FILEMODE = 0555
 
 CSTD=		$(CSTD_GNU99)
 CPPFLAGS =	-I$(COMPAT)/bhyve -I$(CONTRIB)/bhyve \
@@ -39,7 +39,7 @@ CPPFLAGS =	-I$(COMPAT)/bhyve -I$(CONTRIB)/bhyve \
 		$(CPPFLAGS.master) \
 		-I$(SRC)/uts/intel/io/vmm \
 		-I$(SRC)/uts/intel
-$(PROG) :=	LDLIBS += -lvmmapi
+$(PROG) : 	LDLIBS += -lvmmapi
 
 all: $(PROG)
 

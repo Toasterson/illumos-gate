@@ -24,10 +24,10 @@ include ../Makefile.ctf
 
 SUBDIRS = test
 
-all	:=	TARGET = all
-install	:=	TARGET = install
-clean	:=	TARGET = clean
-clobber	:=	TARGET = clobber
+all	: 	TARGET = all
+install	: 	TARGET = install
+clean	: 	TARGET = clean
+clobber	: 	TARGET = clobber
 
 SRCS =	acpi.c			\
 	atkbdc.c		\
@@ -126,27 +126,27 @@ CPPFLAGS =	-I$(COMPAT)/bhyve -I$(CONTRIB)/bhyve \
 		-I$(SRC)/uts/intel \
 		-DWITHOUT_CAPSICUM
 
-pci_nvme.o := CERRWARN += -_gcc=-Wno-pointer-sign
-pci_nvme.o := CERRWARN += -_gcc10=-Wno-address-of-packed-member
-pci_nvme.o := CERRWARN += -_gcc11=-Wno-address-of-packed-member
-pci_nvme.o := SMOFF += kmalloc_wrong_size
+pci_nvme.o :  CERRWARN += -_gcc=-Wno-pointer-sign
+pci_nvme.o :  CERRWARN += -_gcc10=-Wno-address-of-packed-member
+pci_nvme.o :  CERRWARN += -_gcc11=-Wno-address-of-packed-member
+pci_nvme.o :  SMOFF += kmalloc_wrong_size
 
-pci_passthru.o := CERRWARN += -_gcc10=-Wno-address-of-packed-member
-pci_passthru.o := CERRWARN += -_gcc11=-Wno-address-of-packed-member
+pci_passthru.o :  CERRWARN += -_gcc10=-Wno-address-of-packed-member
+pci_passthru.o :  CERRWARN += -_gcc11=-Wno-address-of-packed-member
 
-pci_virtio_9p.o := SMOFF += kmalloc_wrong_size
+pci_virtio_9p.o :  SMOFF += kmalloc_wrong_size
 
-pci_xhci.o := CERRWARN += -_gcc10=-Wno-address-of-packed-member
-pci_xhci.o := CERRWARN += -_gcc11=-Wno-address-of-packed-member
+pci_xhci.o :  CERRWARN += -_gcc10=-Wno-address-of-packed-member
+pci_xhci.o :  CERRWARN += -_gcc11=-Wno-address-of-packed-member
 
 SMOFF += all_func_returns,leaks,no_if_block
 
-rfb.o := SMOFF=
+rfb.o :  SMOFF=
 
 # Force c99 for everything
 CSTD=		$(CSTD_GNU99)
 
-$(PROG) := LDLIBS += \
+$(PROG) :  LDLIBS += \
 	-l9p \
 	-lcmdutils \
 	-lcrypto \
@@ -162,8 +162,8 @@ $(PROG) := LDLIBS += \
 	-lvmmapi \
 	-lz
 NATIVE_LIBS += libz.so libcrypto.so
-$(MEVENT_TEST_PROG) := LDLIBS += -lsocket
-$(PROG) := LDFLAGS += $(ZASLR)
+$(MEVENT_TEST_PROG) :  LDLIBS += -lsocket
+$(PROG) :  LDFLAGS += $(ZASLR)
 
 .KEEP_STATE:
 

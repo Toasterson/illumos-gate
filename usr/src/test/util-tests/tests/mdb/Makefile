@@ -125,13 +125,13 @@ ROOTMAKEDIRS = $(MAKEDIRS:%=$(TESTDIR)/%)
 
 FILEMODE = 0444
 
-$(TESTDIR)/mdbtest := FILEMODE = 0555
+$(TESTDIR)/mdbtest :  FILEMODE = 0555
 
 
-all     :=      TARGET = all
-install :=      TARGET = install
-clean   :=      TARGET = clean
-clobber :=      TARGET = clobber
+all     :       TARGET = all
+install :       TARGET = install
+clean   :       TARGET = clean
+clobber :       TARGET = clobber
 
 all: $(SUBDIRS)
 

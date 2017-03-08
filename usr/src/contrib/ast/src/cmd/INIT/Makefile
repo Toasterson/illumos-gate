@@ -65,7 +65,7 @@ cc ld ldd :PACKAGE_INIT: mamake.c proto.c ratz.c release.c
 LICENSE : .DONTCARE
 
 if ! CC.HOSTTYPE
-	CC.HOSTTYPE := $(_hosttype_|HOSTTYPE)
+	CC.HOSTTYPE :  $(_hosttype_|HOSTTYPE)
 end
 
 $(BINDIR)/mkdir :INSTALL: mkdir.sh

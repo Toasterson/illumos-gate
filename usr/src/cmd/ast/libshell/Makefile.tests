@@ -138,7 +138,7 @@ TESTFILESRCDIR=		$(ASTSRC)
 ROOTTESTDIRBASE=	$(ROOT)/opt/ksh93-tests
 
 # Rules for executables
-$(ROOTTESTDIRBASE)/shtests := FILEMODE= 755
+$(ROOTTESTDIRBASE)/shtests :  FILEMODE= 755
 
 $(ROOTTESTDIRBASE)/% $(ROOTTESTDIRBASE)/tests/%: common/tests/%
 	$(INS.file)

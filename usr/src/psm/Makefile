@@ -29,10 +29,10 @@ SUBDIRS = stand
 
 all install clean clobber: $(SUBDIRS)
 
-all	:=	TARGET = all
-clean	:=	TARGET = clean
-clobber	:=	TARGET = clobber
-install	:=	TARGET = install
+all	: 	TARGET = all
+clean	: 	TARGET = clean
+clobber	: 	TARGET = clobber
+install	: 	TARGET = install
 
 $(SUBDIRS): FRC
 	@cd $@; pwd; $(MAKE) $(TARGET)

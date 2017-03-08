@@ -31,19 +31,19 @@ UTSBASE = ..
 
 include Makefile.sun4u
 
-def		:=	TARGET= def
-def.prereq	:=	TARGET= def
-all		:=	TARGET= all
-all.prereq	:=	TARGET= all
-install		:=	TARGET= install
-install.prereq	:=	TARGET= install
-install_h	:=	TARGET= install_h
-install_h.prere	:=	TARGET= install_h
-clean		:=	TARGET= clean
-clobber		:=	TARGET= clobber
-modlist		:=	TARGET= modlist
-modlist	modlist.sparc :=	NO_STATE= -K $$MODSTATE$$$$
-check		:=	TARGET= check
+def		: 	TARGET= def
+def.prereq	: 	TARGET= def
+all		: 	TARGET= all
+all.prereq	: 	TARGET= all
+install		: 	TARGET= install
+install.prereq	: 	TARGET= install
+install_h	: 	TARGET= install_h
+install_h.prere	: 	TARGET= install_h
+clean		: 	TARGET= clean
+clobber		: 	TARGET= clobber
+modlist		: 	TARGET= modlist
+modlist	modlist.sparc : 	NO_STATE= -K $$MODSTATE$$$$
+check		: 	TARGET= check
 
 .KEEP_STATE:
 

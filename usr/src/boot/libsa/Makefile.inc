@@ -81,47 +81,47 @@ OBJECTS += uuid_create_nil.o uuid_equal.o uuid_from_string.o uuid_is_nil.o \
 # decompression functionality from libbz2
 # NOTE: to actually test this functionality after libbz2 upgrade compile
 # loader(8) with LOADER_BZIP2_SUPPORT defined
-objs/_bzlib.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-objs/_bzlib.o := CPPFLAGS += -I$(SRC)/common/bzip2
+objs/_bzlib.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+objs/_bzlib.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 objs/_bzlib.o: libstand_bzlib_private.h
-pics/_bzlib.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-pics/_bzlib.o := CPPFLAGS += -I$(SRC)/common/bzip2
+pics/_bzlib.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+pics/_bzlib.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 pics/_bzlib.o: libstand_bzlib_private.h
-objs/_crctable.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-objs/_crctable.o := CPPFLAGS += -I$(SRC)/common/bzip2
+objs/_crctable.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+objs/_crctable.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 objs/_crctable.o: libstand_bzlib_private.h
-pics/_crctable.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-pics/_crctable.o := CPPFLAGS += -I$(SRC)/common/bzip2
+pics/_crctable.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+pics/_crctable.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 pics/_crctable.o: libstand_bzlib_private.h
-objs/_decompress.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-objs/_decompress.o := CPPFLAGS += -I$(SRC)/common/bzip2
+objs/_decompress.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+objs/_decompress.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 objs/_decompress.o: libstand_bzlib_private.h
-pics/_decompress.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-pics/_decompress.o := CPPFLAGS += -I$(SRC)/common/bzip2
+pics/_decompress.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+pics/_decompress.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 pics/_decompress.o: libstand_bzlib_private.h
-objs/_huffman.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-objs/_huffman.o := CPPFLAGS += -I$(SRC)/common/bzip2
+objs/_huffman.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+objs/_huffman.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 objs/_huffman.o: libstand_bzlib_private.h
-pics/_huffman.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-pics/_huffman.o := CPPFLAGS += -I$(SRC)/common/bzip2
+pics/_huffman.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+pics/_huffman.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 pics/_huffman.o: libstand_bzlib_private.h
-objs/_randtable.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-objs/_randtable.o := CPPFLAGS += -I$(SRC)/common/bzip2
+objs/_randtable.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+objs/_randtable.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 objs/_randtable.o: libstand_bzlib_private.h
-pics/_randtable.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-pics/_randtable.o := CPPFLAGS += -I$(SRC)/common/bzip2
+pics/_randtable.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+pics/_randtable.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 pics/_randtable.o: libstand_bzlib_private.h
-objs/bzipfs.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-objs/bzipfs.o := CPPFLAGS += -I$(SRC)/common/bzip2
+objs/bzipfs.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+objs/bzipfs.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 objs/bzipfs.o: libstand_bzlib_private.h
-pics/bzipfs.o := CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
-pics/bzipfs.o := CPPFLAGS += -I$(SRC)/common/bzip2
+pics/bzipfs.o :  CPPFLAGS += -DBZ_LOADER -DBZ_NO_STDIO -DBZ_NO_COMPRESS
+pics/bzipfs.o :  CPPFLAGS += -I$(SRC)/common/bzip2
 pics/bzipfs.o: libstand_bzlib_private.h
 SRCS +=	libstand_bzlib_private.h
 
 # too hairy
-objs/_inflate.o := SMATCH=off
-pics/_inflate.o := SMATCH=off
+objs/_inflate.o :  SMATCH=off
+pics/_inflate.o :  SMATCH=off
 
 SRCS +=	_bzlib.c _crctable.c _decompress.c _huffman.c _randtable.c
 OBJECTS += _bzlib.o _crctable.o _decompress.o _huffman.o _randtable.o
@@ -147,29 +147,29 @@ libstand_bzlib_private.h: $(SRC)/common/bzip2/bzlib_private.h
 	sed -e 's|<stdlib.h>|"stand.h"|' $^ > $@
 
 # decompression functionality from zlib
-objs/adler32.o := CPPFLAGS += -I$(ZLIB)
-pics/adler32.o := CPPFLAGS += -I$(ZLIB)
-objs/crc32.o := CPPFLAGS += -I$(ZLIB)
-pics/crc32.o := CPPFLAGS += -I$(ZLIB)
-objs/_infback.o := CPPFLAGS += -I$(ZLIB)
-pics/_infback.o := CPPFLAGS += -I$(ZLIB)
+objs/adler32.o :  CPPFLAGS += -I$(ZLIB)
+pics/adler32.o :  CPPFLAGS += -I$(ZLIB)
+objs/crc32.o :  CPPFLAGS += -I$(ZLIB)
+pics/crc32.o :  CPPFLAGS += -I$(ZLIB)
+objs/_infback.o :  CPPFLAGS += -I$(ZLIB)
+pics/_infback.o :  CPPFLAGS += -I$(ZLIB)
 objs/_infback.o pics/_infback.o: libstand_zutil.h libstand_gzguts.h
-objs/_inffast.o := CPPFLAGS += -I$(ZLIB)
-pics/_inffast.o := CPPFLAGS += -I$(ZLIB)
+objs/_inffast.o :  CPPFLAGS += -I$(ZLIB)
+pics/_inffast.o :  CPPFLAGS += -I$(ZLIB)
 objs/_inffast.o pics/_inffast.o: libstand_zutil.h libstand_gzguts.h
-objs/_inflate.o := CPPFLAGS += -I$(ZLIB)
-pics/_inflate.o := CPPFLAGS += -I$(ZLIB)
+objs/_inflate.o :  CPPFLAGS += -I$(ZLIB)
+pics/_inflate.o :  CPPFLAGS += -I$(ZLIB)
 objs/_inflate.o pics/_inflate.o: libstand_zutil.h libstand_gzguts.h
-objs/_inftrees.o := CPPFLAGS += -I$(ZLIB)
-pics/_inftrees.o := CPPFLAGS += -I$(ZLIB)
+objs/_inftrees.o :  CPPFLAGS += -I$(ZLIB)
+pics/_inftrees.o :  CPPFLAGS += -I$(ZLIB)
 objs/_inftrees.o pics/_inftrees.o: libstand_zutil.h libstand_gzguts.h
-objs/_zutil.o := CPPFLAGS += -I$(ZLIB)
-pics/_zutil.o := CPPFLAGS += -I$(ZLIB)
+objs/_zutil.o :  CPPFLAGS += -I$(ZLIB)
+pics/_zutil.o :  CPPFLAGS += -I$(ZLIB)
 objs/_zutil.o pics/_zutil.o: libstand_zutil.h libstand_gzguts.h
-objs/gzipfs.o := CPPFLAGS += -I$(ZLIB)
-pics/gzipfs.o := CPPFLAGS += -I$(ZLIB)
-objs/gzip.o := CPPFLAGS += -I$(ZLIB)
-pics/gzip.o := CPPFLAGS += -I$(ZLIB)
+objs/gzipfs.o :  CPPFLAGS += -I$(ZLIB)
+pics/gzipfs.o :  CPPFLAGS += -I$(ZLIB)
+objs/gzip.o :  CPPFLAGS += -I$(ZLIB)
+pics/gzip.o :  CPPFLAGS += -I$(ZLIB)
 
 SRCS +=	$(ZLIB)/adler32.c $(ZLIB)/crc32.c \
 	libstand_zutil.h libstand_gzguts.h
@@ -220,8 +220,8 @@ libstand_gzguts.h: $(ZLIB)/gzguts.h
 CLEANFILES += libstand_zutil.h libstand_gzguts.h
 
 # lz4 decompression functionality
-pics/lz4.o := CPPFLAGS += -I$(LZ4)
-objs/lz4.o := CPPFLAGS += -I$(LZ4)
+pics/lz4.o :  CPPFLAGS += -I$(LZ4)
+objs/lz4.o :  CPPFLAGS += -I$(LZ4)
 SRCS += $(LZ4)/lz4.c
 OBJECTS += lz4.o
 
@@ -240,8 +240,8 @@ SRCS += smbios.c
 OBJECTS += smbios.o
 # Export serial numbers, UUID, and asset tag from loader.
 # Use little-endian UUID format as defined in SMBIOS 2.6.
-pics/smbios.o := CPPFLAGS += -DSMBIOS_SERIAL_NUMBERS -DSMBIOS_LITTLE_ENDIAN_UUID
-objs/smbios.o := CPPFLAGS += -DSMBIOS_SERIAL_NUMBERS -DSMBIOS_LITTLE_ENDIAN_UUID
+pics/smbios.o :  CPPFLAGS += -DSMBIOS_SERIAL_NUMBERS -DSMBIOS_LITTLE_ENDIAN_UUID
+objs/smbios.o :  CPPFLAGS += -DSMBIOS_SERIAL_NUMBERS -DSMBIOS_LITTLE_ENDIAN_UUID
 
 # network routines
 SRCS +=	$(SASRC)/arp.c $(SASRC)/ether.c $(SASRC)/ip.c \

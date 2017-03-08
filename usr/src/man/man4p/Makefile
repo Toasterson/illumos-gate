@@ -55,29 +55,29 @@ MANLINKS=	AH.4p		\
 		VXLAN.4p	\
 	 	if.4p
 
-ARP.4p		:= LINKSRC = arp.4p
+ARP.4p		:  LINKSRC = arp.4p
 
-ICMP.4p		:= LINKSRC = icmp.4p
+ICMP.4p		:  LINKSRC = icmp.4p
 
-if.4p		:= LINKSRC = if_tcp.4p
+if.4p		:  LINKSRC = if_tcp.4p
 
-IP.4p		:= LINKSRC = ip.4p
+IP.4p		:  LINKSRC = ip.4p
 
-AH.4p		:= LINKSRC = ipsecah.4p
+AH.4p		:  LINKSRC = ipsecah.4p
 
-ESP.4p		:= LINKSRC = ipsecesp.4p
+ESP.4p		:  LINKSRC = ipsecesp.4p
 
-NDP.4p		:= LINKSRC = ndp.4p
+NDP.4p		:  LINKSRC = ndp.4p
 
-RARP.4p 	:= LINKSRC = rarp.4p
+RARP.4p 	:  LINKSRC = rarp.4p
 
-SCTP.4p 	:= LINKSRC = sctp.4p
+SCTP.4p 	:  LINKSRC = sctp.4p
 
-TCP.4p		:= LINKSRC = tcp.4p
+TCP.4p		:  LINKSRC = tcp.4p
 
-UDP.4p		:= LINKSRC = udp.4p
+UDP.4p		:  LINKSRC = udp.4p
 
-VXLAN.4p	:= LINKSRC = vxlan.4p
+VXLAN.4p	:  LINKSRC = vxlan.4p
 
 .KEEP_STATE:
 

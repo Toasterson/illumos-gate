@@ -17,8 +17,8 @@ PICS=	$(OBJECTS:%=pics/%)
 
 .PARALLEL:	$(OBJS) $(PICS) DUMMY
 
-$(PICS) := CFLAGS += -_gcc=-fPIC
-$(PICS) := CCASFLAGS += -_gcc=-fPIC
+$(PICS) :  CFLAGS += -_gcc=-fPIC
+$(PICS) :  CCASFLAGS += -_gcc=-fPIC
 
 $(OBJS) $(PICS): machine x86
 

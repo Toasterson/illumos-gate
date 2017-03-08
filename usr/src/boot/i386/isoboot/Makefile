@@ -46,9 +46,9 @@ LDSCRIPT=	../boot.ldscript
 LD_FLAGS=	-static -N --gc-sections
 LIBSTAND=	../../libsa/$(MACH)/libsa.a
 
-gptldr.out := LD_FLAGS += $(GLDTARGET)
+gptldr.out :  LD_FLAGS += $(GLDTARGET)
 
-isoboot.o := SMOFF += unreachable
+isoboot.o :  SMOFF += unreachable
 
 include ../Makefile.inc
 

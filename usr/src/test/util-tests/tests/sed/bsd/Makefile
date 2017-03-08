@@ -25,8 +25,8 @@ DATADIR = $(TESTDIR)/regress.multitest.out
 
 TESTS = $(PROG:%=$(TESTDIR)/%)
 DATAS = $(DATAFILES:%=$(DATADIR)/%)
-$(TESTS) := FILEMODE = 0555
-$(DATAS) := FILEMODE = 0444
+$(TESTS) :  FILEMODE = 0555
+$(DATAS) :  FILEMODE = 0444
 
 all clean clobber:
 

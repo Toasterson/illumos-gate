@@ -159,11 +159,11 @@ CFLAGS64 += $(CCVERBOSE) $(CFLAGS64_$(CURTYPE)) $(CFLAGS64_common)
 # For the standalone environment, disable the stack protector for the
 # time being.
 #
-$(STANDLIBRARY) := STACKPROTECT = none
+$(STANDLIBRARY) :  STACKPROTECT = none
 
 # false positive for umem_alloc_sizes_add()
-pics/umem.o := SMOFF += index_overflow
-objs/umem.o := SMOFF += index_overflow
+pics/umem.o :  SMOFF += index_overflow
+objs/umem.o :  SMOFF += index_overflow
 
 INSTALL_DEPS_library =	$(ROOTLINKS) $(ROOTLIBS) $(ROOTCOMPATLINKS)
 

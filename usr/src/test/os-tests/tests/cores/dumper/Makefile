@@ -33,8 +33,8 @@ LDLIBS64 += -lproc -L$(ROOTOPTCORE)/$(MACH64) -ldumper -R\$$ORIGIN/$(MACH64)
 # We need to explicitly set the objects for some of our programs with
 # CTF so that way we can make sure that we have what we need.
 #
-dumper.32	:= OBJS = dumper.32.o
-dumper.64	:= OBJS = dumper.32.o
+dumper.32	:  OBJS = dumper.32.o
+dumper.64	:  OBJS = dumper.32.o
 
 #
 # This is admittedly, a bit gross. In particular we need to make sure

@@ -70,7 +70,7 @@ CFLAGS		+= $(CCVERBOSE)
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/nv_sata.o := SMOFF += deref_check
+$(OBJS_DIR)/nv_sata.o :  SMOFF += deref_check
 
 #
 #	Default build targets.

@@ -80,10 +80,10 @@ TYPELIST = \
 	   overlay_ioc_propinfo_t \
 	   overlay_ioc_prop_t
 
-all :=		TARGET = all
-clean :=	TARGET = clean
-clobber :=	TARGET = clobber
-install :=	TARGET = install
+all : 		TARGET = all
+clean : 	TARGET = clean
+clobber : 	TARGET = clobber
+install : 	TARGET = install
 
 .KEEP_STATE:
 

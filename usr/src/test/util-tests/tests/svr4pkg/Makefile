@@ -23,7 +23,7 @@ TESTDIR = $(ROOTOPTPKG)/tests
 PROGS = svr4pkg_test
 
 CMDS = $(PROGS:%=$(TESTDIR)/%)
-$(CMDS) := FILEMODE = 0555
+$(CMDS) :  FILEMODE = 0555
 
 all clean clobber:
 

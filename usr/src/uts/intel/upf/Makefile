@@ -41,7 +41,7 @@ CERRWARN	+= -_gcc=-Wno-unused-variable
 CERRWARN	+= -_gcc=-Wno-unused-label
 
 # needs work
-$(OBJS_DIR)/upf_usbgem.o := SMOFF += all_func_returns
+$(OBJS_DIR)/upf_usbgem.o :  SMOFF += all_func_returns
 
 
 #

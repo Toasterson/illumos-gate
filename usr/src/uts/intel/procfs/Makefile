@@ -61,7 +61,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE)
 #	Overrides.
 #
 MODSTUBS_DIR	 = $(OBJS_DIR)
-$(MODSTUBS_O)	:= AS_CPPFLAGS += -DPROC_MODULE
+$(MODSTUBS_O)	:  AS_CPPFLAGS += -DPROC_MODULE
 CLEANFILES	+= $(MODSTUBS_O)
 
 #
@@ -75,9 +75,9 @@ CERRWARN	+= -_gcc=-Wno-switch
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/prsubr.o := SMOFF += all_func_returns
-$(OBJS_DIR)/prcontrol.o := SMOFF += all_func_returns
-$(OBJS_DIR)/prioctl.o := SMOFF += signed
+$(OBJS_DIR)/prsubr.o :  SMOFF += all_func_returns
+$(OBJS_DIR)/prcontrol.o :  SMOFF += all_func_returns
+$(OBJS_DIR)/prioctl.o :  SMOFF += signed
 
 LDFLAGS         += -Nfs/namefs
 

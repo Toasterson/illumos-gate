@@ -21,7 +21,7 @@ ROOTOPTPKG = $(ROOT)/opt/bhyve-tests
 RUNFILES = $(ROOTOPTPKG)/runfiles
 
 OUTPUTS = $(SRCS:%=$(RUNFILES)/%)
-$(OUTPUTS) := FILEMODE = 0444
+$(OUTPUTS) :  FILEMODE = 0444
 
 all: $(SRCS)
 

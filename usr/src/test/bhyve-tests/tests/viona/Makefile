@@ -23,7 +23,7 @@ ROOTOPTPKG = $(ROOT)/opt/bhyve-tests
 TESTDIR = $(ROOTOPTPKG)/tests/viona
 
 CMDS = $(PROG:%=$(TESTDIR)/%)
-$(CMDS) := FILEMODE = 0555
+$(CMDS) :  FILEMODE = 0555
 
 CSTD=		$(CSTD_GNU99)
 CPPFLAGS =	$(CPPFLAGS.master) \

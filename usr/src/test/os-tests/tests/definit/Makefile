@@ -31,9 +31,9 @@ ROOTOPTPKG = $(ROOT)/opt/os-tests
 TESTDIR = $(ROOTOPTPKG)/tests/definit
 
 CMDS = $(PROG:%=$(TESTDIR)/%) $(TESTDIR)/definit
-$(CMDS) := FILEMODE = 0555
+$(CMDS) :  FILEMODE = 0555
 DATA = $(DATAFILES:%=$(TESTDIR)/%)
-$(DATA) := FILEMODE = 0444
+$(DATA) :  FILEMODE = 0444
 
 LDLIBS += -lc
 LDLIBS64 += -lc

@@ -19,14 +19,14 @@ SUBDIRS= \
 	slave \
 	ldap_util
 
-all :=		TARGET= all
-clean :=	TARGET= clean
-clobber :=	TARGET= clobber
-delete :=	TARGET= delete
-install :=	TARGET= install
-catalog :=	TARGET= catalog
-package :=	TARGET= package
-_msg :=		TARGET= _msg
+all : 		TARGET= all
+clean : 	TARGET= clean
+clobber : 	TARGET= clobber
+delete : 	TARGET= delete
+install : 	TARGET= install
+catalog : 	TARGET= catalog
+package : 	TARGET= package
+_msg : 		TARGET= _msg
 
 .KEEP_STATE:
 

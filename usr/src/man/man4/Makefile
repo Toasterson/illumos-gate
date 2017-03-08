@@ -25,7 +25,7 @@ MANFILES= 	FSS.4	\
 
 MANLINKS=	intro.4
 
-intro.4		:= LINKSRC = Intro.4
+intro.4		:  LINKSRC = Intro.4
 
 .KEEP_STATE:
 

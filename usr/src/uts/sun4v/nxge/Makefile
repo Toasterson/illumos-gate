@@ -103,7 +103,7 @@ CERRWARN	+= -_gcc=-Wno-switch
 CERRWARN	+= $(CNOWARN_UNINIT)
 CERRWARN	+= -_gcc=-Wno-type-limits
 
-$(OBJS_DIR)/nxge_hw.o := SMOFF += deref_check
+$(OBJS_DIR)/nxge_hw.o :  SMOFF += deref_check
 
 #
 #	Driver depends on mac & IP

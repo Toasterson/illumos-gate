@@ -70,13 +70,18 @@ PROGS64 = \
 	$(PROGS:%=%.64) \
 	printf-6961.64
 
-aligned_alloc.32 :=	LDLIBS += -lproc
-aligned_alloc.64 :=	LDLIBS64 += -lproc
-posix_memalign.32 :=	LDLIBS += -lproc
-posix_memalign.64 :=	LDLIBS64 += -lproc
+aligned_alloc.32 : 	LDLIBS += -lproc
+aligned_alloc.64 : 	LDLIBS64 += -lproc
+posix_memalign.32 : 	LDLIBS += -lproc
+posix_memalign.64 : 	LDLIBS64 += -lproc
 
-asprintf-14933.32 :=	CSTD=$(GNU_C99)
-asprintf-14933.64 :=	CSTD=$(GNU_C99)
+aligned_alloc.32 : 	LDLIBS += -lproc
+aligned_alloc.64 : 	LDLIBS64 += -lproc
+posix_memalign.32 : 	LDLIBS += -lproc
+posix_memalign.64 : 	LDLIBS64 += -lproc
+
+asprintf-14933.32 : 	CSTD=$(GNU_C99)
+asprintf-14933.64 : 	CSTD=$(GNU_C99)
 
 memset_s.32 :=	CPPFLAGS += -D__STDC_WANT_LIB_EXT1__=1
 memset_s.64 :=	CPPFLAGS += -D__STDC_WANT_LIB_EXT1__=1
@@ -90,11 +95,11 @@ ROOTOPTPROGS = $(PROGS32:%=$(ROOTOPTDIR)/%) \
 
 include $(SRC)/cmd/Makefile.cmd
 
-all     :=      TARGET = all
-install :=      TARGET = install
-clean   :=      TARGET = clean
-clobber :=      TARGET = clobber
-lint    :=      TARGET = lint
+all     :       TARGET = all
+install :       TARGET = install
+clean   :       TARGET = clean
+clobber :       TARGET = clobber
+lint    :       TARGET = lint
 
 .KEEP_STATE:
 

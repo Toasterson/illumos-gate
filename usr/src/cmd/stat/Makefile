@@ -29,11 +29,11 @@ include ../Makefile.cmd
 
 SUBDIRS=	arcstat iostat mpstat vmstat fsstat kstat
 
-all :=		TARGET = all
-install :=	TARGET = install
-clean :=	TARGET = clean
-clobber :=	TARGET = clobber
-_msg :=		TARGET = _msg
+all : 		TARGET = all
+install : 	TARGET = install
+clean : 	TARGET = clean
+clobber : 	TARGET = clobber
+_msg : 		TARGET = _msg
 
 .KEEP_STATE:
 

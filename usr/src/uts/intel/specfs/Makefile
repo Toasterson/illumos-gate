@@ -60,7 +60,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE)
 #	Override defaults to build a unique, local modstubs.o.
 #
 MODSTUBS_DIR	 = $(OBJS_DIR)
-$(MODSTUBS_O)	:= AS_CPPFLAGS += -DSPEC_MODULE
+$(MODSTUBS_O)	:  AS_CPPFLAGS += -DSPEC_MODULE
 CLEANFILES	+= $(MODSTUBS_O)
 LDFLAGS		+= -Nfs/fifofs
 
@@ -74,7 +74,7 @@ CERRWARN	+= -_gcc=-Wno-parentheses
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/specvnops.o := SMOFF += signed
+$(OBJS_DIR)/specvnops.o :  SMOFF += signed
 
 #
 #	Default build targets.

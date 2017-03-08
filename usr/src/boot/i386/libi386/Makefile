@@ -96,8 +96,8 @@ CPPFLAGS += -I$(PNGLITE)
 SRCS +=	$(COMMON)/gfx_fb.c $(PNGLITE)/pnglite.c
 OBJS +=	gfx_fb.o pnglite.o
 
-gfx_fb.o := CPPFLAGS += $(DEFAULT_CONSOLE_COLOR) -I$(LZ4)
-pnglite.o := CPPFLAGS += -I$(ZLIB)
+gfx_fb.o :  CPPFLAGS += $(DEFAULT_CONSOLE_COLOR) -I$(LZ4)
+pnglite.o :  CPPFLAGS += -I$(ZLIB)
 
 SRCS +=	$(ZFSSRC)/devicename_stubs.c
 OBJS +=	devicename_stubs.o
@@ -122,10 +122,10 @@ CPPFLAGS +=	-I$(SRC)/common/ficl -I../../libficl \
 # the location of libstand
 CPPFLAGS +=	-I../../libsa
 
-multiboot.o := CPPFLAGS += -I../../sys/cddl/boot/zfs
-multiboot2.o := CPPFLAGS += -I../../sys/cddl/boot/zfs
-devicename.o := CPPFLAGS += -I../../sys/cddl/boot/zfs
-devicename_stubs.o := CPPFLAGS += -I../../sys/cddl/boot/zfs
+multiboot.o :  CPPFLAGS += -I../../sys/cddl/boot/zfs
+multiboot2.o :  CPPFLAGS += -I../../sys/cddl/boot/zfs
+devicename.o :  CPPFLAGS += -I../../sys/cddl/boot/zfs
+devicename_stubs.o :  CPPFLAGS += -I../../sys/cddl/boot/zfs
 
 CLEANFILES +=	machine x86
 

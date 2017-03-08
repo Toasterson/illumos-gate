@@ -59,8 +59,8 @@ CERRWARN	+= -_gcc=-Wno-parentheses
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/dnet.o := SMOFF += index_overflow
-$(OBJS_DIR)/dnet_mii.o := SMOFF += all_func_returns
+$(OBJS_DIR)/dnet.o :  SMOFF += index_overflow
+$(OBJS_DIR)/dnet_mii.o :  SMOFF += all_func_returns
 
 LDFLAGS		+= -N misc/mac
 

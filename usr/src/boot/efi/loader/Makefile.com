@@ -57,9 +57,9 @@ OBJS=	\
 	tem.o \
 	vers.o
 
-module.o := CPPFLAGS += -I$(CRYPTOSRC)
-tem.o := CPPFLAGS += $(DEFAULT_CONSOLE_COLOR)
-main.o := CPPFLAGS += -I$(SRC)/uts/common/fs/zfs
+module.o :  CPPFLAGS += -I$(CRYPTOSRC)
+tem.o :  CPPFLAGS += $(DEFAULT_CONSOLE_COLOR)
+main.o :  CPPFLAGS += -I$(SRC)/uts/common/fs/zfs
 
 CPPFLAGS += -I../../../include -I../../../sys
 CPPFLAGS += -I../../../libsa
@@ -109,7 +109,7 @@ CPPFLAGS += -DLOADER_DISK_SUPPORT
 CPPFLAGS += -DLOADER_GPT_SUPPORT
 CPPFLAGS += -DLOADER_MBR_SUPPORT
 
-part.o := CPPFLAGS += -I$(ZLIB)
+part.o :  CPPFLAGS += -I$(ZLIB)
 
 SRCS +=  bcache.c
 OBJS +=  bcache.o

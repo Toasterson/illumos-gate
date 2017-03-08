@@ -42,7 +42,7 @@ include $(SRC)/cmd/Makefile.ctf
 CPPFLAGS += -I$(SRC)/uts/intel/io/imc
 
 CMDS = $(PROG:%=$(TESTDIR)/%)
-$(CMDS) := FILEMODE = 0555
+$(CMDS) :  FILEMODE = 0555
 
 all: $(PROG)
 

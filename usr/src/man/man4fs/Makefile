@@ -39,9 +39,9 @@ MANLINKS=	stderr.4fs	\
 		stdin.4fs	\
 		stdout.4fs
 
-stderr.4fs	:= LINKSRC = fd.4fs
-stdin.4fs	:= LINKSRC = fd.4fs
-stdout.4fs	:= LINKSRC = fd.4fs
+stderr.4fs	:  LINKSRC = fd.4fs
+stdin.4fs	:  LINKSRC = fd.4fs
+stdout.4fs	:  LINKSRC = fd.4fs
 
 .KEEP_STATE:
 

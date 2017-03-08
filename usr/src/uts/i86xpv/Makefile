@@ -32,14 +32,14 @@ UTSBASE = ..
 
 include Makefile.i86xpv
 
-def		:=	TARGET= def
-all		:=	TARGET= all
-install		:=	TARGET= install
-clean		:=	TARGET= clean
-clobber		:=	TARGET= clobber
-modlist		:=	TARGET= modlist
-modlist	modlist.intel :=	NO_STATE= -K $$MODSTATE$$$$
-check		:=	TARGET= check
+def		: 	TARGET= def
+all		: 	TARGET= all
+install		: 	TARGET= install
+clean		: 	TARGET= clean
+clobber		: 	TARGET= clobber
+modlist		: 	TARGET= modlist
+modlist	modlist.intel : 	NO_STATE= -K $$MODSTATE$$$$
+check		: 	TARGET= check
 
 .KEEP_STATE:
 

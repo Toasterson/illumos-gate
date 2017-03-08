@@ -22,10 +22,10 @@ HDRDIR=		common
 SUBDIRS=	$(MACH)
 $(BUILD64)SUBDIRS += $(MACH64)
 
-all :=		TARGET= all
-clean :=	TARGET= clean
-clobber :=	TARGET= clobber
-install :=	TARGET= install
+all : 		TARGET= all
+clean : 	TARGET= clean
+clobber : 	TARGET= clobber
+install : 	TARGET= install
 
 POFILE =	libzfsbootenv.po
 MSGFILES =	`$(GREP) -l gettext $(HDRDIR)/*.[ch]`

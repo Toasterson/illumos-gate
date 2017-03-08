@@ -28,10 +28,10 @@ OBJECTS +=	skein.o
 OBJECTS +=	skein_iv.o
 OBJECTS +=	skein_block.o
 
-objs/digest.o pics/digest.o := CPPFLAGS +=	-I../../common
+objs/digest.o pics/digest.o :  CPPFLAGS +=	-I../../common
 
 # Do not unroll skein loops, reduce code size
-objs/skein_block.o pics/skein_block.o := CPPFLAGS +=	-DSKEIN_LOOP=111
+objs/skein_block.o pics/skein_block.o :  CPPFLAGS +=	-DSKEIN_LOOP=111
 
 objs/%.o pics/%.o:	$(COMDIR)/edonr/%.c
 	$(COMPILE.c) -o $@ $<

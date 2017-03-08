@@ -95,25 +95,25 @@ CERRWARN	+= -_gcc=-Wno-empty-body
 CFLAGS		+= $(CALLSYMS)
 
 # very hairy
-$(OBJS_DIR)/u8_textprep.o := SMATCH=off
+$(OBJS_DIR)/u8_textprep.o :  SMATCH=off
 
 # false positives
 SMOFF += index_overflow
-$(OBJS_DIR)/seg_vn.o := SMOFF += deref_check
-$(OBJS_DIR)/ddi_intr_irm.o := SMOFF += deref_check
+$(OBJS_DIR)/seg_vn.o :  SMOFF += deref_check
+$(OBJS_DIR)/ddi_intr_irm.o :  SMOFF += deref_check
 
 # need work still
 SMOFF += signed,all_func_returns
-$(OBJS_DIR)/clock_highres.o := SMOFF += signed_integer_overflow_check
-$(OBJS_DIR)/evchannels.o := SMOFF += allocating_enough_data
-$(OBJS_DIR)/klpd.o := SMOFF += cast_assign
-$(OBJS_DIR)/lookup.o := SMOFF += strcpy_overflow
-$(OBJS_DIR)/process.o := SMOFF += or_vs_and
-$(OBJS_DIR)/sunpci.o := SMOFF += deref_check
-$(OBJS_DIR)/timers.o := SMOFF += signed_integer_overflow_check
+$(OBJS_DIR)/clock_highres.o :  SMOFF += signed_integer_overflow_check
+$(OBJS_DIR)/evchannels.o :  SMOFF += allocating_enough_data
+$(OBJS_DIR)/klpd.o :  SMOFF += cast_assign
+$(OBJS_DIR)/lookup.o :  SMOFF += strcpy_overflow
+$(OBJS_DIR)/process.o :  SMOFF += or_vs_and
+$(OBJS_DIR)/sunpci.o :  SMOFF += deref_check
+$(OBJS_DIR)/timers.o :  SMOFF += signed_integer_overflow_check
 
 # 3rd party code
-$(OBJS_DIR)/bz2bzlib.o := SMOFF += indenting
+$(OBJS_DIR)/bz2bzlib.o :  SMOFF += indenting
 
 #
 #	Default build targets.

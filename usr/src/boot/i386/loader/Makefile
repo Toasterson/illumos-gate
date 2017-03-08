@@ -57,8 +57,8 @@ SRCS +=	module.c linenoise.c multiboot2.c nvstore.c
 SRCS +=	zfs_cmd.c
 SRCS +=	font.c $(FONT).c tem.c
 
-module.o := CPPFLAGS += -I$(CRYPTOSRC)
-tem.o := CPPFLAGS += $(DEFAULT_CONSOLE_COLOR)
+module.o :  CPPFLAGS += -I$(CRYPTOSRC)
+tem.o :  CPPFLAGS += $(DEFAULT_CONSOLE_COLOR)
 
 SRCS +=	load_elf32.c load_elf32_obj.c reloc_elf32.c
 SRCS +=	load_elf64.c load_elf64_obj.c reloc_elf64.c
@@ -101,10 +101,10 @@ CPPFLAGS +=	-I../btx/lib
 
 include ../Makefile.inc
 
-conf.o := CPPFLAGS += -I../../sys/cddl/boot/zfs
-multiboot2.o := CPPFLAGS += -I../../sys/cddl/boot/zfs
-main.o := CPPFLAGS += -I../../sys/cddl/boot/zfs -I$(SRC)/uts/common/fs/zfs
-zfs_cmd.o := CPPFLAGS += -I../../sys/cddl/boot/zfs
+conf.o :  CPPFLAGS += -I../../sys/cddl/boot/zfs
+multiboot2.o :  CPPFLAGS += -I../../sys/cddl/boot/zfs
+main.o :  CPPFLAGS += -I../../sys/cddl/boot/zfs -I$(SRC)/uts/common/fs/zfs
+zfs_cmd.o :  CPPFLAGS += -I../../sys/cddl/boot/zfs
 
 # For multiboot2.h, must be last, to avoid conflicts
 CPPFLAGS +=	-I$(SRC)/uts/common

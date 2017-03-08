@@ -63,7 +63,7 @@ DEBUG_DEFS	+= $(DEBUG_FLGS)
 CERRWARN	+= -_gcc=-Wno-unused-function
 
 # needs work
-$(OBJS_DIR)/psm_common.o := SMOFF += deref_check
+$(OBJS_DIR)/psm_common.o :  SMOFF += deref_check
 
 #
 #

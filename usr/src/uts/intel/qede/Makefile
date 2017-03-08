@@ -53,7 +53,7 @@ CCWARNINLINE	=
 SMOFF += all_func_returns,indenting,no_if_block,deref_check,testing_index_after_use
 
 # real bug in qede_multicast()
-$(OBJS_DIR)/qede_gld.o := SMOFF += assign_vs_compare
+$(OBJS_DIR)/qede_gld.o :  SMOFF += assign_vs_compare
 
 #
 # Unfortunately the default use of -fstack-protector-strong breaks the

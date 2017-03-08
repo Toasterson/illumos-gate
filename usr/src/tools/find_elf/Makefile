@@ -28,7 +28,7 @@ OBJS = find_elf.o custr.o
 include $(SRC)/tools/Makefile.tools
 include $(SRC)/cmd/Makefile.ctf
 
-$(ROOTONBLDMAN1ONBLDFILES) := FILEMODE=	644
+$(ROOTONBLDMAN1ONBLDFILES) :  FILEMODE=	644
 
 LDLIBS = -lelf -lavl
 NATIVE_LIBS += libelf.so libc.so libavl.so

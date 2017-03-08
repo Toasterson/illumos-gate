@@ -1077,7 +1077,7 @@ CFLAGS64 += $(XSTRCONST)
 
 ALTPICS= $(TRACEOBJS:%=pics/%)
 
-$(DYNLIB) := BUILD.SO = $(LD) -o $@ $(GSHARED) $(DYNFLAGS) $(PICS) $(ALTPICS) $(EXTPICS)
+$(DYNLIB) :  BUILD.SO = $(LD) -o $@ $(GSHARED) $(DYNFLAGS) $(PICS) $(ALTPICS) $(EXTPICS)
 
 MAPFILES =	$(LIBCDIR)/port/mapfile-vers
 
@@ -1130,8 +1130,8 @@ CLEANFILES=			\
 CLOBBERFILES +=	$(LIB_PIC)
 
 # conditional assignments
-$(DYNLIB) := CRTI = crti.o
-$(DYNLIB) := CRTN = crtn.o
+$(DYNLIB) :  CRTI = crti.o
+$(DYNLIB) :  CRTN = crtn.o
 
 # Files which need the threads .il inline template
 TIL=				\
@@ -1174,14 +1174,14 @@ TIL=				\
 	tsd.o			\
 	unwind.o
 
-$(TIL:%=pics/%) := CFLAGS64 += $(LIBCBASE)/threads/sparcv9.il
+$(TIL:%=pics/%) :  CFLAGS64 += $(LIBCBASE)/threads/sparcv9.il
 
 # Files in fp, port/fp subdirectories that need base.il inline template
 IL=				\
 	__flt_decim.o		\
 	decimal_bin.o
 
-$(IL:%=pics/%) := CFLAGS64 += $(LIBCBASE)/fp/base.il
+$(IL:%=pics/%) :  CFLAGS64 += $(LIBCBASE)/fp/base.il
 
 # Files in fp subdirectory which need __quad.il inline template
 QIL=				\
@@ -1202,44 +1202,44 @@ QIL=				\
 	_Qp_qtox.o		\
 	_Qp_qtoux.o
 
-$(QIL:%=pics/%) := CFLAGS64 += $(LIBCDIR)/$(MACH)/fp/__quad.il
-pics/_Qp%.o := CFLAGS64 += -I$(LIBCDIR)/$(MACH)/fp
-pics/_Q%.o := sparcv9_COPTFLAG = -xO4 -xchip=ultra
+$(QIL:%=pics/%) :  CFLAGS64 += $(LIBCDIR)/$(MACH)/fp/__quad.il
+pics/_Qp%.o :  CFLAGS64 += -I$(LIBCDIR)/$(MACH)/fp
+pics/_Q%.o :  sparcv9_COPTFLAG = -xO4 -xchip=ultra
 
 # Files in crt subdirectory which need muldiv64.il inline template
 #CIL=	mul64.o divrem64.o
-#$(CIL:%=pics/%) := CFLAGS += $(LIBCBASE)/crt/mul64.il
+#$(CIL:%=pics/%) :  CFLAGS += $(LIBCBASE)/crt/mul64.il
 
 # large-file-aware components that should be built large
 
-#$(COMSYSOBJS64:%=pics/%) := \
+#$(COMSYSOBJS64:%=pics/%) :  \
 #	CPPFLAGS += -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
-#$(SYSOBJS64:%=pics/%) := \
+#$(SYSOBJS64:%=pics/%) :  \
 #	CPPFLAGS += -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
-#$(PORTGEN64:%=pics/%) := \
+#$(PORTGEN64:%=pics/%) :  \
 #	CPPFLAGS += -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
-#$(PORTSTDIO64:%=pics/%) := \
+#$(PORTSTDIO64:%=pics/%) :  \
 #	CPPFLAGS += -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
-#$(PORTSYS64:%=pics/%) := \
+#$(PORTSYS64:%=pics/%) :  \
 #	CPPFLAGS += -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
-$(PORTSTDIO_W:%=pics/%) := \
+$(PORTSTDIO_W:%=pics/%) :  \
 	CPPFLAGS += -D_WIDE
 
-$(PORTPRINT_W:%=pics/%) := \
+$(PORTPRINT_W:%=pics/%) :  \
 	CPPFLAGS += -D_WIDE
 
-$(PORTI18N_COND:%=pics/%) := \
+$(PORTI18N_COND:%=pics/%) :  \
 	CPPFLAGS += -D_WCS_LONGLONG
 
-pics/arc4random.o :=	CPPFLAGS += -I$(SRC)/common/crypto/chacha
+pics/arc4random.o : 	CPPFLAGS += -I$(SRC)/common/crypto/chacha
 
 # Files which need extra optimization
-pics/getenv.o := sparcv9_COPTFLAG = -xO4
+pics/getenv.o :  sparcv9_COPTFLAG = -xO4
 
 #
 # Disable the stack protector due to issues with bootstrapping rtld. See
@@ -1261,7 +1261,7 @@ $(QIL:%=pics/%): $(LIBCDIR)/$(MACH)/fp/__quad.il
 include $(LIBCDIR)/Makefile.targ
 
 # We need to strip out all CTF and DOF data from the static library
-$(LIB_PIC) := DIR = pics
+$(LIB_PIC) :  DIR = pics
 $(LIB_PIC): pics $$(PICS)
 	$(BUILD.AR)
 	$(MCS) -d -n .SUNW_ctf $@ > /dev/null 2>&1
@@ -1289,18 +1289,18 @@ ASSYMDEP_OBJS=			\
 	unwind_frame.o		\
 	vforkx.o
 
-$(ASSYMDEP_OBJS:%=pics/%)	:=	CPPFLAGS += -I.
+$(ASSYMDEP_OBJS:%=pics/%)	: 	CPPFLAGS += -I.
 
 $(ASSYMDEP_OBJS:%=pics/%): assym.h
 
 # assym.h build rules
 
-assym.h := CFLAGS64 += $(CCGDEBUG)
+assym.h :  CFLAGS64 += $(CCGDEBUG)
 
 GENASSYM_C = $(LIBCDIR)/$(MACH)/genassym.c
 LDFLAGS.native = $(LDASSERTS) $(BDIRECT)
 
-genassym := NATIVE_LIBS += libc.so
+genassym :  NATIVE_LIBS += libc.so
 
 genassym: $(GENASSYM_C)
 	$(NATIVECC) $(NATIVE_CFLAGS) -I$(LIBCBASE)/inc -I$(LIBCDIR)/inc \

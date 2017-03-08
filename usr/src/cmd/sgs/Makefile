@@ -98,14 +98,14 @@ MSGSUBDIRS=	ld		ldd		libld		liblddbg \
 
 MSGDIR=		messages
 
-all :=		TARGET= all
-install :=	TARGET= install
-clean :=	TARGET= clean
-clobber :=	TARGET= clobber
-_msg :=		TARGET= catalog
-_msg_gettext :=	TARGET= catalog
-_msg_sgsmsg :=	TARGET= catalog
-chkmsg :=	TARGET= chkmsg
+all : 		TARGET= all
+install : 	TARGET= install
+clean : 	TARGET= clean
+clobber : 	TARGET= clobber
+_msg : 		TARGET= catalog
+_msg_gettext : 	TARGET= catalog
+_msg_sgsmsg : 	TARGET= catalog
+chkmsg : 	TARGET= chkmsg
 
 
 .KEEP_STATE:

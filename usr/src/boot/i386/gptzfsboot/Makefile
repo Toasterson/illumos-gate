@@ -66,12 +66,12 @@ install: all $(ROOTBOOTPROG)
 OBJS =	mb_header.o zfsboot.o sio.o cons.o devopen.o \
 	part.o disk.o bcache.o zfs_cmd.o
 
-zfsboot.o := CPPFLAGS += -I$(SRC)/uts/common -I$(SRC)/uts/common/fs/zfs
-zfs_cmd.o := CPPFLAGS += -I$(SRC)/uts/common
-part.o := CPPFLAGS += -I$(ZLIB)
-smbios.o := CPPFLAGS += -DSMBIOS_SERIAL_NUMBERS
-smbios.o := CPPFLAGS += -DSMBIOS_LITTLE_ENDIAN_UUID
-gptldr.out := LD_FLAGS += $(GLDTARGET)
+zfsboot.o :  CPPFLAGS += -I$(SRC)/uts/common -I$(SRC)/uts/common/fs/zfs
+zfs_cmd.o :  CPPFLAGS += -I$(SRC)/uts/common
+part.o :  CPPFLAGS += -I$(ZLIB)
+smbios.o :  CPPFLAGS += -DSMBIOS_SERIAL_NUMBERS
+smbios.o :  CPPFLAGS += -DSMBIOS_LITTLE_ENDIAN_UUID
+gptldr.out :  LD_FLAGS += $(GLDTARGET)
 
 CLEANFILES=	gptzfsboot $(OBJS)
 

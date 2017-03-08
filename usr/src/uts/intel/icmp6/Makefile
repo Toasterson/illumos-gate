@@ -55,7 +55,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE) $(ROOT_CONFFILE)
 LDFLAGS		+= -Ndrv/ip -Ndrv/ip6 -Ndrv/icmp
 
 # needs work
-$(OBJS_DIR)/icmp6ddi.o := SMOFF += index_overflow
+$(OBJS_DIR)/icmp6ddi.o :  SMOFF += index_overflow
 #
 #	Default build targets.
 #

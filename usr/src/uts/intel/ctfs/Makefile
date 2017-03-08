@@ -63,7 +63,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE)
 CERRWARN	+= -_gcc=-Wno-parentheses
 
 # needs work
-$(OBJS_DIR)/ctfs_root.o := SMOFF += signed_integer_overflow_check
+$(OBJS_DIR)/ctfs_root.o :  SMOFF += signed_integer_overflow_check
 
 #
 #	Default build targets.

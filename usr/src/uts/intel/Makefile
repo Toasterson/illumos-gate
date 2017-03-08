@@ -41,19 +41,19 @@ DRV_KMODS	+= dprov
 
 #
 #
-def		:=	TARGET= def
-def.prereq	:=	TARGET= def
-all		:=	TARGET= all
-all.prereq	:=	TARGET= all
-install		:=	TARGET= install
-install.prereq	:=	TARGET= install
-clean		:=	TARGET= clean
-clobber		:=	TARGET= clobber
-modlist		:=	TARGET= modlist
-modlist		:=	NO_STATE= -K $$MODSTATE$$$$
-check		:=	TARGET= check
-install_h	:=	TARGET= install_h
-install_h.prereq	:=	TARGET= install_h
+def		: 	TARGET= def
+def.prereq	: 	TARGET= def
+all		: 	TARGET= all
+all.prereq	: 	TARGET= all
+install		: 	TARGET= install
+install.prereq	: 	TARGET= install
+clean		: 	TARGET= clean
+clobber		: 	TARGET= clobber
+modlist		: 	TARGET= modlist
+modlist		: 	NO_STATE= -K $$MODSTATE$$$$
+check		: 	TARGET= check
+install_h	: 	TARGET= install_h
+install_h.prereq	: 	TARGET= install_h
 
 .KEEP_STATE:
 

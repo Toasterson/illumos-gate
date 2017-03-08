@@ -19,10 +19,10 @@ SUBDIRS=
 $(BUILDPERL32)SUBDIRS += $(MACH)
 $(BUILDPERL64)SUBDIRS += $(MACH64)
 
-all :=		TARGET = all
-install :=	TARGET = install
-clean :=	TARGET = clean
-clobber :=	TARGET = clobber
+all : 		TARGET = all
+install : 	TARGET = install
+clean : 	TARGET = clean
+clobber : 	TARGET = clobber
 
 all install clean clobber: $(SUBDIRS)
 

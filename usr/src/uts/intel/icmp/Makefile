@@ -68,7 +68,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE) $(ROOTLINK) $(ROOT_CONFFILE)
 LDFLAGS		+= -Ndrv/ip -Nfs/sockfs
 
 # needs work
-$(OBJS_DIR)/icmpddi.o := SMOFF += index_overflow
+$(OBJS_DIR)/icmpddi.o :  SMOFF += index_overflow
 
 #
 #	Default build targets.

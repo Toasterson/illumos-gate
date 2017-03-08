@@ -64,7 +64,7 @@ CERRWARN	+= -_gcc=-Wno-parentheses
 CERRWARN	+= -_gcc=-Wno-unused-value
 
 # needs work
-$(OBJS_DIR)/ibtl_impl.o := SMOFF += precedence
+$(OBJS_DIR)/ibtl_impl.o :  SMOFF += precedence
 
 #
 #	Default build targets.

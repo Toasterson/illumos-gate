@@ -32,8 +32,8 @@ SUBDIRS= default dhcp init.d ike ppp secret sock2path.d
 
 include ../../Makefile.cmd
 
-all:=		TARGET= all
-install:=	TARGET= install
+all: 		TARGET= all
+install: 	TARGET= install
 
 ROOTVAR=	$(ROOT)/var
 INETETCDIR=	$(ROOTETC)/inet
@@ -50,7 +50,7 @@ FILEMODE= 0444
 
 .KEEP_STATE:
 
-$(EDITFILES) := FILEMODE= 0644
+$(EDITFILES) :  FILEMODE= 0644
 
 all: $(ETCPROG) $(SUBDIRS)
 

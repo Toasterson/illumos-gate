@@ -44,15 +44,15 @@ USR_PLAT_DIR = $(ROOT)/usr/platform
 
 include $(UTSBASE)/sun4v/Makefile.huron
 
-def		:=	TARGET= def
-all		:=	TARGET= all
-install		:=	TARGET= install
-install_h	:=	TARGET= install_h
-clean		:=	TARGET= clean
-clobber		:=	TARGET= clobber
-modlist		:=	TARGET= modlist
-modlist		:=	NO_STATE= -K $$MODSTATE$$$$
-check		:=	TARGET= check
+def		: 	TARGET= def
+all		: 	TARGET= all
+install		: 	TARGET= install
+install_h	: 	TARGET= install_h
+clean		: 	TARGET= clean
+clobber		: 	TARGET= clobber
+modlist		: 	TARGET= modlist
+modlist		: 	NO_STATE= -K $$MODSTATE$$$$
+check		: 	TARGET= check
 
 #
 #	Default build targets.

@@ -41,15 +41,15 @@ USR_GLENDALE_DIR	= $(USR_PLAT_DIR)/SUNW,Sun-Blade-T6320
 USR_GLENDALE_SBIN_DIR	= $(USR_GLENDALE_DIR)/sbin
 USR_GLENDALE_LIB_DIR	= $(USR_GLENDALE_DIR)/lib
 
-def		:=	TARGET= def
-all		:=	TARGET= all
-install		:=	TARGET= install
-install_h	:=	TARGET= install_h
-clean		:=	TARGET= clean
-clobber		:=	TARGET= clobber
-modlist		:=	TARGET= modlist
-modlist	modlist.sparc :=	NO_STATE= -K $$MODSTATE$$$$
-check		:=	TARGET= check
+def		: 	TARGET= def
+all		: 	TARGET= all
+install		: 	TARGET= install
+install_h	: 	TARGET= install_h
+clean		: 	TARGET= clean
+clobber		: 	TARGET= clobber
+modlist		: 	TARGET= modlist
+modlist	modlist.sparc : 	NO_STATE= -K $$MODSTATE$$$$
+check		: 	TARGET= check
 
 .KEEP_STATE:
 

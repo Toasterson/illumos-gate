@@ -40,20 +40,20 @@ include		../Makefile.def
 
 # Express objects in terms of "pics" thus triggering the appropriate CPPFLAGS,
 # CFLAGS and DYNFLAGS settings from lib/Makefile.lib to build shared objects.
-$(MINCONN):=	PICS = pics/minconn.o
-$(PASSPROMPT):=	PICS = pics/passprompt.o
-$(PPPOE):=	PICS = pics/pppoe.o
+$(MINCONN): 	PICS = pics/minconn.o
+$(PASSPROMPT): 	PICS = pics/passprompt.o
+$(PPPOE): 	PICS = pics/pppoe.o
 
 # Suppress -h setting from DYNFLAGS as these libraries aren't linked against.
 # Establish external references through mapfiles and dependencies to allow
 # use of -zdefs.
 HSONAME=
-$(MINCONN):=	MAPFILES = mapfile-minconn
-$(PASSPROMPT):=	MAPFILES = mapfile-passprompt
-$(PPPOE):=	MAPFILES = mapfile-pppoe
+$(MINCONN): 	MAPFILES = mapfile-minconn
+$(PASSPROMPT): 	MAPFILES = mapfile-passprompt
+$(PPPOE): 	MAPFILES = mapfile-pppoe
 
-$(PASSPROMPT):=	LDLIBS += -lc
-$(PPPOE):=	LDLIBS += -lc
+$(PASSPROMPT): 	LDLIBS += -lc
+$(PPPOE): 	LDLIBS += -lc
 
 CPPFLAGS +=	-I.. -I$(SRC)/uts/common
 # XX64 -- this should not be needed -- fix me
@@ -63,9 +63,9 @@ CLOBBERFILES +=	$(LIBRARIES)
 
 LIBPPPPLUGIN=	$(LIBRARIES:%=$(LIBPPPPLUGINDIR)/%)
 
-$(LIBPPPPLUGIN):=	FILEMODE = 0544
+$(LIBPPPPLUGIN): 	FILEMODE = 0544
 
-$(LIBPPPPLUGINDIR):=	FILEMODE = 0755
+$(LIBPPPPLUGINDIR): 	FILEMODE = 0755
 
 .KEEP_STATE:
 

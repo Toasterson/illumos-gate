@@ -58,16 +58,16 @@ ROOTDEMODIRS=	$(ROOTDEMODIRBASE) .WAIT \
 
 ROOTDEMOFILES=	$(DEMOFILES:%=$(ROOTDEMODIRBASE)/%)
 
-$(ROOTDEMODIRS) :=	DIRMODE =	755
+$(ROOTDEMODIRS) : 	DIRMODE =	755
 
 
 
 SUBDIRS=	$(MACH)
 
-all:=		TARGET=	all
-install:=	TARGET=	install
-clean:=		TARGET=	clean
-clobber:=	TARGET=	clobber
+all: 		TARGET=	all
+install: 	TARGET=	install
+clean: 		TARGET=	clean
+clobber: 	TARGET=	clobber
 
 .PARALLEL: $(ROOTDEMOFILES)
 

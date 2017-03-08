@@ -64,7 +64,7 @@ CERRWARN	+= -_gcc=-Wno-switch
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/qlge.o := SMOFF += deref_check
+$(OBJS_DIR)/qlge.o :  SMOFF += deref_check
 
 #
 #	Default build targets.

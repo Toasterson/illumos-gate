@@ -36,7 +36,7 @@ DATAFILES = bridge.pci igb.pci \
 
 ROOTPROG = $(PROG:%=$(ROOTOPTPKG)/%)
 ROOTDATA = $(DATAFILES:%=$(ROOTOPTPCI)/%)
-$(ROOTDATA) := FILEMODE = 0444
+$(ROOTDATA) :  FILEMODE = 0444
 
 all:
 

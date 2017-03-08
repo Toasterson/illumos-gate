@@ -46,7 +46,7 @@ CERRWARN +=	-_gcc=-Wno-unused-label
 
 SMOFF += snprintf_overflow
 
-$(ROOTCFGDIR)/secobj.conf := FILEMODE= 660
+$(ROOTCFGDIR)/secobj.conf :  FILEMODE= 660
 
 .KEEP_STATE:
 

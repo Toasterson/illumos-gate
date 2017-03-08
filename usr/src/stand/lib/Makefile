@@ -35,10 +35,10 @@ SUBDIRS = fs/hsfs fs/nfs fs/ufs inet sa sock tcpstubs xdr \
 
 .KEEP_STATE:
 
-all	:=	TARGET = all
-clean	:=	TARGET = clean
-clobber	:=	TARGET = clobber
-install	:=	TARGET = install
+all	: 	TARGET = all
+clean	: 	TARGET = clean
+clobber	: 	TARGET = clobber
+install	: 	TARGET = install
 
 all clean clobber install: $(SUBDIRS)
 

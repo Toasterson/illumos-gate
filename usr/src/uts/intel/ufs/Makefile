@@ -60,7 +60,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE)
 #	Override defaults to build a unique, local modstubs.o.
 #
 MODSTUBS_DIR	 = $(OBJS_DIR)
-$(MODSTUBS_O)	:= AS_CPPFLAGS += -DUFS_MODULE
+$(MODSTUBS_O)	:  AS_CPPFLAGS += -DUFS_MODULE
 CLEANFILES	+= $(MODSTUBS_O)
 LDFLAGS		+= -Nfs/specfs -Nmisc/fssnap_if
 

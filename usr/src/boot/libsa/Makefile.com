@@ -29,8 +29,8 @@ CPPFLAGS +=	-I$(SRC)/uts/common
 SMOFF += uninitialized
 
 # needs work
-objs/printf.o := SMOFF += 64bit_shift
-pics/printf.o := SMOFF += 64bit_shift
+objs/printf.o :  SMOFF += 64bit_shift
+pics/printf.o :  SMOFF += 64bit_shift
 
 machine:
 	$(RM) machine

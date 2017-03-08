@@ -58,7 +58,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE)
 CERRWARN	+= -_gcc=-Wno-unused-variable
 
 # needs work
-$(OBJS_DIR)/gen_drv.o := SMOFF += indenting,deref_check
+$(OBJS_DIR)/gen_drv.o :  SMOFF += indenting,deref_check
 
 #
 #	Default build targets.

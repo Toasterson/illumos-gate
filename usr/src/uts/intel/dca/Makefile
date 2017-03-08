@@ -66,7 +66,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE) $(ROOTLINK) $(ROOT_CONFFILE)
 CERRWARN	+= -_gcc=-Wno-parentheses
 
 # needs work
-$(OBJS_DIR)/dca_rsa.o := SMOFF += deref_check
+$(OBJS_DIR)/dca_rsa.o :  SMOFF += deref_check
 
 #
 #	Default build targets.

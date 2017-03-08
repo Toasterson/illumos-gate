@@ -31,10 +31,10 @@ SUBDIRS=	$(MACH) $(BUILD64) $(MACH64)
 
 CSRC=		common/nm.c
 
-all :=		TARGET= all
-install :=	TARGET= install
-clean :=	TARGET= clean
-clobber :=	TARGET= clobber
+all : 		TARGET= all
+install : 	TARGET= install
+clean : 	TARGET= clean
+clobber : 	TARGET= clobber
 
 # for messaging catalog
 #

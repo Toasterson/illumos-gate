@@ -75,14 +75,14 @@ CHKMANSUBDIRS = man
 
 MSGSUBDIRS=	cmd ucbcmd lib data
 
-all :=			TARGET= all
-install :=		TARGET= install
-install1 :=		TARGET= install
-install2 :=		TARGET= install
-install_h :=		TARGET= install_h
-clean :=		TARGET= clean
-clobber :=		TARGET= clobber
-check :=		TARGET= check
+all : 			TARGET= all
+install : 		TARGET= install
+install1 : 		TARGET= install
+install2 : 		TARGET= install
+install_h : 		TARGET= install_h
+clean : 		TARGET= clean
+clobber : 		TARGET= clobber
+check : 		TARGET= check
 
 .KEEP_STATE:
 

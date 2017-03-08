@@ -62,7 +62,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE)
 CERRWARN	+= -_gcc=-Wno-unused-function
 
 # needs work
-$(OBJS_DIR)/i8042.o := SMOFF += all_func_returns
+$(OBJS_DIR)/i8042.o :  SMOFF += all_func_returns
 
 #
 #	Default build targets.

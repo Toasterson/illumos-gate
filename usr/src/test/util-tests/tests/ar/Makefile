@@ -24,7 +24,7 @@ OBJS = ar_test0.o ar_test1.o
 ROOTPROG = $(PROG:%=$(ROOTOPTPKGAR)/%)
 ROOTOBJS = $(OBJS:%=$(ROOTOPTPKGAR)/%)
 
-$(ROOTOBJS) := FILEMODE = 0444
+$(ROOTOBJS) :  FILEMODE = 0444
 
 all: $(OBJS)
 

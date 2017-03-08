@@ -26,7 +26,7 @@ FILES = a/file1.txt b/file2.txt
 IDIRS = $(DIRS:%=$(TESTDIR)/%)
 IFILES = $(FILES:%=$(TESTDIR)/%)
 
-$(IFILES) := FILEMODE = 0444
+$(IFILES) :  FILEMODE = 0444
 
 all clean clobber:
 

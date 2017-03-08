@@ -27,10 +27,10 @@ include ../../Makefile.master
 
 SUBDIRS= lib bootblks boot cpr bootlst
 
-all		:=	TARGET= all
-install		:=	TARGET= install
-clean		:=	TARGET= clean
-clobber		:=	TARGET= clobber
+all		: 	TARGET= all
+install		: 	TARGET= install
+clean		: 	TARGET= clean
+clobber		: 	TARGET= clobber
 
 .KEEP_STATE:
 

@@ -64,7 +64,7 @@ CLOBBERFILES += $(CLOBBERFILES_$(CURTYPE))
 # The standalone environment currently does not support the stack
 # protector.
 #
-$(STANDLIBRARY) := STACKPROTECT = none
+$(STANDLIBRARY) :  STACKPROTECT = none
 
 LIBS_standalone	= $(STANDLIBRARY)
 LIBS_library = $(DYNLIB)

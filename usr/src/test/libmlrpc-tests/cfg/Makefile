@@ -21,7 +21,7 @@ ROOTOPTPKG = $(ROOT)/opt/libmlrpc-tests
 ROOTOPTPKGCFG = $(ROOT)/opt/libmlrpc-tests/cfg
 ROOTOPTPKGDIRS = $(ROOTOPTPKG) $(ROOTOPTPKGCFG)
 FILES = $(CFGS:%=$(ROOTOPTPKGCFG)/%)
-$(FILES) := FILEMODE = 0644
+$(FILES) :  FILEMODE = 0644
 
 include $(SRC)/test/Makefile.com
 

@@ -63,7 +63,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE)
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/fss.o := SMOFF += deref_check
+$(OBJS_DIR)/fss.o :  SMOFF += deref_check
 
 #
 #	Default build targets.

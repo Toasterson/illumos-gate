@@ -80,8 +80,8 @@ OBJS=		arch.o		\
 OBJS +=		compat_ohash.o compat_stringlist.o
 
 # gcc 4.4.4 false positive
-roff.o :=	CERRWARN += $(CNOWARN_UNINIT)
-main.o :=	CERRWARN += $(CNOWARN_UNINIT)
+roff.o : 	CERRWARN += $(CNOWARN_UNINIT)
+main.o : 	CERRWARN += $(CNOWARN_UNINIT)
 
 # not linted
 SMATCH=off

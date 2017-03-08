@@ -57,7 +57,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE)
 LDFLAGS		+= -N misc/mac
 
 # seems wrong
-$(OBJS_DIR)/amd8111s_hw.o := SMOFF += precedence
+$(OBJS_DIR)/amd8111s_hw.o :  SMOFF += precedence
 
 #
 #	Default build targets.

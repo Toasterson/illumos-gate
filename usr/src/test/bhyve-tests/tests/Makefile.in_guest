@@ -17,7 +17,7 @@ PAYLOAD_CLEANFILES =	payload_start.o	\
 		$(PAYLOADS:%=pobj_%.o)		\
 		$(PAYLOADS:%=pobj_%.s)
 
-$(PAYLOADS:%=payload_%.o) := AS_CPPFLAGS += -I../common
+$(PAYLOADS:%=payload_%.o) :  AS_CPPFLAGS += -I../common
 
 payload_%: payload_start.o payload_%.o
 	$(LD) -dn -e _start -M ../common/Mapfile.payload -o $@ $^

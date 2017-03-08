@@ -66,7 +66,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE) $(ROOT_CONFFILE)
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/llc1.o := SMOFF += no_if_block,deref_check
+$(OBJS_DIR)/llc1.o :  SMOFF += no_if_block,deref_check
 
 #
 #	Default build targets.

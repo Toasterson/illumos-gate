@@ -22,11 +22,11 @@ ROOTOPTPKG = $(ROOT)/opt/elf-tests
 TESTDIR = $(ROOTOPTPKG)/tests/string-merge
 
 CMDS = $(PROG:%=$(TESTDIR)/%)
-$(CMDS) := FILEMODE = 0555
+$(CMDS) :  FILEMODE = 0555
 
 
 DATA = $(DATAFILES:%=$(TESTDIR)/%)
-$(DATA) := FILEMODE = 0444
+$(DATA) :  FILEMODE = 0444
 
 all: $(PROG)
 

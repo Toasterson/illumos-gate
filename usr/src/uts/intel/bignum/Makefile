@@ -99,8 +99,8 @@ include $(UTSBASE)/intel/Makefile.targ
 
 BIGNUM_CFG = -DPSR_MUL
 CFLAGS	+= -xO4 -xcrossfile
-$(OBJS_DIR)/bignumimpl.o := CPPFLAGS += $(BIGNUM_CFG)
-$(OBJS_DIR)/bignum_amd64.o := CPPFLAGS += $(BIGNUM_CFG)
+$(OBJS_DIR)/bignumimpl.o :  CPPFLAGS += $(BIGNUM_CFG)
+$(OBJS_DIR)/bignum_amd64.o :  CPPFLAGS += $(BIGNUM_CFG)
 
 $(OBJS_DIR)/bignum_amd64.o: $(BIGNUMDIR)/amd64/bignum_amd64.c
 	$(COMPILE.c) -o $@ $(BIGNUM_CFG) $(BIGNUMDIR)/amd64/bignum_amd64.c

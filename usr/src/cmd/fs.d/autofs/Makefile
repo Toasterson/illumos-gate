@@ -56,9 +56,9 @@ SVCMETHOD=	svc-autofs
 
 include		../Makefile.fstype
 
-$(MAPINSTALL)	:= FILEMODE= 0644
+$(MAPINSTALL)	:  FILEMODE= 0644
 
-$(MFSTINSTALL)	:= FILEMODE = 0444
+$(MFSTINSTALL)	:  FILEMODE = 0444
 
 REAL_COMMON=	debug_alloc.o
 COMMON=		ns_generic.o ns_files.o ns_nis.o \
@@ -82,9 +82,9 @@ UNSHAREOBJS=	$(UNSHARESRCS:%.c=%.o)
 
 POFILE= autofs.po
 
-$(AUTO) :=	LDLIBS += -lnsl -lsldap -lscf
-$(MOUNT):=	LDLIBS += -lscf
-$(TYPEPROG) :=	LDLIBS += -lrpcsvc -lsocket -lnsl -lsldap -lkstat -lscf
+$(AUTO) : 	LDLIBS += -lnsl -lsldap -lscf
+$(MOUNT): 	LDLIBS += -lscf
+$(TYPEPROG) : 	LDLIBS += -lrpcsvc -lsocket -lnsl -lsldap -lkstat -lscf
 
 CFLAGS +=	$(CCVERBOSE) -D_FILE_OFFSET_BITS=64
 CPPFLAGS=	-I. -I.. -I../nfs/lib $(CPPFLAGS.master) -D_REENTRANT  \
@@ -114,7 +114,7 @@ UNSHARESRCS=	$(UNSHARE:%=%.c)
 DFSHARESSRCS=	$(DFSHARES:%=%.sh)
 SRCS=		$(OBJS:%.o=%.c)
 
-nfs_sec.o :=	CPPFLAGS += -DWNFS_SEC_NEGO
+nfs_sec.o : 	CPPFLAGS += -DWNFS_SEC_NEGO
 
 $(AUTO):	$(AUTOOBJS)
 		$(LINK.c) -o $@ $(AUTOOBJS) $(LDLIBS)

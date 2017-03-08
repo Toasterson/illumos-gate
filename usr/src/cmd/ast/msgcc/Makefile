@@ -58,7 +58,7 @@ CERRWARN += $(CNOWARN_UNINIT)
 SMATCH=off
 
 LDLIBS += -last
-msgcpp   := LDLIBS += -lpp
+msgcpp   :  LDLIBS += -lpp
 
 CPROG= msgcvt msggen msgget msgcpp
 PROG= msgcc $(CPROG)

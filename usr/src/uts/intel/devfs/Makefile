@@ -52,7 +52,7 @@ include $(UTSBASE)/intel/Makefile.intel
 CERRWARN	+= -_gcc=-Wno-parentheses
 
 # needs work
-$(OBJS_DIR)/devfs_vnops.o := SMOFF += signed
+$(OBJS_DIR)/devfs_vnops.o :  SMOFF += signed
 
 #
 #	Define targets
@@ -64,7 +64,7 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE)
 #	Overrides.
 #
 MODSTUBS_DIR	 = $(OBJS_DIR)
-$(MODSTUBS_O)	:= AS_CPPFLAGS += -DDEVFS_MODULE
+$(MODSTUBS_O)	:  AS_CPPFLAGS += -DDEVFS_MODULE
 CLEANFILES	+= $(MODSTUBS_O)
 
 #

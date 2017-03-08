@@ -39,14 +39,14 @@ TEXT_DOMAIN =	SUNW_OST_NETRPC
 POFILES =	generic.po
 POFILE = mech_dh.po
 
-all :=          TARGET= all
-clean :=        TARGET= clean
-clobber :=      TARGET= clobber
-delete :=       TARGET= delete
-install :=      TARGET= install
-catalog :=      TARGET= catalog
-package :=      TARGET= package
-_msg :=		TARGET= _msg
+all :           TARGET= all
+clean :         TARGET= clean
+clobber :       TARGET= clobber
+delete :        TARGET= delete
+install :       TARGET= install
+catalog :       TARGET= catalog
+package :       TARGET= package
+_msg : 		TARGET= _msg
 
 .KEEP_STATE:
 all:            $(DERIVED_FILES) .WAIT $(SUBDIRS)

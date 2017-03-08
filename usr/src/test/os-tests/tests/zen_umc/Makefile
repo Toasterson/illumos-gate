@@ -53,7 +53,7 @@ CPPFLAGS += -I$(SRC)/uts/intel/io/amdzen
 CPPFLAGS += -I$(SRC)/uts/intel/
 
 CMDS = $(PROG:%=$(TESTDIR)/%)
-$(CMDS) := FILEMODE = 0555
+$(CMDS) :  FILEMODE = 0555
 
 all: $(PROG)
 

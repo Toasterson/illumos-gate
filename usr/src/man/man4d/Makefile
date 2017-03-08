@@ -268,28 +268,28 @@ i386_MANLINKS=	amdzen_stub.4d
 MANFILES =	$(_MANFILES) $($(MACH)_MANFILES)
 MANLINKS =	$(_MANLINKS) $($(MACH)_MANLINKS)
 
-amdzen_stub.4d	:= LINKSRC = amdzen.4d
+amdzen_stub.4d	:  LINKSRC = amdzen.4d
 
-drmach.4d	:= LINKSRC = dr.4d
+drmach.4d	:  LINKSRC = dr.4d
 
-fdc.4d		:= LINKSRC = fd.4d
+fdc.4d		:  LINKSRC = fd.4d
 
-1394.4d		:= LINKSRC = ieee1394.4d
-firewire.4d	:= LINKSRC = ieee1394.4d
+1394.4d		:  LINKSRC = ieee1394.4d
+firewire.4d	:  LINKSRC = ieee1394.4d
 
-lo0.4d		:= LINKSRC = ipnet.4d
+lo0.4d		:  LINKSRC = ipnet.4d
 
-pts.4d		:= LINKSRC = ptm.4d
+pts.4d		:  LINKSRC = ptm.4d
 
-allkmem.4d	:= LINKSRC = mem.4d
-kmem.4d		:= LINKSRC = mem.4d
+allkmem.4d	:  LINKSRC = mem.4d
+kmem.4d		:  LINKSRC = mem.4d
 
-urandom.4d	:= LINKSRC = random.4d
+urandom.4d	:  LINKSRC = random.4d
 
-ticots.4d	:= LINKSRC = ticlts.4d
-ticotsord.4d	:= LINKSRC = ticlts.4d
+ticots.4d	:  LINKSRC = ticlts.4d
+ticotsord.4d	:  LINKSRC = ticlts.4d
 
-usb.4d		:= LINKSRC = usba.4d
+usb.4d		:  LINKSRC = usba.4d
 
 .KEEP_STATE:
 

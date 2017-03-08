@@ -70,7 +70,7 @@ LDFLAGS += -Ndrv/ip
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/filters.o := SMOFF += deref_check
+$(OBJS_DIR)/filters.o :  SMOFF += deref_check
 
 #
 #	Default build targets.

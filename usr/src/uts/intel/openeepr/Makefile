@@ -67,7 +67,7 @@ CERRWARN	+= -_gcc=-Wno-parentheses
 CERRWARN	+= $(CNOWARN_UNINIT)
 
 # needs work
-$(OBJS_DIR)/openprom.o := SMOFF += cast_assign,strcpy_overflow
+$(OBJS_DIR)/openprom.o :  SMOFF += cast_assign,strcpy_overflow
 
 #
 #	Default build targets.

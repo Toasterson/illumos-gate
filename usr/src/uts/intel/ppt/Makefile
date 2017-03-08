@@ -42,7 +42,7 @@ AS_INC_PATH	+= -I$(UTSBASE)/intel/io/vmm -I$(OBJS_DIR)
 LDFLAGS		+= -N drv/vmm -N misc/pcie
 LDFLAGS		+= -M $(MAPFILE)
 
-$(OBJS_DIR)/ppt.o := CERRWARN	+= -_gcc=-Wno-unused-variable
+$(OBJS_DIR)/ppt.o :  CERRWARN	+= -_gcc=-Wno-unused-variable
 
 # needs work
 SMOFF += all_func_returns

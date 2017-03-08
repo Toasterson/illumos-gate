@@ -29,7 +29,7 @@ SUPOBJS =	mevent.o testlib.o
 include ../../Makefile.com
 
 CMDS =		$(PROG:%=$(TESTDIR)/%)
-$(CMDS) :=	FILEMODE = 0555
+$(CMDS) : 	FILEMODE = 0555
 
 all: $(PROG)
 
@@ -37,7 +37,7 @@ install: $(TESTDIR) $(CMDS)
 
 $(CMDS): $(PROG)
 
-vnode_zvol :=	LDLIBS += -lzfs -lnvpair
+vnode_zvol : 	LDLIBS += -lzfs -lnvpair
 
 include ../../Makefile.targ
 

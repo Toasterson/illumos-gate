@@ -2,13 +2,13 @@
  * ksh makefile
  */
 
-SH := $(PWD:B:/[0-9]*$//:N=ksh*:-ksh)		/* name of the shell program */
+SH :  $(PWD:B:/[0-9]*$//:N=ksh*:-ksh)		/* name of the shell program */
 VERSION = 1.1
 LICENSE = since=1982,author=dgk
 CATALOG = libshell
 ERROR_CONTEXT_T == Error_context_t /* workaround until switch from errorpush()/errorpop() => errorctx() */
-RELEASE := $(SH:/.*sh//)
-SHCOMP := shcomp$(RELEASE)
+RELEASE :  $(SH:/.*sh//)
+SHCOMP :  shcomp$(RELEASE)
 
 /*
  * set these variables to 1 to enable, 0 to disable, null to probe
@@ -106,7 +106,7 @@ if SHOPT_BASH
 end
 
 /* use the following libraries only if they exist */
-LIBS_opt := +ljobs +li
+LIBS_opt :  +ljobs +li
 
 if  CC.HOSTTYPE == "sol([89]|[1-9][0-9]).*"
 	LDFLAGS  += $(CC.LD.LAZY) $(CC.LD.NORECORD)

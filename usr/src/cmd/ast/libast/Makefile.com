@@ -97,16 +97,16 @@ CERRWARN += -_gcc=-Wno-address
 # It seems, we get false positives with following three files.
 # Since this is third party source, silencing this warning seems to be
 # reasonable path to take.
-pics/path/pathpath.o := CERRWARN += -_gcc10=-Wno-return-local-addr
-pics/path/pathpath.o := CERRWARN += -_gcc11=-Wno-return-local-addr
-pics/path/pathkey.o := CERRWARN += -_gcc10=-Wno-return-local-addr
-pics/path/pathkey.o := CERRWARN += -_gcc11=-Wno-return-local-addr
-pics/path/pathprobe.o := CERRWARN += -_gcc10=-Wno-return-local-addr
-pics/path/pathprobe.o := CERRWARN += -_gcc11=-Wno-return-local-addr
+pics/path/pathpath.o :  CERRWARN += -_gcc10=-Wno-return-local-addr
+pics/path/pathpath.o :  CERRWARN += -_gcc11=-Wno-return-local-addr
+pics/path/pathkey.o :  CERRWARN += -_gcc10=-Wno-return-local-addr
+pics/path/pathkey.o :  CERRWARN += -_gcc11=-Wno-return-local-addr
+pics/path/pathprobe.o :  CERRWARN += -_gcc10=-Wno-return-local-addr
+pics/path/pathprobe.o :  CERRWARN += -_gcc11=-Wno-return-local-addr
 
 # The code layout after macro expansion is upsetting gcc 11, silence it.
-pics/sfio/sfdisc.o := CERRWARN += -_gcc11=-Wno-misleading-indentation
-pics/sfio/sfstack.o := CERRWARN += -_gcc11=-Wno-misleading-indentation
+pics/sfio/sfdisc.o :  CERRWARN += -_gcc11=-Wno-misleading-indentation
+pics/sfio/sfstack.o :  CERRWARN += -_gcc11=-Wno-misleading-indentation
 
 SMATCH= off
 
@@ -126,7 +126,7 @@ pics/%.o: $(ASTSRC)/%.c
 ######################################################################
 # Header file generation
 
-ast/%:= FILEMODE= 0644
+ast/%:  FILEMODE= 0644
 
 # The HEADERGEN headers are generated from the corresponding FEATURE/ file
 # with any ast_ prefix removed.
