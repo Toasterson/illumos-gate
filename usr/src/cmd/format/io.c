@@ -75,7 +75,7 @@ static int	slist_widest_str(slist_t *slist);
 static void	ljust_print(char *str, int width);
 static int	sup_inputchar(void);
 static void	sup_pushchar(int c);
-static int	geti64(char *str, uint64_t *iptr, uint64_t *wild);
+static int	geti64(char *str, diskaddr_t *iptr, diskaddr_t *wild);
 
 /*
  * This routine pushes the given character back onto the input stream.
@@ -277,7 +277,7 @@ geti(char *str, int *iptr, int *wild)
  * is present, the wildcard value will be returned.
  */
 static int
-geti64(char *str, uint64_t *iptr, uint64_t *wild)
+geti64(char *str, diskaddr_t *iptr, diskaddr_t *wild)
 {
 	char	*str2;
 
@@ -415,7 +415,7 @@ input(int type, char *promptstr, int delim, u_ioparam_t *param, int *deflt,
     int cmdflag)
 {
 	int		interactive, help, i, length, index, tied;
-	blkaddr_t	bn;
+	blkaddr32_t	bn;
 	diskaddr_t	bn64;
 	char		**str, **strings;
 	TOKEN		token, cleantoken;
@@ -425,7 +425,7 @@ input(int type, char *promptstr, int delim, u_ioparam_t *param, int *deflt,
 	char		*s;
 	int		value;
 	int		cyls, cylno;
-	uint64_t	blokno;
+	diskaddr_t	blokno;
 	float		nmegs;
 	float		ngigs;
 	char		shell_argv[MAXPATHLEN];
@@ -777,7 +777,7 @@ reprompt:
 		 * Convert token to a disk block number.
 		 */
 		if (cur_label == L_TYPE_EFI) {
-			if (geti64(cleantoken, (uint64_t *)&bn64, NULL))
+			if (geti64(cleantoken, &bn64, NULL))
 				break;
 		} else {
 			if (getbn(cleantoken, &bn64))
@@ -848,7 +848,7 @@ reprompt:
 		/*
 		 * Convert the token into an integer.
 		 */
-		if (geti64(cleantoken, (uint64_t *)&bn64, NULL)) {
+		if (geti64(cleantoken, &bn64, NULL)) {
 			break;
 		}
 		/*
