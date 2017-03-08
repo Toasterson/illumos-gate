@@ -37,6 +37,7 @@
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <strings.h>
 
 #if __APPLE__
 #undef daemon
