@@ -47,6 +47,7 @@
 #include "gssd.h"
 
 int gssd_debug = 0;		/* enable debugging printfs */
+mutex_t _svcstate_lock;
 extern void gsscred_set_options(void);
 
 void gssprog_1();
