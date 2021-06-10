@@ -20,6 +20,9 @@
  *
  * Copyright (c) 2006, 2010, Oracle and/or its affiliates. All rights reserved.
  */
+ /*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 #ifndef _KMFAPIP_H
 #define	_KMFAPIP_H
 
@@ -204,6 +207,8 @@ typedef struct _kmf_handle {
 #define	KMF_PLUGIN_PATH "/lib/crypto/"
 #elif defined(__amd64)
 #define	KMF_PLUGIN_PATH "/lib/crypto/amd64/"
+#elif !defined(_MULTI_DATAMODEL)
+#define	KMF_PLUGIN_PATH "/lib/crypto/"
 #endif
 #endif /* !KMF_PLUGIN_PATH */
 
