@@ -35,6 +35,7 @@
 #include <netinet/in.h>	/* For in6_addr_t */
 #include <sys/tsol/label.h> /* For brange_t */
 #include <sys/tsol/label_macro.h> /* For brange_t */
+#include <sys/sdt.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -124,16 +125,14 @@ extern "C" {
 #define	EXPER_RANGE_END		(EXPER+4)
 
 #define	BUMP_MIB(s, x)		{				\
-	extern void __dtrace_probe___mib_##x(int, void *);	\
 	void *stataddr = &((s)->x);				\
-	__dtrace_probe___mib_##x(1, stataddr);			\
+	DTRACE_MIB_2(x, int, 1, void*, stataddr);		\
 	(s)->x++;						\
 }
 
 #define	UPDATE_MIB(s, x, y)	{				\
-	extern void __dtrace_probe___mib_##x(int, void *);	\
 	void *stataddr = &((s)->x);				\
-	__dtrace_probe___mib_##x(y, stataddr);			\
+	DTRACE_MIB_2(x, int, y, void*, stataddr);		\
 	(s)->x += (y);						\
 }
 

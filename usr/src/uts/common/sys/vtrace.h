@@ -38,6 +38,7 @@
 #ifndef	_ASM
 #include <sys/types.h>
 #include <sys/time.h>
+#include <sys/sdt.h>
 #ifdef	_KERNEL
 #include <sys/cpuvar.h>
 #endif	/* _KERNEL */
@@ -1069,38 +1070,30 @@ extern "C" {
 #if defined(DEBUG) || defined(lint) || defined(__lint)
 
 #define	TRACE_0(fac, tag, name) {				\
-	extern void __dtrace_probe___vtrace_##tag(void);	\
-	__dtrace_probe___vtrace_##tag();			\
+	DTRACE_VTRACE_0(tag);					\
 }
 
 #define	TRACE_1(fac, tag, name, d1) {				\
-	extern void __dtrace_probe___vtrace_##tag(ulong_t);	\
-	__dtrace_probe___vtrace_##tag((ulong_t)(d1));		\
+	DTRACE_VTRACE_1(tag, ulong_t, (d1));			\
 }
 
 #define	TRACE_2(fac, tag, name, d1, d2) {			\
-	extern void __dtrace_probe___vtrace_##tag(ulong_t, ulong_t);	\
-	__dtrace_probe___vtrace_##tag((ulong_t)(d1), (ulong_t)(d2));	\
+	DTRACE_VTRACE_2(tag, ulong_t, (d1), ulong_t, (d2));	\
 }
 
-#define	TRACE_3(fac, tag, name, d1, d2, d3) {				\
-	extern void __dtrace_probe___vtrace_##tag(ulong_t, ulong_t, ulong_t); \
-	__dtrace_probe___vtrace_##tag((ulong_t)(d1), (ulong_t)(d2), \
-	    (ulong_t)(d3));	\
+#define	TRACE_3(fac, tag, name, d1, d2, d3) {			\
+	DTRACE_VTRACE_3(tag, ulong_t, (d1), ulong_t, (d2),	\
+	    ulong_t, (d3)); \
 }
 
-#define	TRACE_4(fac, tag, name, d1, d2, d3, d4) {			\
-	extern void __dtrace_probe___vtrace_##tag(ulong_t, ulong_t, ulong_t, \
-	    ulong_t); \
-	__dtrace_probe___vtrace_##tag((ulong_t)(d1), (ulong_t)(d2), \
-	    (ulong_t)(d3), (ulong_t)(d4));	\
+#define	TRACE_4(fac, tag, name, d1, d2, d3, d4) {		\
+	DTRACE_VTRACE_4(tag, ulong_t, (d1), ulong_t, (d2),	\
+	    ulong_t, (d3), ulong_t, (d4)); \
 }
 
-#define	TRACE_5(fac, tag, name, d1, d2, d3, d4, d5) {			\
-	extern void __dtrace_probe___vtrace_##tag(ulong_t, ulong_t, ulong_t, \
-	    ulong_t, ulong_t); \
-	__dtrace_probe___vtrace_##tag((ulong_t)(d1), (ulong_t)(d2), \
-	    (ulong_t)(d3), (ulong_t)(d4), (ulong_t)(d5));	\
+#define	TRACE_5(fac, tag, name, d1, d2, d3, d4, d5) {		\
+	DTRACE_VTRACE_5(tag, ulong_t, (d1), ulong_t, (d2),	\
+	    ulong_t, (d3), ulong_t, (d4), ulong_t, (d5)); \
 }
 
 #else

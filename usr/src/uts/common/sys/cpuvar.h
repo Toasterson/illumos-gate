@@ -27,6 +27,9 @@
  * Copyright 2019 Joyent, Inc.
  * Copyright 2021 Oxide Computer Company
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 #ifndef _SYS_CPUVAR_H
 #define	_SYS_CPUVAR_H
@@ -36,6 +39,7 @@
 #include <sys/disp.h>
 #include <sys/processor.h>
 #include <sys/kcpc.h>		/* has kcpc_ctx_t definition */
+#include <sys/sdt.h>
 
 #include <sys/loadavg.h>
 #if (defined(_KERNEL) || defined(_KMEMUSER)) && defined(_MACHDEP)
@@ -560,11 +564,9 @@ extern struct cpu *curcpup(void);
 	}
 
 #define	CPU_STATS_ADDQ(cp, class, stat, amount)	{			\
-	extern void __dtrace_probe___cpu_##class##info_##stat(uint_t,	\
-	    uint64_t *, cpu_t *);					\
 	uint64_t *stataddr = &((cp)->cpu_stats.class.stat);		\
-	__dtrace_probe___cpu_##class##info_##stat((amount),		\
-	    stataddr, cp);						\
+	DTRACE_CPU_3(class##info_##stat, uint_t, (amount),		\
+	    uint64_t*, stataddr, cpu_t*, cp);				\
 	*(stataddr) += (amount);					\
 }
 

@@ -2484,7 +2484,12 @@ typedef	struct	tcpiphdr	tcpiphdr_t;
 # undef IPFILTER_BPF
 #endif
 
-#ifndef DTRACE_PROBE
+#ifndef _KERNEL
+#undef DTRACE_PROBE
+#undef DTRACE_PROBE1
+#undef DTRACE_PROBE2
+#undef DTRACE_PROBE3
+#undef DTRACE_PROBE4
 # define DTRACE_PROBE(_x_)
 # define DTRACE_PROBE1(_x_, _t1_, _a1_)
 # define DTRACE_PROBE2(_x_, _t1_, _a1_, _t2_, _a2_)

@@ -171,9 +171,8 @@ static void		(**vsd_destructor)(void *);
 	    (vfsp->vfs_flag & VFS_STATS) && (vp)->v_type != VBAD) {	\
 		vopstats_t *vsp = &vfsp->vfs_vopstats;			\
 		uint64_t *stataddr = &(vsp->n##counter.value.ui64);	\
-		extern void __dtrace_probe___fsinfo_##counter(vnode_t *, \
-		    size_t, uint64_t *);				\
-		__dtrace_probe___fsinfo_##counter(vp, 0, stataddr);	\
+		DTRACE_FSINFO_3(counter, vnode_t *, vp, size_t, 0,	\
+		    uint64_t *, stataddr);				\
 		(*stataddr)++;						\
 		if ((vsp = vfsp->vfs_fstypevsp) != NULL) {		\
 			vsp->n##counter.value.ui64++;			\
@@ -187,9 +186,8 @@ static void		(**vsd_destructor)(void *);
 	    (vfsp->vfs_flag & VFS_STATS) && (vp)->v_type != VBAD) {	\
 		vopstats_t *vsp = &vfsp->vfs_vopstats;			\
 		uint64_t *stataddr = &(vsp->n##counter.value.ui64);	\
-		extern void __dtrace_probe___fsinfo_##counter(vnode_t *, \
-		    size_t, uint64_t *);				\
-		__dtrace_probe___fsinfo_##counter(vp, bytesval, stataddr); \
+		DTRACE_FSINFO_3(counter, vnode_t *, vp,			\
+		    size_t, bytesval, uint64_t *, stataddr);		\
 		(*stataddr)++;						\
 		vsp->bytecounter.value.ui64 += bytesval;		\
 		if ((vsp = vfsp->vfs_fstypevsp) != NULL) {		\

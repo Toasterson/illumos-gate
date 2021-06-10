@@ -422,6 +422,37 @@ extern "C" {
 	    type3, arg3, type4, arg4, type5, arg5, type6, arg6,		\
 	    type7, arg7, type8, arg8);
 
+#define	DTRACE_MIB_2(name, type1, arg1, type2, arg2)			\
+	DTRACE_PROBE2(__mib_##name, type1, arg1, type2, arg2);
+
+#define	DTRACE_VTRACE_0(name)						\
+	DTRACE_PROBE(__vtrace_##name);
+
+#define	DTRACE_VTRACE_1(name, type1, arg1)				\
+	DTRACE_PROBE1(__vtrace_##name, type1, arg1);
+
+#define	DTRACE_VTRACE_2(name, type1, arg1, type2, arg2)			\
+	DTRACE_PROBE2(__vtrace_##name, type1, arg1, type2, arg2);
+
+#define	DTRACE_VTRACE_3(name, type1, arg1, type2, arg2, type3, arg3)	\
+	DTRACE_PROBE3(__vtrace_##name, type1, arg1, type2, arg2, type3, arg3);
+
+#define	DTRACE_VTRACE_4(name, type1, arg1, type2, arg2, type3, arg3,	\
+	    type4, arg4)						\
+	DTRACE_PROBE4(__vtrace_##name, type1, arg1, type2, arg2,	\
+	    type3, arg3, type4, arg4);
+
+#define	DTRACE_VTRACE_5(name, type1, arg1, type2, arg2, type3, arg3,	\
+	    type4, arg4, type5, arg5)					\
+	DTRACE_PROBE5(__vtrace_##name, type1, arg1, type2, arg2,	\
+	    type3, arg3, type4, arg4, type5, arg5);
+
+#define	DTRACE_CPU_3(name, type1, arg1, type2, arg2, type3, arg3)	\
+	DTRACE_PROBE3(__cpu_##name, type1, arg1, type2, arg2, type3, arg3);
+
+#define	DTRACE_FSINFO_3(name, type1, arg1, type2, arg2, type3, arg3)	\
+	DTRACE_PROBE3(__fsinfo_##name, type1, arg1, type2, arg2, type3, arg3);
+
 /*
  * The set-error SDT probe is extra static, in that we declare its fake
  * function literally, rather than with the DTRACE_PROBE1() macro.  This is
@@ -435,8 +466,8 @@ extern "C" {
  * twice, so it should not have side effects (e.g. something like:
  * "return (SET_ERROR(log_error(EINVAL, info)));" would log the error twice).
  */
-extern void __dtrace_probe_set__error(uintptr_t);
-#define	SET_ERROR(err) (__dtrace_probe_set__error(err), err)
+#define	SET_ERROR(err) \
+    ((DTRACE_PROBE1(set__error, uintptr_t, err)), err)
 
 #endif /* _KERNEL */
 
