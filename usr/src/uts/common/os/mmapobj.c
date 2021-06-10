@@ -999,7 +999,7 @@ static int
 mmapobj_map_ptload(struct vnode *vp, caddr_t addr, size_t len,
     volatile size_t zfodlen, off_t offset, int prot, cred_t *fcred)
 {
-	int error = 0;
+	volatile int error = 0;
 	caddr_t zfodbase, oldaddr;
 	size_t oldlen;
 	size_t end;
