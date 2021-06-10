@@ -24,6 +24,9 @@
  * Copyright 2016 Nexenta Systems, Inc. All rights reserved.
  * Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 /*
  * ZFS syseventd module.
@@ -83,7 +86,7 @@
 #if defined(__i386) || defined(__amd64)
 #define	PHYS_PATH	":q"
 #define	RAW_SLICE	"p0"
-#elif defined(__sparc)
+#elif defined(__sparc) || defined(__aarch64) || defined(__riscv)
 #define	PHYS_PATH	":c"
 #define	RAW_SLICE	"s2"
 #else

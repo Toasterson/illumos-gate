@@ -25,6 +25,9 @@
  * Copyright 2019 Joyent, Inc.
  * Copyright 2017 RackTop Systems.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 #ifndef _SYS_ZFS_CONTEXT_H
 #define	_SYS_ZFS_CONTEXT_H
@@ -120,7 +123,6 @@ extern void dprintf_setup(int *argc, char **argv);
  * zfs$target:::probe2 /copyinstr(arg0) == "zfs__probe_name"/
  *     {printf("%u %p\n", arg1, arg2);}
  */
-
 #ifdef DTRACE_PROBE
 #undef	DTRACE_PROBE
 #endif	/* DTRACE_PROBE */

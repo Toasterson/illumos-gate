@@ -43,13 +43,16 @@ CFLAGS += $(CCVERBOSE)
 CERRWARN += $(CNOWARN_UNINIT)
 CERRWARN += -_gcc=-Wno-unused-variable
 
+nlobjs/$(PROG).o: CERRWARN += -_gcc12=-Wno-stringop-overflow
+nlobjs.xpg4/$(PROG).o: CERRWARN += -_gcc12=-Wno-stringop-overflow
+
 # not linted
 SMATCH=off
 
 $(XPG4):  CPPFLAGS += -DXPG4
 
 MAPFILE.INT =	../expr/mapfile-intf
-LDFLAGS +=	$(MAPFILE.INT:%=-Wl,-M%)
+#LDFLAGS +=	$(MAPFILE.INT:%=-Wl,-M%)
 
 .KEEP_STATE:
 

@@ -101,6 +101,7 @@ CERRWARN += -_gcc=-Wno-parentheses
 CERRWARN += -_gcc=-Wno-char-subscripts
 CERRWARN += -_gcc=-Wno-extra
 CERRWARN += -_gcc=-Wno-address
+arp: CERRWARN += -_gcc11=-Wno-misleading-indentation
 
 # "missing type for func"
 SMATCH=off

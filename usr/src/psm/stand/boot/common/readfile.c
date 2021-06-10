@@ -809,7 +809,7 @@ read_elf64(int fd, int print, Elf64_Ehdr *elfhdrp)
 				 */
 				if (phdr->p_flags & PF_W)
 					dhdr = phdr;
-				else
+				else if (phdr->p_flags & PF_X)
 					thdr = phdr;
 
 				if (verbosemode)

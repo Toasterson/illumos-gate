@@ -87,6 +87,8 @@ CERRWARN +=	$(CNOWARN_UNINIT)
 CERRWARN +=	-_gcc=-Wno-char-subscripts
 CERRWARN +=	-_gcc=-Wno-switch
 
+pics/smb_domain.o: CERRWARN += -_gcc12=-Wno-address
+
 # not linted
 SMATCH=off
 

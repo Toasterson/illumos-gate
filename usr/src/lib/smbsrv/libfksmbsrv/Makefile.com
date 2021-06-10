@@ -278,6 +278,7 @@ CLEANFILES += $(EXTPICS)
 
 $(OBJS) $(PICS) : ../common/fksmb_dt.h
 
+$(LIBS): $(EXTPICS)
 pics/fksmb_dt.o: ../common/fksmb_dt.d $(PICS)
 	$(COMPILE.d) -C -s ../common/fksmb_dt.d -o $@ $(PICS)
 	$(POST_PROCESS_O)

@@ -1,0 +1,45 @@
+OUTPUT_ARCH(riscv)
+ENTRY(_start)
+
+SECTIONS
+{
+	. = 0xfffffffffe000000;
+	.text : {
+		*(.plt*)
+		*(.text)
+		*(.text.*)
+		*(.srodata)
+		*(.srodata.*)
+		*(.rodata)
+		*(.rodata.*)
+		. = ALIGN(0x10);
+	}
+	. = ALIGN(0x1000);
+	.data : {
+		*(.data)
+		*(.data.*)
+		. = ALIGN(0x8);
+		HIDDEN(_probepoints_start = .);
+		*(.probepoint)
+		HIDDEN(_probepoints_end = .);
+		CONSTRUCTORS
+		*(.got)
+		*(.got.*)
+		__global_pointer$ = . + 0x800;
+		*(.sdata)
+		*(.sdata.*)
+		. = ALIGN(0x10);
+	}
+	.bss : {
+		*(.sbss)
+		*(.sbss.*)
+		*(.scommon)
+		*(.bss)
+		*(.bss.*)
+		*(COMMON)
+	. = ALIGN(0x1000);
+	}
+	_end = . ;
+	/DISCARD/ : { *(.interp) }
+	/DISCARD/ : { *(.eh_frame) }
+}

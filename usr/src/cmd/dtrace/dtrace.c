@@ -68,6 +68,9 @@ typedef struct dtrace_cmd {
 #define	E_USAGE		2
 
 static const char DTRACE_OPTSTR[] =
+#ifdef _CROSS_TOOLS
+	"+"
+#endif
 	"3:6:aAb:Bc:CD:ef:FGhHi:I:lL:m:n:o:p:P:qs:SU:vVwx:X:Z";
 
 static char **g_argv;
@@ -94,7 +97,16 @@ static int g_mode = DMODE_EXEC;
 static int g_status = E_SUCCESS;
 static int g_grabanon = 0;
 static const char *g_ofile = NULL;
+#ifdef _CROSS_TOOLS
+static FILE *g_ofp;
+__attribute__((constructor))
+static void constructor()
+{
+	g_ofp = stdout;
+}
+#else
 static FILE *g_ofp = stdout;
+#endif
 static dtrace_hdl_t *g_dtp;
 static char *g_etcfile = "/etc/system";
 static const char *g_etcbegin = "* vvvv Added by DTrace";
@@ -1053,6 +1065,7 @@ chew(const dtrace_probedata_t *data, void *arg)
 static void
 go(void)
 {
+#ifndef _CROSS_TOOLS
 	int i;
 
 	struct {
@@ -1144,6 +1157,7 @@ go(void)
 		error("%s %s to once every %lld nanoseconds\n",
 		    rates[i].name, dir, (long long)nval);
 	}
+#endif
 }
 
 /*ARGSUSED*/
@@ -1844,3 +1858,64 @@ main(int argc, char *argv[])
 	dtrace_close(g_dtp);
 	return (g_status);
 }
+
+#ifdef _CROSS_TOOLS
+struct ps_prochandle *
+dt_proc_grab(dtrace_hdl_t *dtp, pid_t pid, int flags, int nomonitor)
+{
+	return NULL;
+}
+void
+dt_proc_init(dtrace_hdl_t *dtp)
+{}
+void
+dt_proc_fini(dtrace_hdl_t *dtp)
+{}
+void
+dt_proc_lock(dtrace_hdl_t *dtp, struct ps_prochandle *P)
+{}
+void
+dt_proc_unlock(dtrace_hdl_t *dtp, struct ps_prochandle *P)
+{}
+void
+dt_proc_release(dtrace_hdl_t *dtp, struct ps_prochandle *P)
+{}
+struct ps_prochandle *
+dtrace_proc_grab(dtrace_hdl_t *dtp, pid_t pid, int flags)
+{
+	return NULL;
+}
+void
+dtrace_proc_continue(dtrace_hdl_t *dtp, struct ps_prochandle *P)
+{}
+struct ps_prochandle *
+dtrace_proc_create(dtrace_hdl_t *dtp, const char *file, char *const *argv)
+{
+	return NULL;
+}
+void
+dt_aggregate_destroy(dtrace_hdl_t *dtp)
+{}
+int
+dtrace_aggregate_print(dtrace_hdl_t *dtp, FILE *fp,
+    dtrace_aggregate_walk_f *func)
+{}
+void
+dt_pid_get_types(dtrace_hdl_t *dtp, const dtrace_probedesc_t *pdp,
+    dtrace_argdesc_t *adp, int *nargs)
+{}
+dtrace_workstatus_t
+dtrace_work(dtrace_hdl_t *dtp, FILE *fp,
+    dtrace_consume_probe_f *pfunc, dtrace_consume_rec_f *rfunc, void *arg)
+{
+	return DTRACE_WORKSTATUS_ERROR;
+}
+int
+dtrace_stop(dtrace_hdl_t *dtp)
+{
+	return -1;
+}
+void
+dtrace_sleep(dtrace_hdl_t *dtp)
+{}
+#endif

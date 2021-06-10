@@ -161,7 +161,11 @@ zfs_init(void)
 	STAILQ_INIT(&zfs_vdevs);
 	STAILQ_INIT(&zfs_pools);
 
+#if defined(__aarch64) || defined(__riscv)
+	dnode_cache_buf = malloc(SPA_OLDMAXBLOCKSIZE);
+#else
 	dnode_cache_buf = malloc(SPA_MAXBLOCKSIZE);
+#endif
 
 	zfs_init_crc();
 }
@@ -1376,8 +1380,10 @@ static spa_t *
 spa_find_by_dev(struct zfs_devdesc *dev)
 {
 
+#if !(defined(__aarch64) || defined(__riscv))
 	if (dev->dd.d_dev->dv_type != DEVT_ZFS)
 		return (NULL);
+#endif
 
 	if (dev->pool_guid == 0)
 		return (STAILQ_FIRST(&zfs_pools));

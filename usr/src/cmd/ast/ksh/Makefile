@@ -24,7 +24,7 @@
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 #
 
-SHELL= /usr/bin/ksh93
+SHELL= /bin/ksh93
 
 PROG= ksh
 
@@ -39,6 +39,8 @@ SUBDIRS += builtins
 
 ARCH32_i386= i86
 ARCH32_sparc= sparcv7
+ARCH32_aarch64= aarch64
+ARCH32_riscv64= riscv64
 ARCH32= $(ARCH32_$(MACH))
 
 all		: 	TARGET = all

@@ -421,6 +421,10 @@ static const dt_modops_t dt_modops_64 = {
 dt_module_t *
 dt_module_create(dtrace_hdl_t *dtp, const char *name)
 {
+#if defined(__aarch64) || defined(__riscv)
+	if (strcmp(name, "genunix") == 0)
+		name = "unix";
+#endif
 	long pid;
 	char *eptr;
 	dt_ident_t *idp;
@@ -479,6 +483,10 @@ dt_module_create(dtrace_hdl_t *dtp, const char *name)
 dt_module_t *
 dt_module_lookup_by_name(dtrace_hdl_t *dtp, const char *name)
 {
+#if defined(_CROSS_TOOLS) || defined(__aarch64) || defined(__riscv)
+	if (strcmp(name, "genunix") == 0)
+		name = "unix";
+#endif
 	uint_t h = dt_strtab_hash(name, NULL) % dtp->dt_modbuckets;
 	dt_module_t *dmp;
 

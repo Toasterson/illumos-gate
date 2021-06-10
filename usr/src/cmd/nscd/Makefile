@@ -63,6 +63,8 @@ CERRWARN +=	-_gcc=-Wno-switch
 CERRWARN +=	$(CNOWARN_UNINIT)
 CERRWARN +=	-_gcc=-Wno-parentheses
 CERRWARN +=	-_gcc=-Wno-type-limits
+CERRWARN +=	-_gcc=-Wno-cast-function-type
+nscd_config.o: CERRWARN += -_gcc11=-Wno-misleading-indentation
 
 # not linted
 SMATCH=off

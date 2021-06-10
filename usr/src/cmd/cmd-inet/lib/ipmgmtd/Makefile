@@ -56,6 +56,8 @@ CTFCONVERT_HOOK = && $(CTFCONVERT_O)
 CTFMERGE_HOOK = && $(CTFMERGE) -L VERSION -o $@ $(OBJS)
 $(OBJS) :  CFLAGS += $(CTF_FLAGS)
 
+ipmgmt_persist.o: CERRWARN += -_gcc12=-Wno-address
+
 .KEEP_STATE:
 
 .PARALLEL:
@@ -82,7 +84,7 @@ lint:	lint_SRCS
 $(ROOTCFGDIR):
 	$(INS.dir)
 
-$(ROOTCFGDIR)/%: $(ROOTCFGDIR) %
+$(ROOTCFGDIR)/%: % $(ROOTCFGDIR)
 	$(INS.file)
 
 include	../../../Makefile.targ

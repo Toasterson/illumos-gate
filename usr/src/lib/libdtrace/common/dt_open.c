@@ -714,7 +714,11 @@ typedef struct dt_fdlist {
 	uint_t df_size;		/* size of df_fds[] */
 } dt_fdlist_t;
 
+#ifdef _CROSS_TOOLS
+__attribute__((constructor))
+#else
 #pragma init(_dtrace_init)
+#endif
 void
 _dtrace_init(void)
 {
@@ -974,7 +978,9 @@ alloc:
 	(void) uname(&dtp->dt_uts);
 
 	if (dtp->dt_mods == NULL || dtp->dt_provs == NULL ||
+#ifndef _CROSS_TOOLS
 	    dtp->dt_procs == NULL || dtp->dt_proc_env == NULL ||
+#endif
 	    dtp->dt_ld_path == NULL || dtp->dt_cpp_path == NULL ||
 	    dtp->dt_cpp_argv == NULL)
 		return (set_open_errno(dtp, errp, EDT_NOMEM));
@@ -1009,7 +1015,7 @@ alloc:
 	else if (flags & DTRACE_O_ILP32)
 		dtp->dt_conf.dtc_ctfmodel = CTF_MODEL_ILP32;
 
-#ifdef __sparc
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
 	/*
 	 * On SPARC systems, __sparc is always defined for <sys/isa_defs.h>
 	 * and __sparcv9 is defined if we are doing a 64-bit compile.
@@ -1022,7 +1028,7 @@ alloc:
 		return (set_open_errno(dtp, errp, EDT_NOMEM));
 #endif
 
-#ifdef __x86
+#if !defined(_CROSS_TOOLS) && defined(__x86)
 	/*
 	 * On x86 systems, __i386 is defined for <sys/isa_defs.h> for 32-bit
 	 * compiles and __amd64 is defined for 64-bit compiles.  Unlike SPARC,
@@ -1035,6 +1041,16 @@ alloc:
 		if (dt_cpp_add_arg(dtp, "-D__i386") == NULL)
 			return (set_open_errno(dtp, errp, EDT_NOMEM));
 	}
+#endif
+
+#if (!defined(_CROSS_TOOLS) && defined(__aarch64)) || defined(_TARGET_AARCH64)
+	if (dt_cpp_add_arg(dtp, "-D__aarch64") == NULL)
+		return (set_open_errno(dtp, errp, EDT_NOMEM));
+#endif
+
+#if (!defined(_CROSS_TOOLS) && defined(__riscv)) || defined(_TARGET_RISCV)
+	if (dt_cpp_add_arg(dtp, "-D__riscv") == NULL)
+		return (set_open_errno(dtp, errp, EDT_NOMEM));
 #endif
 
 	if (dtp->dt_conf.dtc_difversion < DIF_VERSION)

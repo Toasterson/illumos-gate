@@ -34,16 +34,28 @@
 # Copyright 2020 Peter Tribble
 #
 
+ifndef _MAKEFILE_MASTER
+_MAKEFILE_MASTER=1
+
+#
+# Setting base directory
+#
+CODEMGR_WS:=$(shell git rev-parse --show-toplevel)
+SRC=$(CODEMGR_WS)/usr/src
+EXTRA=$(CODEMGR_WS)/extra
+DISTFILES=$(EXTRA)/distfiles
+include $(SRC)/mk/config.mk
+
 #
 # Makefile.master, global definitions for system source
 #
-ROOT=		/proto
+#ROOT=		/proto
 
 #
 # Adjunct root, containing an additional proto area to be used for headers
 # and libraries.
 #
-ADJUNCT_PROTO=
+ADJUNCT_PROTO=$(ROOT)
 # HAVE_ADJUNCT_PROTO - ADJUNCT_PROTO is set to a non-default value
 # NO_ADJUNCT_PROTO - ADJUNCT_PROTO is unset
 #
@@ -84,7 +96,7 @@ CONTRIB= $(SRC)/contrib
 #
 
 PRE_POUND=				pre\#
-POUND_SIGN=				$(PRE_POUND:pre\%=%)
+POUND_SIGN=				$(PRE_POUND:pre%=%)
 
 NOT_RELEASE_BUILD=
 RELEASE_BUILD=				$(POUND_SIGN)
@@ -144,12 +156,12 @@ GCCLIBDIR64=	$(GNUC_ROOT)/lib/$(MACH64)
 
 DOCBOOK_XSL_ROOT=	/usr/share/sgml/docbook/xsl-stylesheets
 
-RPCGEN=		$(ONBLD_TOOLS)/bin/$(MACH)/rpcgen
+RPCGEN=		$(CROSS_TOOLS)/bin/rpcgen
 STABS=		$(ONBLD_TOOLS)/bin/$(MACH)/stabs
 ELFEXTRACT=	$(ONBLD_TOOLS)/bin/$(MACH)/elfextract
 MBH_PATCH=	$(ONBLD_TOOLS)/bin/$(MACH)/mbh_patch
 BTXLD=		$(ONBLD_TOOLS)/bin/$(MACH)/btxld
-VTFONTCVT=	$(ONBLD_TOOLS)/bin/$(MACH)/vtfontcvt
+VTFONTCVT=	$(CROSS_TOOLS)/bin/vtfontcvt
 # echo(1) and true(1) are specified without absolute paths, so that the shell
 # spawned by make(1) may use the built-in versions.  This is minimally
 # problematic, as the shell spawned by make(1) is known and under control, the
@@ -157,9 +169,9 @@ VTFONTCVT=	$(ONBLD_TOOLS)/bin/$(MACH)/vtfontcvt
 #
 # We specifically want an echo(1) that does interpolation of escape sequences,
 # which ksh93, /bin/sh, and bash will all provide.
-ECHO=		echo
+ECHO=		echo -e
 TRUE=		true
-INS=		$(ONBLD_TOOLS)/bin/$(MACH)/install
+INS=		$(CROSS_TOOLS)/bin/install_
 ED=		/usr/bin/ed
 SYMLINK=	/usr/bin/ln -s
 LN=		/usr/bin/ln
@@ -175,7 +187,8 @@ EGREP=		/usr/bin/egrep
 ELFWRAP=	/usr/bin/elfwrap
 KSH93=		/usr/bin/ksh93
 SED=		/usr/bin/sed
-AWK=		/usr/bin/nawk
+AWK=		/usr/bin/awk
+NAWK=		/usr/bin/gawk
 CP=		/usr/bin/cp -f
 MCS=		/usr/bin/mcs
 CAT=            /usr/bin/cat
@@ -183,9 +196,9 @@ ELFDUMP=	/usr/bin/elfdump
 M4=		/usr/bin/m4
 GM4=		/usr/bin/gm4
 STRIP=		/usr/bin/strip
-LEX=		/usr/bin/lex
+LEX=		$(CROSS_TOOLS)/bin/lex
 FLEX=		/usr/bin/flex
-YACC=		/usr/bin/yacc
+YACC=		$(CROSS_TOOLS)/bin/yacc
 BISON=		/usr/bin/bison
 CPP=		/usr/lib/cpp
 SH=		/usr/bin/sh
@@ -198,12 +211,12 @@ CTFDIFF=	$(ONBLD_TOOLS)/bin/$(MACH)/ctfdiff
 CTFMERGE=	$(ONBLD_TOOLS)/bin/$(MACH)/ctfmerge
 CTFSTABS=	$(ONBLD_TOOLS)/bin/$(MACH)/ctfstabs
 CTFSTRIP=	$(ONBLD_TOOLS)/bin/$(MACH)/ctfstrip
-NDRGEN=		$(ONBLD_TOOLS)/bin/$(MACH)/ndrgen
+NDRGEN=		$(CROSS_TOOLS)/bin/ndrgen
 GENOFFSETS=	$(ONBLD_TOOLS)/bin/genoffsets
 XREF=		$(ONBLD_TOOLS)/bin/xref
 FIND=		/usr/bin/find
 PERL=		/usr/bin/perl
-PERL_VERSION=	5.10.0
+PERL_VERSION=	5.26.3
 PERL_PKGVERS=	-510
 PERL_MACH=	i86pc
 $(SPARC_BLD)PERL_MACH=	sun4
@@ -235,12 +248,15 @@ TAR=		/usr/bin/tar
 ASTBINDIR=	/usr/ast/bin
 MSGCC=		$(ASTBINDIR)/msgcc
 MSGFMT=		/usr/bin/msgfmt -s
-LCDEF=		$(ONBLD_TOOLS)/bin/$(MACH)/localedef
-TIC=		$(ONBLD_TOOLS)/bin/$(MACH)/tic
-ZIC=		$(ONBLD_TOOLS)/bin/$(MACH)/zic
+LCDEF=		$(CROSS_TOOLS)/bin/localedef
+TIC=		$(CROSS_TOOLS)/bin/tic
+ZIC=		$(CROSS_TOOLS)/bin/zic
 OPENSSL=	/usr/bin/openssl
 CPCGEN=		$(ONBLD_TOOLS)/bin/$(MACH)/cpcgen
-GENICONVTBL=	$(ONBLD_TOOLS)/bin/$(MACH)/geniconvtbl
+GENICONVTBL=	$(CROSS_TOOLS)/bin/geniconvtbl
+GENASSYM=	$(CROSS_TOOLS)/bin/genassym
+SGSMSG=		$(CROSS_TOOLS)/bin/sgsmsg
+DTC=		$(CROSS_TOOLS)/bin/dtc
 
 DEFAULT_CONSOLE_COLOR=					\
 	-DDEFAULT_ANSI_FOREGROUND=ANSI_COLOR_WHITE	\
@@ -515,6 +531,8 @@ CERRWARN += -_gcc=-Wno-sign-compare
 CERRWARN += -_gcc=-Wno-unknown-pragmas
 CERRWARN += -_gcc=-Wno-unused-parameter
 CERRWARN += -_gcc=-Wno-missing-field-initializers
+CERRWARN += -_gcc=-Wno-maybe-uninitialized
+CERRWARN += -_gcc=-Wno-implicit-fallthrough
 
 # Unfortunately, this option can misfire very easily and unfixably.
 CERRWARN +=	-_gcc=-Wno-array-bounds
@@ -715,7 +733,7 @@ DTS_ERRNO=-D_TS_ERRNO
 CPPFLAGS.first=	# Please keep empty.  Only lower makefiles should set this.
 CPPFLAGS.master=$(DTEXTDOM) $(DTS_ERRNO) \
 	$(ENVCPPFLAGS1) $(ENVCPPFLAGS2) $(ENVCPPFLAGS3) $(ENVCPPFLAGS4) \
-	$(ADJUNCT_PROTO:%=-I%/usr/include)
+	$(ADJUNCT_PROTO:%=$(CCYFLAG)%/usr/include)
 CPPFLAGS.native=$(ENVCPPFLAGS1) $(ENVCPPFLAGS2) $(ENVCPPFLAGS3) \
 		$(ENVCPPFLAGS4) -I$(NATIVE_ADJUNCT)/include
 CPPFLAGS=	$(CPPFLAGS.first) $(CPPFLAGS.master)
@@ -778,6 +796,8 @@ CCFLAGS=	$(CCOPTFLAG) $($(MACH)_CCFLAGS) $(CCSOURCEDEBUGFLAGS) \
 		$(CCUSERFLAGS)
 CCFLAGS64=	$(CCOPTFLAG64) $($(MACH64)_CCFLAGS) $(CCSOURCEDEBUGFLAGS) \
 		$(CCUSERFLAGS64)
+CCFLAGS+=	$(CCYFLAG)$(ADJUNCT_PROTO)/usr/include/c++/$(GCC_VER)/$(MACH)-solaris2.11
+CCFLAGS+=	$(CCYFLAG)$(ADJUNCT_PROTO)/usr/include/c++/$(GCC_VER)
 
 #
 #
@@ -831,14 +851,14 @@ MAPFILE.INT =		mapfile-intf
 #	LDLIBS64=-YP,$ROOT/lib/$MACH64:$ROOT/usr/lib/$MACH64
 #
 LDLIBS32 =	$(ENVLDLIBS1) $(ENVLDLIBS2) $(ENVLDLIBS3)
-LDLIBS32 +=	$(ADJUNCT_PROTO:%=-L%/usr/lib -L%/lib)
+LDLIBS32 +=	#$(ADJUNCT_PROTO:%=-L%/usr/lib -L%/lib)
 LDLIBS.cmd =	$(LDLIBS32)
 LDLIBS.lib =	$(LDLIBS32)
 
 LDLIBS64 =	$(ENVLDLIBS1:%=%/$(MACH64)) \
 		$(ENVLDLIBS2:%=%/$(MACH64)) \
 		$(ENVLDLIBS3:%=%/$(MACH64))
-LDLIBS64 +=     $(ADJUNCT_PROTO:%=-L%/usr/lib/$(MACH64) -L%/lib/$(MACH64))
+LDLIBS64 +=     #$(ADJUNCT_PROTO:%=-L%/usr/lib/$(MACH64) -L%/lib/$(MACH64))
 
 #
 # Define compilation macros.
@@ -863,7 +883,7 @@ COMPILE.java=	$(JAVAC) $(JAVAFLAGS) -classpath $(CLASSPATH)
 CCNEEDED		= -lC
 CCEXTNEEDED		= -lCrun -lCstd
 NATIVECCNEEDED		= -lC
-$(__GNUC)CCNEEDED	= -L$(GCCLIBDIR) -lstdc++ -lgcc_s
+$(__GNUC)CCNEEDED	= -L$(GCCLIBDIR) -lstdc++ -lgcc
 $(__GNUC)CCEXTNEEDED	= $(CCNEEDED)
 $(__GNUC)NATIVECCNEEDED	= -R$(GCCLIBDIR) -L$(GCCLIBDIR) -lstdc++ -lgcc_s
 
@@ -1263,52 +1283,63 @@ PKGPUBLISHER_NONREDIST=	on-extra
 	$(SED) "/^domain/d" < $(<F).po > $@ ;
 	$(RM) $(<F).po
 
+##
+## When using xgettext, we want messages to go to the default domain,
+## rather than the specified one.  This special version of the
+## COMPILE.cpp macro effectively prevents expansion of TEXT_DOMAIN,
+## causing xgettext to put all messages into the default domain.
+##
+#CPPFORPO=$(COMPILE.cpp:\"$(TEXT_DOMAIN)\"=TEXT_DOMAIN)
 #
-# When using xgettext, we want messages to go to the default domain,
-# rather than the specified one.  This special version of the
-# COMPILE.cpp macro effectively prevents expansion of TEXT_DOMAIN,
-# causing xgettext to put all messages into the default domain.
+#.c.i:
+#	$(CPPFORPO) $< > $@
 #
-CPPFORPO=$(COMPILE.cpp:\"$(TEXT_DOMAIN)\"=TEXT_DOMAIN)
-
-.c.i:
-	$(CPPFORPO) $< > $@
-
-.h.i:
-	$(CPPFORPO) $< > $@
-
-.y.i:
-	$(YACC) -d $<
-	$(CPPFORPO) y.tab.c  > $@
-	$(RM) y.tab.c
-
-.l.i:
-	$(LEX) $<
-	$(CPPFORPO) lex.yy.c  > $@
-	$(RM) lex.yy.c
-
-.c.po:
-	$(CPPFORPO) $< > $<.i
-	$(BUILD.po)
-
-.cc.po:
-	$(CPPFORPO) $< > $<.i
-	$(BUILD.po)
-
-.y.po:
-	$(YACC) -d $<
-	$(CPPFORPO) y.tab.c  > $<.i
-	$(BUILD.po)
-	$(RM) y.tab.c
-
-.l.po:
-	$(LEX) $<
-	$(CPPFORPO) lex.yy.c  > $<.i
-	$(BUILD.po)
-	$(RM) lex.yy.c
-
+#.h.i:
+#	$(CPPFORPO) $< > $@
 #
-# Rules to perform stylistic checks
+#.y.i:
+#	$(YACC) -d $<
+#	$(CPPFORPO) y.tab.c  > $@
+#	$(RM) y.tab.c
+#
+#.l.i:
+#	$(LEX) $<
+#	$(CPPFORPO) lex.yy.c  > $@
+#	$(RM) lex.yy.c
+#
+#.c.po:
+#	$(CPPFORPO) $< > $<.i
+#	$(BUILD.po)
+#
+#.cc.po:
+#	$(CPPFORPO) $< > $<.i
+#	$(BUILD.po)
+#
+#.y.po:
+#	$(YACC) -d $<
+#	$(CPPFORPO) y.tab.c  > $<.i
+#	$(BUILD.po)
+#	$(RM) y.tab.c
+#
+#.l.po:
+#	$(LEX) $<
+#	$(CPPFORPO) lex.yy.c  > $<.i
+#	$(BUILD.po)
+#	$(RM) lex.yy.c
+#
+##
+## Rules to perform stylistic checks
+##
+#.SUFFIXES: .x .xml .check .xmlchk
+#
+#.h.check:
+#	$(DOT_H_CHECK)
+#
+#.x.check:
+#	$(DOT_X_CHECK)
+#
+#.xml.xmlchk:
+#	$(MANIFEST_CHECK)
 #
 .SUFFIXES: .x .xml .check .xmlchk
 
@@ -1320,3 +1351,10 @@ CPPFORPO=$(COMPILE.cpp:\"$(TEXT_DOMAIN)\"=TEXT_DOMAIN)
 
 .xml.xmlchk:
 	$(MANIFEST_CHECK)
+
+.PHONY: all install lint clean clobber
+include $(SRC)/Makefile.$(MACH)
+.PHONY: .WAIT
+.WAIT:
+
+endif # _MAKEFILE_MASTER

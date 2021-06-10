@@ -25,7 +25,7 @@
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 #
 
-SHELL= /usr/bin/ksh93
+SHELL= /bin/ksh93
 
 LIBRARY= libshell.a
 VERS= .1
@@ -34,7 +34,7 @@ include ../Makefile.defs
 
 OBJECTS += $(LIBOBJS)
 
-include $(SRC)/lib/Makefile.lib
+include ../../../../lib/Makefile.lib
 include ../../Makefile.ast
 
 MAPFILES= ../mapfile-vers
@@ -72,7 +72,8 @@ SMATCH= off
 
 .KEEP_STATE:
 
-all: install_h mkpicdirs .WAIT $(LIBS)
+$(PICS): install_h mkpicdirs
+all: install_h mkpicdirs $(LIBS)
 
 mkpicdirs:
 	@mkdir -p $(LOBJDIRS:%=pics/%)

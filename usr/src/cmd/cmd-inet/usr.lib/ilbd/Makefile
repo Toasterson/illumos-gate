@@ -54,6 +54,8 @@ CERRWARN +=	-_gcc=-Wno-switch
 CERRWARN +=	$(CNOWARN_UNINIT)
 CERRWARN +=	-_gcc=-Wno-unused-label
 
+ilbd_rules.o: CERRWARN += -_gcc12=-Wno-address
+
 # not linted
 SMATCH=off
 

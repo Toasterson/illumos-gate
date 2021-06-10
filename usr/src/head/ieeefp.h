@@ -20,6 +20,9 @@
  * CDDL HEADER END
  */
 /*
+ * Copyright 2017 Hayashi Naoyuki
+ */
+/*
  * Copyright 2014 Garrett D'Amore <garrett@damore.org>
  *
  * Copyright 2005 Sun Microsystems, Inc.  All rights reserved.
@@ -110,6 +113,36 @@ typedef	enum	fp_rnd {
 
 #endif
 
+#if defined(__aarch64)
+
+/*
+ * NOTE: the values given are chosen to match those used by the
+ * RD (Round Direction) field of the FSR (Floating Point State Register).
+ */
+typedef	enum	fp_rnd {
+	FP_RN = 0,	/* round to nearest representable number, tie -> even */
+	FP_RP = 1,	/* round toward plus infinity */
+	FP_RM = 2,	/* round toward minus infinity */
+	FP_RZ = 3,	/* round toward zero (truncate) */
+} fp_rnd;
+
+#endif
+
+#if defined(__riscv)
+
+/*
+ * NOTE: the values given are chosen to match those used by the
+ * RD (Round Direction) field of the FSR (Floating Point State Register).
+ */
+typedef	enum	fp_rnd {
+	FP_RN = 0,	/* round to nearest representable number, tie -> even */
+	FP_RP = 1,	/* round toward plus infinity */
+	FP_RM = 2,	/* round toward minus infinity */
+	FP_RZ = 3,	/* round toward zero (truncate) */
+} fp_rnd;
+
+#endif
+
 extern fp_rnd	fpsetround(fp_rnd);	/* set rounding mode, return previous */
 extern fp_rnd	fpgetround(void);	/* return current rounding mode */
 
@@ -168,6 +201,26 @@ extern fp_rnd	fpgetround(void);	/* return current rounding mode */
 #define	FP_X_UFL	0x04	/* underflow exception */
 #define	FP_X_DZ		0x02	/* divide-by-zero exception */
 #define	FP_X_IMP	0x01	/* imprecise (loss of precision) */
+
+#endif
+
+#if defined(__aarch64)
+
+#define	FP_X_INV	0x01	/* invalid operation exception */
+#define	FP_X_DZ		0x02	/* divide-by-zero exception */
+#define	FP_X_OFL	0x04	/* overflow exception */
+#define	FP_X_UFL	0x08	/* underflow exception */
+#define	FP_X_IMP	0x10	/* imprecise (loss of precision) */
+
+#endif
+
+#if defined(__riscv)
+
+#define	FP_X_INV	0x01	/* invalid operation exception */
+#define	FP_X_DZ		0x02	/* divide-by-zero exception */
+#define	FP_X_OFL	0x04	/* overflow exception */
+#define	FP_X_UFL	0x08	/* underflow exception */
+#define	FP_X_IMP	0x10	/* imprecise (loss of precision) */
 
 #endif
 

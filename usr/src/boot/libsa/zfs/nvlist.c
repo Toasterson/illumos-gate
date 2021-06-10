@@ -58,6 +58,11 @@ static bool xdr_u_int(xdr_t *, unsigned *);
 typedef bool (*xdrproc_t)(xdr_t *, void *);
 
 /* Basic primitives for XDR translation operations, getint and putint. */
+static int64_t _read_int64(const void *p) { int64_t i; memcpy(&i, p, sizeof(i)); return i; }
+static uint64_t _read_uint64(const void *p) { uint64_t u; memcpy(&u, p, sizeof(u)); return u; }
+static void _write_int64(void *p, int64_t i) { memcpy(p, &i, sizeof(i)); }
+static void _write_uint64(void *p, uint64_t u) { memcpy(p, &u, sizeof(u)); }
+
 static int
 _getint(struct xdr *xdr, int *ip)
 {
@@ -223,9 +228,9 @@ xdr_int64(xdr_t *xdr, int64_t *lp)
 	case XDR_OP_ENCODE:
 		/* Encode value *lp, store to buf */
 		if (xdr->xdr_putint == _putint)
-			*(int64_t *)xdr->xdr_idx = htobe64(*lp);
+			_write_int64(xdr->xdr_idx, htobe64(_read_int64(lp)));
 		else
-			*(int64_t *)xdr->xdr_idx = *lp;
+			_write_int64(xdr->xdr_idx, _read_int64(lp));
 		xdr->xdr_idx += sizeof (int64_t);
 		rv = true;
 		break;
@@ -233,9 +238,9 @@ xdr_int64(xdr_t *xdr, int64_t *lp)
 	case XDR_OP_DECODE:
 		/* Decode buf, return value to *ip */
 		if (xdr->xdr_getint == _getint)
-			*lp = be64toh(*(int64_t *)xdr->xdr_idx);
+			_write_int64(lp, be64toh(_read_int64(xdr->xdr_idx)));
 		else
-			*lp = *(int64_t *)xdr->xdr_idx;
+			_write_int64(lp, _read_int64(xdr->xdr_idx));
 		xdr->xdr_idx += sizeof (int64_t);
 		rv = true;
 	}
@@ -254,9 +259,9 @@ xdr_uint64(xdr_t *xdr, uint64_t *lp)
 	case XDR_OP_ENCODE:
 		/* Encode value *ip, store to buf */
 		if (xdr->xdr_putint == _putint)
-			*(uint64_t *)xdr->xdr_idx = htobe64(*lp);
+			_write_uint64(xdr->xdr_idx, htobe64(_read_uint64(lp)));
 		else
-			*(uint64_t *)xdr->xdr_idx = *lp;
+			_write_uint64(xdr->xdr_idx, _read_uint64(lp));
 		xdr->xdr_idx += sizeof (uint64_t);
 		rv = true;
 		break;
@@ -264,9 +269,9 @@ xdr_uint64(xdr_t *xdr, uint64_t *lp)
 	case XDR_OP_DECODE:
 		/* Decode buf, return value to *ip */
 		if (xdr->xdr_getuint == _getuint)
-			*lp = be64toh(*(uint64_t *)xdr->xdr_idx);
+			_write_uint64(lp, be64toh(_read_uint64(xdr->xdr_idx)));
 		else
-			*lp = *(uint64_t *)xdr->xdr_idx;
+			_write_uint64(lp, _read_uint64(xdr->xdr_idx));
 		xdr->xdr_idx += sizeof (uint64_t);
 		rv = true;
 	}
@@ -377,7 +382,7 @@ nvlist_create(int flag)
 		return (nvl);
 
 	nvl->nv_header.nvh_encoding = NV_ENCODE_XDR;
-	nvl->nv_header.nvh_endian = _BYTE_ORDER == _LITTLE_ENDIAN;
+	nvl->nv_header.nvh_endian = BYTE_ORDER == LITTLE_ENDIAN;
 
 	nvl->nv_asize = nvl->nv_size = sizeof (*nvs);
 	nvs = calloc(1, nvl->nv_asize);

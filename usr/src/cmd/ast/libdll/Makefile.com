@@ -26,7 +26,7 @@
 # Copyright (c) 2018, Joyent, Inc.
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 
-SHELL= /usr/bin/ksh93
+SHELL= /bin/ksh93
 
 LIBRARY= libdll.a
 VERS= .1
@@ -35,7 +35,7 @@ include ../Makefile.defs
 
 OBJECTS += $(LIBOBJS)
 
-include $(SRC)/lib/Makefile.lib
+include ../../../../lib/Makefile.lib
 include ../../Makefile.ast
 
 MAPFILES= ../mapfile-vers
@@ -74,7 +74,8 @@ SMOFF += all_func_returns,strcpy_overflow
 
 .KEEP_STATE:
 
-all: install_h .WAIT $(LIBS)
+$(PICS): install_h
+all: install_h $(LIBS)
 
 include $(SRC)/lib/Makefile.targ
 

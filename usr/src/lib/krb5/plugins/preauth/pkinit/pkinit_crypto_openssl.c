@@ -34,6 +34,9 @@
  * Copyright 2018 OmniOS Community Edition (OmniOSce) Association.
  * Copyright 2018 RackTop Systems.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 #include <errno.h>
 #include <string.h>
@@ -371,7 +374,7 @@ unsigned char pkinit_4096_dhprime[4096/8] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 };
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 /*
  * Many things have changed in OpenSSL 1.1. The code in this file has been
  * updated to use the v1.1 APIs but some are new and require emulation
@@ -464,7 +467,10 @@ __DH_get0_key(const DH *dh, const BIGNUM **pub, const BIGNUM **priv)
         *priv = dh->priv_key;
 }
 
-#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L || LIBRESSL_VERSION_NUMBER */
+#elif (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x30500000L)
+#define OBJ_get0_data(o) ((o)->data)
+#define OBJ_length(o) ((o)->length)
+#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L */
 
 krb5_error_code
 pkinit_init_plg_crypto(pkinit_plg_crypto_context *cryptoctx) {
@@ -2641,7 +2647,7 @@ openssl_init()
     if (ret == 0) {
 	if (!did_init) {
 	    /* initialize openssl routines */
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 	    /*
 	     * As of version 1.1.0, OpenSSL will automatically allocate
 	     * resources as-needed.
@@ -2703,7 +2709,7 @@ cleanup:
     return retval;
 }
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 
 static DH *
 pkinit_decode_dh_params(DH ** a, unsigned char **pp, unsigned int len)
@@ -2819,7 +2825,7 @@ pkinit_decode_dh_params(DH **a, unsigned char **pp, unsigned int len)
 	return dh;
 }
 
-#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L || LIBRESSL_VERSION_NUMBER */
+#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L  */
 
 static krb5_error_code
 pkinit_create_sequence_of_principal_identifiers(
@@ -4639,7 +4645,7 @@ pkinit_find_private_key(pkinit_identity_crypto_context id_cryptoctx,
 	attrs[nattrs].ulValueLen = sizeof keytype;
 	nattrs++;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 	rsa = priv->pkey.rsa;
 	rsan = rsa->n;
 	n_len = BN_num_bytes(rsan);
@@ -4717,7 +4723,7 @@ pkinit_C_Decrypt(pkinit_identity_crypto_context id_cryptoctx,
     rv = id_cryptoctx->p11->C_Decrypt(id_cryptoctx->session, pEncryptedData,
 	ulEncryptedDataLen, pData, pulDataLen);
     if (rv == CKR_OK) {
-	pkiDebug("pData %x *pulDataLen %d\n", (int) pData, (int) *pulDataLen);
+	pkiDebug("pData %x *pulDataLen %d\n", (int) (intptr_t)pData, (int) *pulDataLen);
     }
     return rv;
 }
@@ -4776,8 +4782,8 @@ pkinit_decode_data_pkcs11(krb5_context context,
     len = data_len;
 #ifdef SILLYDECRYPT
     pkiDebug("session %x edata %x edata_len %d data %x datalen @%x %d\n",
-	    (int) id_cryptoctx->session, (int) data, (int) data_len, (int) cp,
-	    (int) &len, (int) len);
+	    (int) id_cryptoctx->session, (int)(intptr_t)data, (int) data_len, (int) (intptr_t) cp,
+	    (int)  (intptr_t)&len, (int) len);
     if ((r = pkinit_C_Decrypt(id_cryptoctx, data, (CK_ULONG) data_len,
 	    cp, &len)) != CKR_OK) {
 #else

@@ -19,6 +19,7 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 2004, 2010, Oracle and/or its affiliates. All rights reserved.
 #
 
@@ -55,7 +56,7 @@ SYMBOL_VERSION SUNW_0.7 {
 	fp_query;
 	_getlong;
 	_getshort;
-	h_errno		{ FLAGS = NODIRECT; FILTER = libnsl.so.1; };
+	h_errno			;
 	hostalias;
 	p_cdname;
 	p_class;
@@ -64,20 +65,15 @@ SYMBOL_VERSION SUNW_0.7 {
 	p_time;
 	p_type;
 	putlong;
-	_res		{
-			  ASSERT = {
-				  TYPE = OBJECT;
-				  SIZE = addrsize[99];
-				};
-			};
+	_res;
 	res_init;
 	res_mkquery;
 	res_query;
 	res_querydomain;
 	res_search;
 	res_send;
-	strcasecmp	{ TYPE = FUNCTION; FILTER = libc.so.1; };
-	strncasecmp	{ TYPE = FUNCTION; FILTER = libc.so.1; };
+	strcasecmp		;
+	strncasecmp		;
 };
 
 SYMBOL_VERSION SUNWprivate_1.1 {
@@ -85,18 +81,8 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 	res_endhostent;
 	res_gethostbyaddr;
 	res_gethostbyname;
-	_res_opcodes		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[16];
-					};
-				};
-	_res_resultcodes	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[16];
-					};
-				};
+	_res_opcodes;
+	_res_resultcodes;
 	res_sethostent;
 	__res_set_no_hosts_fallback;
     local:

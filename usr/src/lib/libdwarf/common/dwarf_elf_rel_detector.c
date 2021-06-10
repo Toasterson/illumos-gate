@@ -224,6 +224,25 @@ _dwarf_is_32bit_abs_reloc(unsigned int type, unsigned machine)
         break;
 #endif /* EM_X86_64 */
 
+#if defined(EM_RISCV) && defined (R_RISCV_32)
+    case EM_RISCV:
+        r = (0
+#if defined (R_RISCV_32)
+            | ( type == R_RISCV_32)
+#endif
+#if defined (R_RISCV_TLS_DTPREL32)
+            | ( type == R_RISCV_TLS_DTPREL32)
+#endif
+#if defined (R_RISCV_ADD32)
+            | ( type == R_RISCV_ADD32)
+#endif
+#if defined (R_RISCV_SUB32)
+            | ( type == R_RISCV_SUB32)
+#endif
+            );
+        break;
+#endif /* EM_RISCV */
+
     case  EM_QUALCOMM_DSP6:
         r = (type == R_QUALCOMM_REL32);
         break;
@@ -357,6 +376,38 @@ _dwarf_is_64bit_abs_reloc(unsigned int type, unsigned machine)
             );
         break;
 #endif /* EM_AARCH64 */
+
+#if defined(EM_RISCV) && defined (R_RISCV_64)
+    case EM_RISCV:
+        r = (0
+#if defined (R_RISCV_64)
+            | ( type == R_RISCV_64)
+#endif
+#if defined (R_RISCV_TLS_DTPREL64)
+            | ( type == R_RISCV_TLS_DTPREL64)
+#endif
+#if defined (R_RISCV_ADD64)
+            | ( type == R_RISCV_ADD64)
+#endif
+#if defined (R_RISCV_SUB64)
+            | ( type == R_RISCV_SUB64)
+#endif
+            );
+        break;
+#endif /* EM_RISCV */
+
+#if defined(EM_ALPHA) && defined (R_ALPHA_REFQUAD)
+    case EM_ALPHA:
+        r = (0
+#if defined (R_ALPHA_REFQUAD)
+            | ( type == R_ALPHA_REFQUAD)
+#endif
+#if defined (R_ALPHA_DTPREL64)
+            | ( type == R_ALPHA_DTPREL64)
+#endif
+            );
+        break;
+#endif /* EM_ALPHA */
 
     }
     return r;

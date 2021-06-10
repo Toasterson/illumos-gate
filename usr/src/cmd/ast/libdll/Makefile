@@ -26,9 +26,9 @@
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 #
 
-SHELL= /usr/bin/ksh93
+SHELL= /bin/ksh93
 
-include		$(SRC)/lib/Makefile.lib
+include		../../../lib/Makefile.lib
 
 SUBDIRS= $(MACH)
 $(BUILD64)SUBDIRS += $(MACH64)
@@ -53,7 +53,8 @@ HDRDIR32= $(MACH)/ast
 HDRDIR64= $(MACH64)/ast
 include ../Makefile.asthdr
 
-install_h: $(SUBDIRS) .WAIT $(ROOTHDRS)
+$(ROOTHDRS): $(SUBDIRS)
+install_h: $(SUBDIRS) $(ROOTHDRS)
 install: install_h
 
 $(SUBDIRS):	FRC

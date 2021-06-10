@@ -39,10 +39,14 @@
 #include <zlib.h>
 #include <sys/debug.h>
 
+#ifdef _CROSS_TOOLS
+static const char *_libctf_zlib = "libz.so";
+#else
 #if defined _LP64 && defined _MULTI_DATAMODEL
 static const char *_libctf_zlib = "/usr/lib/64/libz.so.1";
 #else
 static const char *_libctf_zlib = "/usr/lib/libz.so.1";
+#endif
 #endif
 
 static struct {
@@ -68,8 +72,11 @@ typedef struct ctf_zdata {
 	size_t		czd_allocsz;
 	z_stream	czd_zstr;
 } ctf_zdata_t;
-
+#ifdef _CROSS_TOOLS
+__attribute__((constructor))
+#else
 #pragma init(_libctf_init)
+#endif
 void
 _libctf_init(void)
 {
@@ -97,8 +104,10 @@ ctf_zopen(int *errp)
 	if (zlib.z_dlp != NULL)
 		return (zlib.z_dlp); /* library is already loaded */
 
+#ifndef _CROSS_TOOLS
 	if (access(_libctf_zlib, R_OK) == -1)
 		return (ctf_set_open_errno(errp, ECTF_ZMISSING));
+#endif
 
 	if ((zlib.z_dlp = dlopen(_libctf_zlib, RTLD_LAZY | RTLD_LOCAL)) == NULL)
 		return (ctf_set_open_errno(errp, ECTF_ZINIT));

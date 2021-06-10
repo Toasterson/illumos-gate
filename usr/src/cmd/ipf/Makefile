@@ -19,13 +19,16 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright 2006 Sun Microsystems, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 
 SUBDIRS=	etc examples \
-		lib svc .WAIT \
+		lib svc \
 		tools
+
+tools: etc examples lib svc
 
 LINTCLEAN=
 LINTSUBDIRS=

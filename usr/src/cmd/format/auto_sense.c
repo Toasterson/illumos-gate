@@ -26,6 +26,9 @@
  * Copyright 2015 Nexenta Systems, Inc. All rights reserved.
  * Copyright 2016 Igor Kozhukhov <ikozhukhov@gmail.com>
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 /*
  * This file contains functions to implement automatic configuration
@@ -1535,7 +1538,7 @@ build_default_partition(
 		}
 		return (0);
 	}
-#if defined(i386)
+#if defined(i386) || defined(__amd64) || defined(__aarch64) || defined(__riscv)
 	/*
 	 * Set the default boot partition to 1 cylinder
 	 */

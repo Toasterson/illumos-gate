@@ -19,6 +19,7 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 1989, 2010, Oracle and/or its affiliates. All rights reserved.
 #
 # Definitions common to command source.
@@ -26,7 +27,7 @@
 # include global definitions; SRC should be defined in the shell.
 # SRC is needed until RFE 1026993 is implemented.
 
-include $(SRC)/Makefile.master
+include $(dir $(lastword $(MAKEFILE_LIST)))../Makefile.master
 
 FILEMODE=	0555
 LIBFILEMODE=	0444
@@ -67,8 +68,8 @@ ROOTETCFTPD=	$(ROOT)/etc/ftpd
 ROOTETCINET=	$(ROOT)/etc/inet
 ROOTCCSBIN=	$(ROOT)/usr/ccs/bin
 ROOTCCSBIN64=	$(ROOTCCSBIN)/$(MACH64)
-ROOTCCSBINLINKDIR=	$(ROOT)/../../bin
-ROOTCCSBINLINKDIR64=	$(ROOT)../../../bin/$(MACH)
+ROOTCCSBINLINKDIR=	/../../bin
+ROOTCCSBINLINKDIR64=	../../../bin/$(MACH)
 ROOTCCSLIB=	$(ROOT)/usr/ccs/lib
 ROOTUSRKVM=	$(ROOT)/usr/kvm
 ROOTHAS=	$(ROOT)/usr/has
@@ -118,8 +119,9 @@ CFLAGS64 +=	$(CCSTACKPROTECT)
 LDLIBS =	$(LDLIBS.cmd) $(LDSTACKPROTECT)
 
 LDFLAGS.cmd = \
-	$(BDIRECT) $(ENVLDFLAGS1) $(ENVLDFLAGS2) $(ENVLDFLAGS3) \
-	$(MAPFILE.NES:%=-Wl,-M%) $(MAPFILE.PGA:%=-Wl,-M%) $(MAPFILE.NED:%=-Wl,-M%)
+	$(ENVLDFLAGS1) $(ENVLDFLAGS2) $(ENVLDFLAGS3) \
+	-_gcc=--sysroot=$(ROOT)
+
 
 LDFLAGS =	$(LDFLAGS.cmd)
 
@@ -225,6 +227,9 @@ ROOTSVCAPPLICATIONMANAGEMENT=	$(ROOTSVCAPPLICATION)/management
 ROOTSVCAPPLICATIONSECURITY=	$(ROOTSVCAPPLICATION)/security
 ROOTSVCAPPLICATIONPRINT=	$(ROOTSVCAPPLICATION)/print
 
+ROOTVARSVC=			$(ROOT)/var/svc
+ROOTVARSVCMANIFEST=		$(ROOTVARSVC)/manifest
+ROOTVARSVCSYSTEM=		$(ROOTVARSVCMANIFEST)/system
 #
 # Commands Makefiles delivering a manifest are expected to define MANIFEST.
 #

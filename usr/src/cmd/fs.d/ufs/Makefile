@@ -20,6 +20,7 @@
 #
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright 2006 Sun Microsystems, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
@@ -56,7 +57,8 @@ POFILES= $(SUBDIR2:%=%/%.po)
 
 .PARALLEL:	$(SUBDIRS)
 
-all install:	$(ROLLDIR) .WAIT $(SUBDIR1) $(SUBDIR2)
+all install:	$(ROLLDIR) $(SUBDIR1) $(SUBDIR2)
+$(SUBDIR1) $(SUBDIR2): $(ROLLDIR)
 
 catalog:        $(POFILE)
 

@@ -49,7 +49,7 @@ install: all $(DIRS) $(ETCINITPROG) $(ETCDFLTPROG) ln_PROG
 $(INITD)/% : % $(INITD)
 	$(INS.file)
 
-ln_PROG : $(ETCINITPROG)
+ln_PROG : $(ETCINITPROG) $(DIRS)
 	-$(RM) $(ROOTETC)/rc0.d/$(PPPDK)
 	$(LN) $(INITD)/$(PPPD) $(ROOTETC)/rc0.d/$(PPPDK)
 	-$(RM) $(ROOTETC)/rc1.d/$(PPPDK)

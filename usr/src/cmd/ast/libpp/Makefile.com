@@ -25,7 +25,7 @@
 # Copyright (c) 2019, Joyent, Inc.
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 
-SHELL= /usr/bin/ksh93
+SHELL= /bin/ksh93
 
 LIBRARY= libpp.a
 VERS= .1
@@ -34,7 +34,7 @@ include ../Makefile.defs
 
 OBJECTS += $(LIBOBJS)
 
-include $(SRC)/lib/Makefile.lib
+include ../../../../lib/Makefile.lib
 include ../../Makefile.ast
 
 MAPFILES=       ../mapfile-vers
@@ -68,6 +68,20 @@ CERRWARN	+= $(CNOWARN_UNINIT)
 CERRWARN	+= -_gcc=-Wno-char-subscripts
 CERRWARN	+= -_gcc=-Wno-empty-body
 CERRWARN	+= -_gcc=-Wno-unused-value
+pics/ppbuiltin.o: CERRWARN += -_gcc11=-Wno-pointer-to-int-cast
+pics/ppbuiltin.o: CERRWARN += -_gcc12=-Wno-pointer-to-int-cast
+pics/ppcontrol.o: CERRWARN += -_gcc11=-Wno-pointer-to-int-cast
+pics/ppcontrol.o: CERRWARN += -_gcc12=-Wno-pointer-to-int-cast
+pics/ppcontrol.o: CERRWARN += -_gcc11=-Wno-int-to-pointer-cast
+pics/ppcontrol.o: CERRWARN += -_gcc12=-Wno-int-to-pointer-cast
+pics/ppexpr.o: CERRWARN += -_gcc11=-Wno-pointer-to-int-cast
+pics/ppexpr.o: CERRWARN += -_gcc12=-Wno-pointer-to-int-cast
+pics/ppop.o: CERRWARN += -_gcc11=-Wno-pointer-to-int-cast
+pics/ppop.o: CERRWARN += -_gcc12=-Wno-pointer-to-int-cast
+pics/ppop.o: CERRWARN += -_gcc11=-Wno-int-to-pointer-cast
+pics/ppop.o: CERRWARN += -_gcc12=-Wno-int-to-pointer-cast
+pics/ppsearch.o: CERRWARN += -_gcc11=-Wno-pointer-to-int-cast
+pics/ppsearch.o: CERRWARN += -_gcc12=-Wno-pointer-to-int-cast
 
 # "pplex() parse error: turning off implications after 60 seconds"
 SMATCH		= off

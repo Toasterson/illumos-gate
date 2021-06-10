@@ -58,6 +58,8 @@ MAPFILES =	../mapfile-vers
 
 LDLIBS += -lnsl -lmp -lc
 
+pics/dh192.o: CERRWARN += -_gcc11=-Wno-array-parameter
+
 .KEEP_STATE:
 
 SRCS=	../dh192.c ../../dh_common/dh_common.c ../../dh_common/generic_key.c

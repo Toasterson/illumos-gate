@@ -40,6 +40,9 @@ CERRWARN +=	-_gcc=-Wno-switch
 CERRWARN +=	-_gcc=-Wno-parentheses
 CERRWARN +=	$(CNOWARN_UNINIT)
 
+ilbadm_sg.o: CERRWARN += -_gcc12=-Wno-address
+ilbadm_rules.o: CERRWARN += -_gcc12=-Wno-address
+
 # not linted
 SMATCH=off
 

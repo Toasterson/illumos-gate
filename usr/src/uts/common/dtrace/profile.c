@@ -73,16 +73,18 @@ static dtrace_provider_id_t profile_id;
  * and the static definition doesn't seem to be overly brittle.  Still, we
  * allow for a manual override in case we get it completely wrong.
  */
-#ifdef __x86
+#if defined __x86
 #define	PROF_ARTIFICIAL_FRAMES	10
-#else
-#ifdef __sparc
+#elif defined __sparc
 #ifdef DEBUG
 #define	PROF_ARTIFICIAL_FRAMES	4
 #else
 #define	PROF_ARTIFICIAL_FRAMES	3
 #endif
-#endif
+#elif defined __aarch64
+#define	PROF_ARTIFICIAL_FRAMES	10
+#elif defined __riscv
+#define	PROF_ARTIFICIAL_FRAMES	10
 #endif
 
 #define	PROF_NAMELEN		15

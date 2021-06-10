@@ -23,7 +23,9 @@
 # Use is subject to license terms.
 #
 # Copyright 2015 Nexenta Systems, Inc. All rights reserved.
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 2018, Joyent, Inc.
+include ../../Makefile.master
 
 PROG= format
 
@@ -38,6 +40,10 @@ OBJS_sparc=   init_csparc.o ctlr_ata.o
 
 OBJS_i386=    init_ci386.o ctlr_ata.o ix_altsctr.o
 
+OBJS_aarch64=  init_caarch64.o ctlr_ata.o ix_altsctr.o
+
+OBJS_riscv64=  init_criscv64.o ctlr_ata.o ix_altsctr.o
+
 OBJS_=                non-existent
 
 OBJS=  $(OBJS_$(MACH))  $(COBJS)
@@ -51,6 +57,9 @@ CERRWARN += -_gcc=-Wno-parentheses
 CERRWARN += -_gcc=-Wno-unused-label
 CERRWARN += -_gcc=-Wno-clobbered
 
+menu_command.o: CERRWARN += -_gcc12=-Wno-address
+startup.o: CERRWARN += -_gcc12=-Wno-address
+
 # not linted
 SMATCH=off
 
@@ -61,10 +70,13 @@ ROOTETCDATA= $(ROOTETC)/$(DATA)
 
 $(ROOTETCDATA) :  FILEMODE = 0644
 
-LDLIBS_i386= -lfdisk 
+LDLIBS_i386= -lfdisk
+LDLIBS_aarch64= -lfdisk
+LDLIBS_riscv64= -lfdisk
 LDLIBS_sparc=
 LDLIBS +=	-ladm -lefi -ldiskmgt -lnvpair -ldevid -ldevinfo $(LDLIBS_$(MACH))
 
+CFLAGS +=	-_gcc=-fcommon
 LINTFLAGS += -xerroff=E_NAME_DEF_NOT_USED2
 CPPFLAGS    += -D_EXTVTOC
 

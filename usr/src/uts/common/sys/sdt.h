@@ -23,6 +23,9 @@
  * Copyright (c) 2013 by Delphix. All rights reserved.
  * Copyright 2018 Nexenta Systems, Inc.  All rights reserved.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 #ifndef _SYS_SDT_H
 #define	_SYS_SDT_H
@@ -76,6 +79,345 @@ extern "C" {
 }
 
 #else /* _KERNEL */
+
+#define TO_STRING(s) #s
+
+#if defined __aarch64
+#define	DTRACE_PROBE(name)	{					\
+	asm volatile (							\
+		"1:\n"							\
+		"bl\t" TO_STRING(__dtrace_probe_##name) "\n"		\
+		".pushsection .probepoint, \"aw\"\n"			\
+		".xword 1b\n"						\
+		".popsection\n"						\
+	:								\
+	:								\
+	: "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9",	\
+	 "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18",	\
+	 "x30", "cc", "memory");					\
+}
+
+#define	DTRACE_PROBE1(name, type1, arg1) {				\
+	register uintptr_t _arg1 asm ("x0") = ((uintptr_t)(arg1));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "bl\t" TO_STRING(__dtrace_probe_##name) "\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".xword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1)						\
+	    :								\
+	    : "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9",	\
+	    "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18",	\
+	    "x30", "cc", "memory");					\
+}
+
+#define	DTRACE_PROBE2(name, type1, arg1, type2, arg2)  {		\
+	register uintptr_t _arg1 asm ("x0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("x1") = ((uintptr_t)(arg2));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "bl\t" TO_STRING(__dtrace_probe_##name) "\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".xword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2)					\
+	    :								\
+	    : "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9",		\
+	    "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18",	\
+	    "x30", "cc", "memory");					\
+}
+
+#define	DTRACE_PROBE3(name, type1, arg1, type2, arg2, type3, arg3) {	\
+	register uintptr_t _arg1 asm ("x0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("x1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("x2") = ((uintptr_t)(arg3));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "bl\t" TO_STRING(__dtrace_probe_##name) "\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".xword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3)			\
+	    :								\
+	    : "x3", "x4", "x5", "x6", "x7", "x8", "x9",			\
+	    "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18",	\
+	    "x30", "cc", "memory");					\
+}
+
+#define	DTRACE_PROBE4(name, type1, arg1, type2, arg2,			\
+    type3, arg3, type4, arg4) {	\
+	register uintptr_t _arg1 asm ("x0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("x1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("x2") = ((uintptr_t)(arg3));	\
+	register uintptr_t _arg4 asm ("x3") = ((uintptr_t)(arg4));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "bl\t" TO_STRING(__dtrace_probe_##name) "\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".xword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3), "+r"(_arg4)	\
+	    :								\
+	    : "x4", "x5", "x6", "x7", "x8", "x9",			\
+	    "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18",	\
+	    "x30", "cc", "memory");					\
+}
+
+#define	DTRACE_PROBE5(name, type1, arg1, type2, arg2,			\
+    type3, arg3, type4, arg4, type5, arg5) {	\
+	register uintptr_t _arg1 asm ("x0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("x1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("x2") = ((uintptr_t)(arg3));	\
+	register uintptr_t _arg4 asm ("x3") = ((uintptr_t)(arg4));	\
+	register uintptr_t _arg5 asm ("x4") = ((uintptr_t)(arg5));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "bl\t" TO_STRING(__dtrace_probe_##name) "\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".xword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3), "+r"(_arg4),	\
+	      "+r"(_arg5)						\
+	    :								\
+	    : "x5", "x6", "x7", "x8", "x9",				\
+	    "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18",	\
+	    "x30", "cc", "memory");					\
+}
+
+#define	DTRACE_PROBE6(name, type1, arg1, type2, arg2,			\
+    type3, arg3, type4, arg4, type5, arg5, type6, arg6) {	\
+	register uintptr_t _arg1 asm ("x0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("x1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("x2") = ((uintptr_t)(arg3));	\
+	register uintptr_t _arg4 asm ("x3") = ((uintptr_t)(arg4));	\
+	register uintptr_t _arg5 asm ("x4") = ((uintptr_t)(arg5));	\
+	register uintptr_t _arg6 asm ("x5") = ((uintptr_t)(arg6));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "bl\t" TO_STRING(__dtrace_probe_##name) "\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".xword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3), "+r"(_arg4),	\
+	      "+r"(_arg5), "+r"(_arg6)					\
+	    :								\
+	    : "x6", "x7", "x8", "x9",					\
+	    "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18",	\
+	    "x30", "cc", "memory");					\
+}
+
+#define	DTRACE_PROBE7(name, type1, arg1, type2, arg2, type3, arg3,	\
+    type4, arg4, type5, arg5, type6, arg6, type7, arg7) {	\
+	register uintptr_t _arg1 asm ("x0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("x1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("x2") = ((uintptr_t)(arg3));	\
+	register uintptr_t _arg4 asm ("x3") = ((uintptr_t)(arg4));	\
+	register uintptr_t _arg5 asm ("x4") = ((uintptr_t)(arg5));	\
+	register uintptr_t _arg6 asm ("x5") = ((uintptr_t)(arg6));	\
+	register uintptr_t _arg7 asm ("x6") = ((uintptr_t)(arg7));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "bl\t" TO_STRING(__dtrace_probe_##name) "\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".xword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3), "+r"(_arg4),	\
+	      "+r"(_arg5), "+r"(_arg6), "+r"(_arg7)			\
+	    :								\
+	    : "x7", "x8", "x9",						\
+	    "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18",	\
+	    "x30", "cc", "memory");					\
+}
+
+#define	DTRACE_PROBE8(name, type1, arg1, type2, arg2, type3, arg3,	\
+    type4, arg4, type5, arg5, type6, arg6, type7, arg7, type8, arg8) {	\
+	register uintptr_t _arg1 asm ("x0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("x1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("x2") = ((uintptr_t)(arg3));	\
+	register uintptr_t _arg4 asm ("x3") = ((uintptr_t)(arg4));	\
+	register uintptr_t _arg5 asm ("x4") = ((uintptr_t)(arg5));	\
+	register uintptr_t _arg6 asm ("x5") = ((uintptr_t)(arg6));	\
+	register uintptr_t _arg7 asm ("x6") = ((uintptr_t)(arg7));	\
+	register uintptr_t _arg8 asm ("x7") = ((uintptr_t)(arg8));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "bl\t" TO_STRING(__dtrace_probe_##name) "\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".xword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3), "+r"(_arg4),	\
+	      "+r"(_arg5), "+r"(_arg6), "+r"(_arg7), "+r"(_arg8)	\
+	    :								\
+	    : "x8", "x9",						\
+	    "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18",	\
+	    "x30", "cc", "memory");					\
+}
+
+#elif defined __riscv
+#define	DTRACE_PROBE(name)	{					\
+	asm volatile (							\
+		"1:\n"							\
+		"call\t" TO_STRING(__dtrace_probe_##name) "@plt\n"	\
+		".pushsection .probepoint, \"aw\"\n"			\
+		".dword 1b\n"						\
+		".popsection\n"						\
+	:								\
+	:								\
+	: "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",		\
+	 "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra", "memory");	\
+}
+
+#define	DTRACE_PROBE1(name, type1, arg1) {				\
+	register uintptr_t _arg1 asm ("a0") = ((uintptr_t)(arg1));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "call\t" TO_STRING(__dtrace_probe_##name) "@plt\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".dword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1)						\
+	    :								\
+	    : "a1", "a2", "a3", "a4", "a5", "a6", "a7",			\
+	     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra", "memory");	\
+}
+
+#define	DTRACE_PROBE2(name, type1, arg1, type2, arg2)  {		\
+	register uintptr_t _arg1 asm ("a0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("a1") = ((uintptr_t)(arg2));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "call\t" TO_STRING(__dtrace_probe_##name) "@plt\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".dword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2)					\
+	    :								\
+	    : "a2", "a3", "a4", "a5", "a6", "a7",			\
+	     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra", "memory");	\
+}
+
+#define	DTRACE_PROBE3(name, type1, arg1, type2, arg2, type3, arg3) {	\
+	register uintptr_t _arg1 asm ("a0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("a1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("a2") = ((uintptr_t)(arg3));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "call\t" TO_STRING(__dtrace_probe_##name) "@plt\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".dword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3)			\
+	    :								\
+	    : "a3", "a4", "a5", "a6", "a7",				\
+	     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra", "memory");	\
+}
+
+#define	DTRACE_PROBE4(name, type1, arg1, type2, arg2,			\
+    type3, arg3, type4, arg4) {	\
+	register uintptr_t _arg1 asm ("a0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("a1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("a2") = ((uintptr_t)(arg3));	\
+	register uintptr_t _arg4 asm ("a3") = ((uintptr_t)(arg4));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "call\t" TO_STRING(__dtrace_probe_##name) "@plt\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".dword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3), "+r"(_arg4)	\
+	    :								\
+	    : "a4", "a5", "a6", "a7",					\
+	     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra", "memory");	\
+}
+
+#define	DTRACE_PROBE5(name, type1, arg1, type2, arg2,			\
+    type3, arg3, type4, arg4, type5, arg5) {	\
+	register uintptr_t _arg1 asm ("a0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("a1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("a2") = ((uintptr_t)(arg3));	\
+	register uintptr_t _arg4 asm ("a3") = ((uintptr_t)(arg4));	\
+	register uintptr_t _arg5 asm ("a4") = ((uintptr_t)(arg5));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "call\t" TO_STRING(__dtrace_probe_##name) "@plt\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".dword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3), "+r"(_arg4),	\
+	      "+r"(_arg5)						\
+	    :								\
+	    : "a5", "a6", "a7",						\
+	     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra", "memory");	\
+}
+
+#define	DTRACE_PROBE6(name, type1, arg1, type2, arg2,			\
+    type3, arg3, type4, arg4, type5, arg5, type6, arg6) {	\
+	register uintptr_t _arg1 asm ("a0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("a1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("a2") = ((uintptr_t)(arg3));	\
+	register uintptr_t _arg4 asm ("a3") = ((uintptr_t)(arg4));	\
+	register uintptr_t _arg5 asm ("a4") = ((uintptr_t)(arg5));	\
+	register uintptr_t _arg6 asm ("a5") = ((uintptr_t)(arg6));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "call\t" TO_STRING(__dtrace_probe_##name) "@plt\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".dword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3), "+r"(_arg4),	\
+	      "+r"(_arg5), "+r"(_arg6)					\
+	    :								\
+	    : "a6", "a7",						\
+	     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra", "memory");	\
+}
+
+#define	DTRACE_PROBE7(name, type1, arg1, type2, arg2, type3, arg3,	\
+    type4, arg4, type5, arg5, type6, arg6, type7, arg7) {	\
+	register uintptr_t _arg1 asm ("a0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("a1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("a2") = ((uintptr_t)(arg3));	\
+	register uintptr_t _arg4 asm ("a3") = ((uintptr_t)(arg4));	\
+	register uintptr_t _arg5 asm ("a4") = ((uintptr_t)(arg5));	\
+	register uintptr_t _arg6 asm ("a5") = ((uintptr_t)(arg6));	\
+	register uintptr_t _arg7 asm ("a6") = ((uintptr_t)(arg7));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "call\t" TO_STRING(__dtrace_probe_##name) "@plt\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".dword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3), "+r"(_arg4),	\
+	      "+r"(_arg5), "+r"(_arg6), "+r"(_arg7)			\
+	    :								\
+	    : "a7",							\
+	     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra", "memory");	\
+}
+
+#define	DTRACE_PROBE8(name, type1, arg1, type2, arg2, type3, arg3,	\
+    type4, arg4, type5, arg5, type6, arg6, type7, arg7, type8, arg8) {	\
+	register uintptr_t _arg1 asm ("a0") = ((uintptr_t)(arg1));	\
+	register uintptr_t _arg2 asm ("a1") = ((uintptr_t)(arg2));	\
+	register uintptr_t _arg3 asm ("a2") = ((uintptr_t)(arg3));	\
+	register uintptr_t _arg4 asm ("a3") = ((uintptr_t)(arg4));	\
+	register uintptr_t _arg5 asm ("a4") = ((uintptr_t)(arg5));	\
+	register uintptr_t _arg6 asm ("a5") = ((uintptr_t)(arg6));	\
+	register uintptr_t _arg7 asm ("a6") = ((uintptr_t)(arg7));	\
+	register uintptr_t _arg8 asm ("a7") = ((uintptr_t)(arg8));	\
+	asm volatile (							\
+	    "1:\n"							\
+	    "call\t" TO_STRING(__dtrace_probe_##name) "@plt\n"		\
+	    ".pushsection .probepoint, \"aw\"\n"			\
+	    ".dword 1b\n"						\
+	    ".popsection\n"						\
+	    : "+r"(_arg1), "+r"(_arg2), "+r"(_arg3), "+r"(_arg4),	\
+	      "+r"(_arg5), "+r"(_arg6), "+r"(_arg7), "+r"(_arg8)	\
+	    :								\
+	    :								\
+	     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra", "memory");	\
+}
+
+#else
 
 #define	DTRACE_PROBE(name)	{					\
 	extern void __dtrace_probe_##name(void);			\
@@ -141,6 +483,8 @@ extern "C" {
 	    (uintptr_t)(arg3), (uintptr_t)(arg4), (uintptr_t)(arg5),	\
 	    (uintptr_t)(arg6), (uintptr_t)(arg7), (uintptr_t)(arg8));	\
 }
+
+#endif
 
 #define	DTRACE_SCHED(name)						\
 	DTRACE_PROBE(__sched_##name);

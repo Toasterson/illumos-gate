@@ -67,7 +67,7 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 	ndmp_base64_encode;
 	ndmp_base64_decode;
 	ndmp_strerror;
-	ndmp_errno	{ ASSERT = { TYPE = OBJECT; SIZE = 4; }; };
+	ndmp_errno	;
 	ndmp_door_decode_start;
 	ndmp_door_decode_finish;
 	ndmp_door_encode_start;

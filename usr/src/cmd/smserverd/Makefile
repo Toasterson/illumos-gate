@@ -19,6 +19,7 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright 2006 Sun Microsystems, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
@@ -60,12 +61,14 @@ all: $(PROG)
 
 install: all $(ROOTLIBSMSERVERDIR) $(ROOTLIBSMSERVERD) $(ROOTMANIFEST)
 
+$(OBJS): $(DERIVED_FILES)
 $(PROG):	$(DERIVED_FILES) $(OBJS)
 	$(LINK.c) -o $(PROG) $(OBJS) $(LDLIBS)
 	$(POST_PROCESS)
 
 check:	$(CHKMANIFEST)
 
+clobber: clean
 clean:
 	$(RM) $(OBJS) $(DERIVED_FILES)
 

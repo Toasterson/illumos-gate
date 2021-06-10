@@ -19,6 +19,7 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 2006, 2010, Oracle and/or its affiliates. All rights reserved.
 #
 
@@ -42,9 +43,9 @@ SYMBOL_VERSION SUNW_1.1 {
     global:
 	advance;
 	bgets;
-	braelist	{ ASSERT = { TYPE = OBJECT; SIZE = addrsize[128]; }; };
+	braelist	;
 	___braelist;
-	braslist	{ ASSERT = { TYPE = OBJECT; SIZE = addrsize[128]; }; };
+	braslist	;
 	___braslist;
 	bufsplit;
 	compile;
@@ -52,21 +53,21 @@ SYMBOL_VERSION SUNW_1.1 {
 	eaccess;
 	gmatch;
 	isencrypt;
-	loc1		{ ASSERT = { TYPE = OBJECT; SIZE = addrsize; }; };
+	loc1		;
 	___loc1;
-	loc2		{ ASSERT = { TYPE = OBJECT; SIZE = addrsize; }; };
+	loc2		;
 	___loc2;
-	locs		{ ASSERT = { TYPE = OBJECT; SIZE = addrsize; }; };
+	locs		;
 	___locs;
 	mkdirp;
-	nbra		{ ASSERT = { TYPE = OBJECT; SIZE = 4; }; };
+	nbra		;
 	___nbra;
 	p2close;
 	p2open;
 	pathfind;
-	regerrno	{ ASSERT = { TYPE = OBJECT; SIZE = 4; }; };
+	regerrno	;
 	___regerrno;
-	reglength	{ ASSERT = { TYPE = OBJECT; SIZE = 4; }; };
+	reglength	;
 	___reglength;
 	rmdirp;
 	step;
@@ -78,9 +79,9 @@ SYMBOL_VERSION SUNW_1.1 {
 	strrspn;
 	strtrns;
 
-$if _ELF32
-	copylist64;	# largefiles interfaces for 32-bit applications
-$endif
+#$if _ELF32
+#	copylist64;	# largefiles interfaces for 32-bit applications
+#$endif
 };
 
 SYMBOL_VERSION SUNWprivate_1.1 {

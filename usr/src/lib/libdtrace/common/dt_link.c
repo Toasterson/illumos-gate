@@ -49,6 +49,11 @@
 #include <dt_program.h>
 #include <dt_string.h>
 
+#define R_RISCV_NONE 0
+#define R_RISCV_64 2
+#define R_RISCV_CALL 18
+#define R_RISCV_CALL_PLT 19
+
 #define	ESHDR_NULL	0
 #define	ESHDR_SHSTRTAB	1
 #define	ESHDR_DOF	2
@@ -68,7 +73,7 @@ static const char DTRACE_SHSTRTAB32[] = "\0"
 ".SUNW_dof\0"		/* 11 */
 ".strtab\0"		/* 21 */
 ".symtab\0"		/* 29 */
-#ifdef __sparc
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
 ".rela.SUNW_dof";	/* 37 */
 #else
 ".rel.SUNW_dof";	/* 37 */
@@ -92,7 +97,7 @@ typedef struct dt_link_pair {
 
 typedef struct dof_elf32 {
 	uint32_t de_nrel;		/* relocation count */
-#ifdef __sparc
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
 	Elf32_Rela *de_rel;		/* array of relocations for sparc */
 #else
 	Elf32_Rel *de_rel;		/* array of relocations for x86 */
@@ -116,7 +121,7 @@ prepare_elf32(dtrace_hdl_t *dtp, const dof_hdr_t *dof, dof_elf32_t *dep)
 	uint32_t count = 0;
 	size_t base;
 	Elf32_Sym *sym;
-#ifdef __sparc
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
 	Elf32_Rela *rel;
 #else
 	Elf32_Rel *rel;
@@ -213,12 +218,12 @@ prepare_elf32(dtrace_hdl_t *dtp, const dof_hdr_t *dof, dof_elf32_t *dep)
 		s = &dofs[dofrh->dofr_tgtsec];
 
 		for (j = 0; j < nrel; j++) {
-#if defined(__i386) || defined(__amd64)
+#if !defined(_CROSS_TOOLS) && (defined(__i386) || defined(__amd64))
 			rel->r_offset = s->dofs_offset +
 			    dofr[j].dofr_offset;
 			rel->r_info = ELF32_R_INFO(count + dep->de_global,
 			    R_386_32);
-#elif defined(__sparc)
+#elif !defined(_CROSS_TOOLS) && defined(__sparc)
 			/*
 			 * Add 4 bytes to hit the low half of this 64-bit
 			 * big-endian address.
@@ -227,6 +232,8 @@ prepare_elf32(dtrace_hdl_t *dtp, const dof_hdr_t *dof, dof_elf32_t *dep)
 			    dofr[j].dofr_offset + 4;
 			rel->r_info = ELF32_R_INFO(count + dep->de_global,
 			    R_SPARC_32);
+#elif (!defined(_CROSS_TOOLS) && defined(__aarch64)) || defined(_TARGET_AARCH64)
+#elif (!defined(_CROSS_TOOLS) && defined(__riscv)) || defined(_TARGET_RISCV)
 #else
 #error unknown ISA
 #endif
@@ -389,16 +396,26 @@ prepare_elf64(dtrace_hdl_t *dtp, const dof_hdr_t *dof, dof_elf64_t *dep)
 		s = &dofs[dofrh->dofr_tgtsec];
 
 		for (j = 0; j < nrel; j++) {
-#if defined(__i386) || defined(__amd64)
+#if !defined(_CROSS_TOOLS) && (defined(__i386) || defined(__amd64))
 			rel->r_offset = s->dofs_offset +
 			    dofr[j].dofr_offset;
 			rel->r_info = ELF64_R_INFO(count + dep->de_global,
 			    R_AMD64_64);
-#elif defined(__sparc)
+#elif !defined(_CROSS_TOOLS) && defined(__sparc)
 			rel->r_offset = s->dofs_offset +
 			    dofr[j].dofr_offset;
 			rel->r_info = ELF64_R_INFO(count + dep->de_global,
 			    R_SPARC_64);
+#elif (!defined(_CROSS_TOOLS) && defined(__aarch64)) || defined(_TARGET_AARCH64)
+			rel->r_offset = s->dofs_offset +
+			    dofr[j].dofr_offset;
+			rel->r_info = ELF64_R_INFO(count + dep->de_global,
+			    R_AARCH64_ABS64);
+#elif (!defined(_CROSS_TOOLS) && defined(__riscv)) || defined(_TARGET_RISCV)
+			rel->r_offset = s->dofs_offset +
+			    dofr[j].dofr_offset;
+			rel->r_info = ELF64_R_INFO(count + dep->de_global,
+			    R_RISCV_64);
 #else
 #error unknown ISA
 #endif
@@ -485,9 +502,9 @@ dump_elf32(dtrace_hdl_t *dtp, const dof_hdr_t *dof, int fd)
 	elf_file.ehdr.e_ident[EI_DATA] = ELFDATA2LSB;
 #endif
 	elf_file.ehdr.e_type = ET_REL;
-#if defined(__sparc)
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
 	elf_file.ehdr.e_machine = EM_SPARC;
-#elif defined(__i386) || defined(__amd64)
+#elif !defined(_CROSS_TOOLS) && (defined(__i386) || defined(__amd64))
 	elf_file.ehdr.e_machine = EM_386;
 #endif
 	elf_file.ehdr.e_version = EV_CURRENT;
@@ -550,7 +567,7 @@ dump_elf32(dtrace_hdl_t *dtp, const dof_hdr_t *dof, int fd)
 		shp = &elf_file.shdr[ESHDR_REL];
 		shp->sh_name = 37; /* DTRACE_SHSTRTAB32[37] = ".rel.SUNW_dof" */
 		shp->sh_flags = SHF_ALLOC;
-#ifdef __sparc
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
 		shp->sh_type = SHT_RELA;
 #else
 		shp->sh_type = SHT_REL;
@@ -622,10 +639,15 @@ dump_elf64(dtrace_hdl_t *dtp, const dof_hdr_t *dof, int fd)
 	elf_file.ehdr.e_ident[EI_DATA] = ELFDATA2LSB;
 #endif
 	elf_file.ehdr.e_type = ET_REL;
-#if defined(__sparc)
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
 	elf_file.ehdr.e_machine = EM_SPARCV9;
-#elif defined(__i386) || defined(__amd64)
+#elif !defined(_CROSS_TOOLS) && (defined(__i386) || defined(__amd64))
 	elf_file.ehdr.e_machine = EM_AMD64;
+#elif (!defined(_CROSS_TOOLS) && defined(__aarch64)) || defined(_TARGET_AARCH64)
+	elf_file.ehdr.e_machine = EM_AARCH64;
+#elif (!defined(_CROSS_TOOLS) && defined(__riscv)) || defined(_TARGET_RISCV)
+	elf_file.ehdr.e_machine = EM_RISCV;
+	elf_file.ehdr.e_flags = 0x5;	// RVC, double-float ABI
 #endif
 	elf_file.ehdr.e_version = EV_CURRENT;
 	elf_file.ehdr.e_shoff = sizeof (Elf64_Ehdr);
@@ -646,7 +668,7 @@ dump_elf64(dtrace_hdl_t *dtp, const dof_hdr_t *dof, int fd)
 
 	shp = &elf_file.shdr[ESHDR_DOF];
 	shp->sh_name = 11; /* DTRACE_SHSTRTAB64[11] = ".SUNW_dof" */
-	shp->sh_flags = SHF_ALLOC;
+	shp->sh_flags = SHF_ALLOC | SHF_WRITE;
 	shp->sh_type = SHT_SUNW_dof;
 	shp->sh_offset = off;
 	shp->sh_size = dof->dofh_filesz;
@@ -738,7 +760,7 @@ dt_symtab_lookup(Elf_Data *data_sym, int nsym, uintptr_t addr, uint_t shn,
 	return (ret);
 }
 
-#if defined(__sparc)
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
 
 #define	DT_OP_RET		0x81c7e008
 #define	DT_OP_NOP		0x01000000
@@ -865,7 +887,7 @@ dt_modtext(dtrace_hdl_t *dtp, char *p, int isenabled, GElf_Rela *rela,
 	return (0);
 }
 
-#elif defined(__i386) || defined(__amd64)
+#elif !defined(_CROSS_TOOLS) && (defined(__i386) || defined(__amd64))
 
 #define	DT_OP_NOP		0x90
 #define	DT_OP_RET		0xc3
@@ -973,6 +995,113 @@ dt_modtext(dtrace_hdl_t *dtp, char *p, int isenabled, GElf_Rela *rela,
 	return (0);
 }
 
+#elif (!defined(_CROSS_TOOLS) && defined(__aarch64)) || defined(_TARGET_AARCH64)
+
+#define	DT_OP_NOP		0xd503201f
+#define	DT_OP_RET		0xd65f03c0
+#define	DT_OP_CALL26		0x94000000
+#define	DT_OP_JUMP26		0x14000000
+
+/*ARGSUSED*/
+static int
+dt_modtext(dtrace_hdl_t *dtp, char *p, int isenabled, GElf_Rela *rela,
+    uint32_t *off)
+{
+	uint32_t *ip;
+
+	if ((rela->r_offset & (sizeof (uint32_t) - 1)) != 0)
+		return (-1);
+
+	ip = (uint32_t *)(p + rela->r_offset);
+
+	/*
+	 * We only know about some specific relocation types.
+	 */
+	if (GELF_R_TYPE(rela->r_info) != R_AARCH64_CALL26 &&
+	    GELF_R_TYPE(rela->r_info) != R_AARCH64_JUMP26 &&
+	    GELF_R_TYPE(rela->r_info) != R_AARCH64_NONE)
+		return (-1);
+
+	/*
+	 * We may have already processed this object file in an earlier linker
+	 * invocation. Check to see if the present instruction sequence matches
+	 * the one we would install below.
+	 */
+	if (ip[0] == DT_OP_NOP || ip[0] == DT_OP_RET)
+		return (0);
+
+	/*
+	 * We only expect call instructions with a displacement of 0.
+	 */
+	if (!(ip[0] == DT_OP_CALL26 || ip[0] == DT_OP_JUMP26)) {
+		dt_dprintf("found %x instead of a call or jmp instruction at "
+		    "%llx\n", ip[0], (u_longlong_t)rela->r_offset);
+		return (-1);
+	}
+
+	if (ip[0] == DT_OP_CALL26)
+		ip[0] = DT_OP_NOP;
+	else
+		ip[0] = DT_OP_RET;
+
+	return (0);
+}
+
+#elif (!defined(_CROSS_TOOLS) && defined(__riscv)) || defined(_TARGET_RISCV)
+
+#define	DT_OP_NOP		0x00000013
+#define	DT_OP_RET		0x00008067
+#define	DT_IS_AUIPC(x)		(((x) & 0x0000007f) == 0x00000017)
+#define	DT_IS_JR(x)		(((x) & 0x00007fff) == 0x00000067)
+#define	DT_IS_JALR(x)		(((x) & 0x000fffff) == 0x000080e7)
+
+/*ARGSUSED*/
+static int
+dt_modtext(dtrace_hdl_t *dtp, char *p, int isenabled, GElf_Rela *rela,
+    uint32_t *off)
+{
+	uint32_t *ip;
+
+	if ((rela->r_offset & (sizeof (uint16_t) - 1)) != 0)
+		return (-1);
+
+	ip = (uint32_t *)(p + rela->r_offset);
+
+	/*
+	 * We only know about some specific relocation types.
+	 */
+	if (GELF_R_TYPE(rela->r_info) != R_RISCV_CALL &&
+	    GELF_R_TYPE(rela->r_info) != R_RISCV_CALL_PLT &&
+	    GELF_R_TYPE(rela->r_info) != R_RISCV_NONE)
+		return (-1);
+
+	/*
+	 * We may have already processed this object file in an earlier linker
+	 * invocation. Check to see if the present instruction sequence matches
+	 * the one we would install below.
+	 */
+	if (DT_IS_AUIPC(ip[0]) && (ip[1] == DT_OP_NOP || ip[1] == DT_OP_RET))
+		return (0);
+
+	/*
+	 * We only expect call instructions with a displacement of 0.
+	 */
+	if (!(DT_IS_AUIPC(ip[0]) && (DT_IS_JR(ip[1]) || DT_IS_JALR(ip[1])))) {
+		dt_dprintf("found %08x %08xinstead of a call or jmp instruction at "
+		    "%llx\n", ip[0], ip[1], (u_longlong_t)rela->r_offset);
+		return (-1);
+	}
+
+	if (DT_IS_JR(ip[1]))
+		ip[1] = DT_OP_RET;
+	else
+		ip[1] = DT_OP_NOP;
+
+	(*off) += sizeof (ip[0]);
+
+	return (0);
+}
+
 #else
 #error unknown ISA
 #endif
@@ -1060,18 +1189,22 @@ process_obj(dtrace_hdl_t *dtp, const char *obj, int *eprobesp)
 
 	if (dtp->dt_oflags & DTRACE_O_LP64) {
 		eclass = ELFCLASS64;
-#if defined(__sparc)
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
 		emachine1 = emachine2 = EM_SPARCV9;
-#elif defined(__i386) || defined(__amd64)
+#elif !defined(_CROSS_TOOLS) && (defined(__i386) || defined(__amd64))
 		emachine1 = emachine2 = EM_AMD64;
+#elif (!defined(_CROSS_TOOLS) && defined(__aarch64)) || defined(_TARGET_AARCH64)
+		emachine1 = emachine2 = EM_AARCH64;
+#elif (!defined(_CROSS_TOOLS) && defined(__riscv)) || defined(_TARGET_RISCV)
+		emachine1 = emachine2 = EM_RISCV;
 #endif
 		symsize = sizeof (Elf64_Sym);
 	} else {
 		eclass = ELFCLASS32;
-#if defined(__sparc)
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
 		emachine1 = EM_SPARC;
 		emachine2 = EM_SPARC32PLUS;
-#elif defined(__i386) || defined(__amd64)
+#elif !defined(_CROSS_TOOLS) && (defined(__i386) || defined(__amd64))
 		emachine1 = emachine2 = EM_386;
 #endif
 		symsize = sizeof (Elf32_Sym);
@@ -1444,6 +1577,16 @@ process_obj(dtrace_hdl_t *dtp, const char *obj, int *eprobesp)
 				rsym.st_shndx = SHN_SUNW_IGNORE;
 				(void) gelf_update_sym(data_sym, ndx, &rsym);
 			}
+
+			if (shdr_rel.sh_type == SHT_RELA) {
+				rela.r_info = GELF_R_INFO(ndx, 0);
+				gelf_update_rela(data_rel, i, &rela);
+			} else {
+				GElf_Rel rel;
+				rel.r_offset = rela.r_offset;
+				rel.r_info = GELF_R_INFO(ndx, 0);
+				gelf_update_rel(data_rel, i, &rel);
+			}
 		}
 	}
 
@@ -1591,15 +1734,59 @@ dtrace_program_link(dtrace_hdl_t *dtp, dtrace_prog_t *pgp, uint_t dflags,
 	}
 
 	if (!dtp->dt_lazyload) {
+#if defined(_CROSS_TOOLS) || defined(__aarch64) || defined(__riscv)
+		const char *fmt = "%s -o %s -r /dev/fd/%d %s";
+#else
 		const char *fmt = "%s -o %s -r -Blocal -Breduce /dev/fd/%d %s";
+#endif
 
-		if (dtp->dt_oflags & DTRACE_O_LP64) {
-			(void) snprintf(drti, sizeof (drti),
-			    "%s/64/drti.o", _dtrace_libdir);
-		} else {
-			(void) snprintf(drti, sizeof (drti),
-			    "%s/drti.o", _dtrace_libdir);
+		int found = 0;
+		dt_dirpath_t *dirp;
+		for (dirp = dt_list_next(&dtp->dt_lib_path);
+		    dirp != NULL; dirp = dt_list_next(dirp)) {
+
+#if defined _MULTI_DATAMODEL
+			if (dtp->dt_oflags & DTRACE_O_LP64) {
+				(void) snprintf(drti, sizeof (drti),
+				    "%s/64/drti.o", dirp->dir_path);
+			} else
+#endif
+			{
+				(void) snprintf(drti, sizeof (drti),
+				    "%s/drti.o", dirp->dir_path);
+			}
+
+			int drtifd = open64(drti, O_RDONLY);
+			if (drtifd >= 0) {
+				Elf *elf = elf_begin(drtifd, ELF_C_READ, NULL);
+				if (elf) {
+					GElf_Ehdr ehdr;
+					if (elf_kind(elf) == ELF_K_ELF &&
+					    gelf_getehdr(elf, &ehdr) != NULL) {
+						if (ehdr.e_machine ==
+#if !defined(_CROSS_TOOLS) && defined(__sparc)
+						    EM_SPARCV9
+#elif !defined(_CROSS_TOOLS) && (defined(__i386) || defined(__amd64))
+						    EM_AMD64
+#elif (!defined(_CROSS_TOOLS) && defined(__aarch64)) || defined(_TARGET_AARCH64)
+						    EM_AARCH64
+#elif (!defined(_CROSS_TOOLS) && defined(__riscv)) || defined(_TARGET_RISCV)
+						    EM_RISCV
+#endif
+						   ) {
+							found = 1;
+						}
+					}
+					elf_end(elf);
+				}
+				close(drtifd);
+			}
+			if (found)
+				break;
 		}
+		if (found == 0)
+			return (dt_link_error(dtp, NULL, -1, NULL,
+				    "drti.o not found\n"));
 
 		len = snprintf(&tmp, 1, fmt, dtp->dt_ld_path, file, fd,
 		    drti) + 1;

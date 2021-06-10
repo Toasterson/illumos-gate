@@ -19,6 +19,7 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 2005, 2010, Oracle and/or its affiliates. All rights reserved.
 # Copyright (c) 2018, Joyent, Inc.
 #
@@ -38,7 +39,7 @@ include ../../Makefile.rootfs
 
 LIBS =		$(DYNLIB)
 LDLIBS +=	-ldevinfo -lc -linetutil -lsocket -lscf -lrcm -lnvpair \
-		-lexacct -lkstat -lpool -lvarpd
+		-lexacct -lnsl -lkstat -lncurses -lpool -lvarpd
 
 SRCDIR =	../common
 
@@ -48,6 +49,10 @@ CERRWARN +=	-_gcc=-Wno-switch
 CERRWARN +=	-_gcc=-Wno-unused-label
 CERRWARN +=	$(CNOWARN_UNINIT)
 CPPFLAGS +=	-I$(SRCDIR) -D_REENTRANT
+
+pics/flowattr.o: CERRWARN += -_gcc12=-Wno-address
+pics/linkprop.o: CERRWARN += -_gcc12=-Wno-address
+pics/flowprop.o: CERRWARN += -_gcc12=-Wno-address
 
 # not linted
 SMATCH=off

@@ -60,6 +60,8 @@ CERRWARN +=	-_gcc=-Wno-parentheses
 CERRWARN +=	-_gcc=-Wno-unused-variable
 CERRWARN +=	$(CNOWARN_UNINIT)
 
+pics/hosts_access.o: CERRWARN += -_gcc12=-Wno-address
+
 # not linted
 SMATCH=off
 

@@ -150,7 +150,7 @@ dt_opt_cpp_path(dtrace_hdl_t *dtp, const char *arg, uintptr_t option)
 	if ((cpp = strdup(arg)) == NULL)
 		return (dt_set_errno(dtp, EDT_NOMEM));
 
-	dtp->dt_cpp_argv[0] = (char *)strbasename(cpp);
+	dtp->dt_cpp_argv[0] = cpp;
 	free(dtp->dt_cpp_path);
 	dtp->dt_cpp_path = cpp;
 

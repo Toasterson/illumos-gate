@@ -25,7 +25,7 @@
 # Copyright (c) 2019, Joyent, Inc.
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 
-SHELL= /usr/bin/ksh93
+SHELL= /bin/ksh93
 
 LIBRARY= libast.a
 VERS= .1
@@ -34,7 +34,7 @@ include ../Makefile.defs
 
 OBJECTS += $(LIBOBJS)
 
-include $(SRC)/lib/Makefile.lib
+include ../../../../lib/Makefile.lib
 include ../../Makefile.ast
 
 MAPFILES= ../mapfile-vers
@@ -99,20 +99,26 @@ CERRWARN += -_gcc=-Wno-address
 # reasonable path to take.
 pics/path/pathpath.o :  CERRWARN += -_gcc10=-Wno-return-local-addr
 pics/path/pathpath.o :  CERRWARN += -_gcc11=-Wno-return-local-addr
+pics/path/pathpath.o :  CERRWARN += -_gcc12=-Wno-return-local-addr
 pics/path/pathkey.o :  CERRWARN += -_gcc10=-Wno-return-local-addr
 pics/path/pathkey.o :  CERRWARN += -_gcc11=-Wno-return-local-addr
+pics/path/pathkey.o :  CERRWARN += -_gcc12=-Wno-return-local-addr
 pics/path/pathprobe.o :  CERRWARN += -_gcc10=-Wno-return-local-addr
 pics/path/pathprobe.o :  CERRWARN += -_gcc11=-Wno-return-local-addr
+pics/path/pathprobe.o :  CERRWARN += -_gcc12=-Wno-return-local-addr
 
 # The code layout after macro expansion is upsetting gcc 11, silence it.
 pics/sfio/sfdisc.o :  CERRWARN += -_gcc11=-Wno-misleading-indentation
+pics/sfio/sfdisc.o :  CERRWARN += -_gcc12=-Wno-misleading-indentation
 pics/sfio/sfstack.o :  CERRWARN += -_gcc11=-Wno-misleading-indentation
+pics/sfio/sfstack.o :  CERRWARN += -_gcc12=-Wno-misleading-indentation
 
 SMATCH= off
 
 .KEEP_STATE:
 
-all: install_h mkpicdirs .WAIT $(LIBS)
+$(PICS): install_h mkpicdirs
+all: install_h mkpicdirs $(LIBS)
 
 mkpicdirs:
 	@mkdir -p $(LOBJDIRS:%=pics/%)
@@ -135,37 +141,39 @@ $(HEADERGEN:%=ast/%): $(FEATURES:%=FEATURE/%)
 	    $(AST_PROTO) FEATURE/$$src > $@
 	$(POST_PROCESS_AST)
 
-ast/prototyped.h: $(AST_TOOLS)/proto
-	$(MKDIR) -p $(@D)
+ast/prototyped.h: ast #$(AST_TOOLS)/proto
 	$(AST_TOOLS)/proto -f /dev/null > $@
 
-ast/ast_common.h: ast/prototyped.h
+ast/ast_common.h: ast/prototyped.h ast
 	$(AST_PROTO) FEATURE/common | $(GREP) -v 'define _def_map_' > $@
 	$(POST_PROCESS_AST)
 	$(CP) $@ .
 
-ast/lc.h: lc.h
+ast/lc.h: lc.h ast
 	$(AST_PROTO) lc.h > ast/lc.h
 
-ast/%.h: $(ASTSRC)/include/%.h
+ast/%.h: $(ASTSRC)/include/%.h ast
 	$(INS.file)
 	$(POST_PROCESS_AST)
 
-ast/%.h: $(ASTSRC)/comp/%.h
+ast/%.h: $(ASTSRC)/comp/%.h ast
 	$(INS.file)
 	$(POST_PROCESS_AST)
 
-ast/%.h: $(ASTSRC)/cdt/%.h
+ast/%.h: $(ASTSRC)/cdt/%.h ast
 	$(INS.file)
 	$(POST_PROCESS_AST)
 
-ast/%.h: $(ASTSRC)/std/%.h
+ast/%.h: $(ASTSRC)/std/%.h ast
 	$(INS.file)
 	$(POST_PROCESS_AST)
 
-ast/ast_namval.h: $(ASTSRC)/include/namval.h
+ast/ast_namval.h: $(ASTSRC)/include/namval.h ast
 	$(CP) $(ASTSRC)/include/namval.h $@
 	$(POST_PROCESS_AST)
+
+ast:
+	$(INS.dir)
 
 CLOBBERFILES += ast_common.h t.c
 CLOBBERFILES += ast/*

@@ -50,4 +50,5 @@ lint:
 
 include ../../Makefile.targ
 
+$(ROOTSMBDTRACEFILE): $(ROOTSMBDTRACEDIR)
 install: all $(ROOTSMBDTRACEDIR) .WAIT $(ROOTSMBDTRACEFILE)

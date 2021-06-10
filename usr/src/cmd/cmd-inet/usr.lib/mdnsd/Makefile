@@ -49,6 +49,11 @@ CERRWARN +=	-_gcc=-Wno-unused-variable
 CERRWARN +=	-_gcc=-Wno-implicit-function-declaration
 CERRWARN +=	-_gcc=-Wno-expansion-to-defined
 CERRWARN +=	$(CNOWARN_UNINIT)
+mDNS.o: CERRWARN += -_gcc10=-Wno-enum-conversion
+mDNS.o: CERRWARN += -_gcc11=-Wno-enum-conversion
+DNSCommon.o: CERRWARN += -_gcc10=-Wno-return-local-addr
+DNSCommon.o: CERRWARN += -_gcc11=-Wno-return-local-addr
+mDNSPosix.o: CERRWARN += -_gcc11=-Wno-array-parameter
 
 # not linted
 SMATCH=off

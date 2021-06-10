@@ -20,10 +20,12 @@
 #
 
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 2008, 2010, Oracle and/or its affiliates. All rights reserved.
 # Copyright 2017 Jason King.
 # Copyright (c) 2018, Joyent, Inc.
 #
+include ../../../../Makefile.master
 
 # AES
 AES_DIR =		$(SRC)/common/crypto/aes
@@ -116,3 +118,5 @@ PAD_SRC =		$(PAD_COMMON_SRC)	$(PAD_PSM_SRC)
 # Header include directories
 CRYPTODIR =		$(SRC)/common/crypto
 UTSDIR =		$(SRC)/uts/common/
+
+pics/des_impl.o: CERRWARN += -_gcc11=-Wno-array-parameter

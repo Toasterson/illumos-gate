@@ -28,6 +28,9 @@
 /*
  * Copyright (c) 2012, Joyent, Inc.  All rights reserved.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 /*
  * Object file dependent support for ELF objects.
@@ -53,7 +56,7 @@
  * Default and secure dependency search paths.
  */
 static Spath_defn _elf_def_dirs[] = {
-#if	defined(_ELF64)
+#if	defined(_ELF64) && defined(_MULTI_DATAMODEL)
 	{ MSG_ORIG(MSG_PTH_LIB_64),		MSG_PTH_LIB_64_SIZE },
 	{ MSG_ORIG(MSG_PTH_USRLIB_64),		MSG_PTH_USRLIB_64_SIZE },
 #else
@@ -64,7 +67,7 @@ static Spath_defn _elf_def_dirs[] = {
 };
 
 static Spath_defn _elf_sec_dirs[] = {
-#if	defined(_ELF64)
+#if	defined(_ELF64) && defined(_MULTI_DATAMODEL)
 	{ MSG_ORIG(MSG_PTH_LIBSE_64),		MSG_PTH_LIBSE_64_SIZE },
 	{ MSG_ORIG(MSG_PTH_USRLIBSE_64),	MSG_PTH_USRLIBSE_64_SIZE },
 #else
@@ -958,7 +961,7 @@ _elf_lookup_filtee(Slookup *slp, Sresult *srp, uint_t *binfo, uint_t ndx,
 			 * our interpretor.  The most common filter is
 			 * libdl.so.1, which is a filter on ld.so.1.
 			 */
-#if	defined(_ELF64)
+#if	defined(_ELF64) && defined(_MULTI_DATAMODEL)
 			if (strcmp(filtee, MSG_ORIG(MSG_PTH_RTLD_64)) == 0) {
 #else
 			if (strcmp(filtee, MSG_ORIG(MSG_PTH_RTLD)) == 0) {
@@ -1310,6 +1313,67 @@ elf_hash(const char *name)
 	return ((ulong_t)hval);
 }
 
+static int
+_special_symbol_proc(Slookup *slp, Sresult *srp, uint_t *binfo, int *in_nfavl)
+{
+	const char	*name = slp->sl_name;
+	Rt_map		*clmp = slp->sl_cmap;
+	Rt_map		*ilmp = slp->sl_imap;
+	Rt_map		*nlmp = 0;
+	static	Grp_hdl	*ghp = 0;
+
+	/*
+	 * Create an association between ld.so.1 and the calling link-map
+	 * and get the ld.so group handle
+	 */
+
+	if (ghp == 0) {
+		nlmp = lml_rtld.lm_head;
+		if ((ghp = hdl_create(&lml_rtld, nlmp, ilmp,
+				      (GPH_LDSO | GPH_FIRST),
+				      (GPD_DLSYM | GPD_RELOC), 0)) == 0)
+			nlmp = 0;
+	}
+
+	/*
+	 * perform the symbol lookup in ld.so.1 and its dependencies
+	 */
+	if ((name) && (ghp)) {
+		Grp_desc	*gdp;
+		int		ret = 0;
+		Aliste		idx;
+		Slookup		sl = *slp;
+
+		sl.sl_flags |= (LKUP_FIRST | LKUP_DLSYM);
+
+		/*
+		 * Look for the symbol in the handles dependencies.
+		 */
+		for (ALIST_TRAVERSE(ghp->gh_depends, idx, gdp)) {
+			if ((gdp->gd_flags & GPD_DLSYM) == 0)
+				continue;
+
+			/*
+			 * If our parent is a dependency don't look at
+			 * it (otherwise we are in a recursive loop).
+			 */
+			if ((sl.sl_imap = gdp->gd_depend) == ilmp)
+				continue;
+
+			if (((ret = SYMINTP(sl.sl_imap)(&sl, srp, binfo,
+						    in_nfavl)) != 0) ||
+			    (ghp->gh_flags & GPH_FIRST))
+				break;
+		}
+
+		if (ret) {
+			/* *binfo |= DBG_BINFO_FILTEE; */
+			return (1);
+		}
+	}
+
+	return 0;
+}
 /*
  * Look up a symbol.  The callers lookup information is passed in the Slookup
  * structure, and any resultant binding information is returned in the Sresult
@@ -1535,8 +1599,26 @@ elf_find_sym(Slookup *slp, Sresult *srp, uint_t *binfo, int *in_nfavl)
 	/*
 	 * Determine whether this object is acting as a filter.
 	 */
-	if (((flags1 = FLAGS1(ilmp)) & MSK_RT_FILTER) == 0)
+	if (((flags1 = FLAGS1(ilmp)) & MSK_RT_FILTER) == 0) {
+#if defined __aarch64 || defined __riscv
+		if ((sym->st_shndx == SHN_ABS) &&
+		    (ELF_ST_BIND(sym->st_info) == STB_GLOBAL) &&
+		    (sym->st_value == 0) &&
+		    ((ELF_ST_TYPE(sym->st_info) == STT_FUNC) ||
+		     (ELF_ST_TYPE(sym->st_info) == STT_OBJECT))) {
+			Sresult sr;
+
+			SRESULT_INIT(sr, slp->sl_name);
+
+			if (_special_symbol_proc(slp, &sr, binfo, in_nfavl)) {
+				*srp = sr;
+				return (1);
+			}
+			return (0);
+		}
+#endif
 		return (1);
+	}
 
 	/*
 	 * Determine if this object offers per-symbol filtering, and if so,
@@ -2845,7 +2927,7 @@ elf_lazy_find_sym(Slookup *slp, Sresult *srp, uint_t *binfo, int *in_nfavl)
  * Warning message for bad r_offset.
  */
 void
-elf_reloc_bad(Rt_map *lmp, void *rel, uchar_t rtype, ulong_t roffset,
+elf_reloc_bad(Rt_map *lmp, void *rel, uint_t rtype, ulong_t roffset,
     ulong_t rsymndx)
 {
 	const char	*name = NULL;
@@ -2889,7 +2971,7 @@ elf_reloc_bad(Rt_map *lmp, void *rel, uchar_t rtype, ulong_t roffset,
  * Resolve a static TLS relocation.
  */
 long
-elf_static_tls(Rt_map *lmp, Sym *sym, void *rel, uchar_t rtype, char *name,
+elf_static_tls(Rt_map *lmp, Sym *sym, void *rel, uint_t rtype, char *name,
     ulong_t roffset, long value)
 {
 	Lm_list	*lml = LIST(lmp);

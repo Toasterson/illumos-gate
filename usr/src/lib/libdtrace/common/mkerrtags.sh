@@ -26,7 +26,7 @@
 #
 #ident	"%Z%%M%	%I%	%E% SMI"
 
-echo "\
+echo -e "\
 /*\n\
  * Copyright 2003 Sun Microsystems, Inc.  All rights reserved.\n\
  * Use is subject to license terms.\n\
@@ -43,7 +43,7 @@ replace='	"\1",'
 
 sed -n "s/$pattern/$replace/p" || exit 1
 
-echo "\
+echo -e "\
 };\n\
 \n\
 static const int _dt_ntag = sizeof (_dt_errtags) / sizeof (_dt_errtags[0]);\n\

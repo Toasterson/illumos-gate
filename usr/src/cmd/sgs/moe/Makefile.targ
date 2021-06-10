@@ -20,6 +20,7 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright 2004 Sun Microsystems, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
@@ -37,12 +38,18 @@ $(PROG):	$(OBJS) $(MAPFILE)
 $(ROOTPROG64)/%: %
 		$(INS.file)
 
+$(OBJS):	$(BLTDEFS)
+
 all:		$(PROG)
 
 clean:
 		$(RM) $(OBJS) $(CLEANFILES)
 
 install:	all $(ROOTPROG)
+
+.PHONY:		_bltdefs
+$(PICS):	_bltdefs
+_bltdefs:	$(BLTDEFS) $(BLTDATA)
 
 include		$(SRC)/cmd/Makefile.targ
 
@@ -53,7 +60,7 @@ catalog:	$(BLTMESG)
 chkmsg:		$(SRCS)
 		sh $(CHKMSG) $(CHKMSGFLAGS) $(SRCS)
 
-$(BLTDEFS) + \
-$(BLTDATA) + \
+$(BLTDEFS)  \
+$(BLTDATA)  \
 $(BLTMESG):	$(SGSMSGALL)
 		$(SGSMSG) $(SGSMSGFLAGS) $(SGSMSGALL)

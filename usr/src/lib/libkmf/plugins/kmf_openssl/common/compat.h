@@ -11,7 +11,7 @@
 #ifndef LIBCRYPTO_COMPAT_H
 #define	LIBCRYPTO_COMPAT_H
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
@@ -86,6 +86,20 @@ RSA *EVP_PKEY_get0_RSA(EVP_PKEY *pkey);
 #define	X509_CRL_get0_nextUpdate(xcrl) X509_CRL_get_nextUpdate(xcrl)
 #define	X509_getm_notBefore  X509_get_notBefore
 #define	X509_getm_notAfter X509_get_notAfter
+
+#elif (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER >= 0x20700000L)
+
+#if LIBRESSL_VERSION_NUMBER < 0x30500000L
+#define	OCSP_resp_get0_certs(bs) ((bs)->certs)
+#endif
+#define	PKCS12_SAFEBAG_get0_attr(bag, attr) PKCS12_get_attr(bag, attr)
+#define	PKCS12_SAFEBAG_get_nid(bag) M_PKCS12_bag_type(bag)
+#define	PKCS12_SAFEBAG_get0_p8inf(bag) ((bag)->value.keybag)
+#define	PKCS12_SAFEBAG_get0_safes(bag) ((bag)->value.safes)
+#define	PKCS12_SAFEBAG_create_cert PKCS12_x5092certbag
+#define	PKCS12_SAFEBAG_create_pkcs8_encrypt PKCS12_MAKE_SHKEYBAG
+#define	PKCS12_SAFEBAG_get_bag_nid M_PKCS12_cert_bag_type
+#define	PKCS12_SAFEBAG_get1_cert PKCS12_certbag2x509
 
 #endif /* OPENSSL_VERSION_NUMBER || LIBRESSL_VERSION_NUMBER */
 

@@ -40,12 +40,7 @@ $mapfile_version 2
 
 SYMBOL_VERSION SUNWprivate_1.1 {
     global:
-	kdb_function_table	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[39];
-					};
-				};
+	kdb_function_table	;
     local:
 	*;
 };

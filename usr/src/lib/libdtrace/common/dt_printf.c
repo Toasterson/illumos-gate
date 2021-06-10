@@ -311,6 +311,7 @@ pfprint_fp(dtrace_hdl_t *dtp, FILE *fp, const char *format,
 	}
 }
 
+#ifndef _CROSS_TOOLS
 /*ARGSUSED*/
 static int
 pfprint_addr(dtrace_hdl_t *dtp, FILE *fp, const char *format,
@@ -538,6 +539,7 @@ pfprint_inetaddr(dtrace_hdl_t *dtp, FILE *fp, const char *format,
 
 	return (dt_printf(dtp, fp, format, s));
 }
+#endif
 
 /*ARGSUSED*/
 static int
@@ -627,8 +629,10 @@ static const char pfproto_wstr[] = "wchar_t []";
  * string of the types expected for use in error messages.
  */
 static const dt_pfconv_t _dtrace_conversions[] = {
+#ifndef _CROSS_TOOLS
 { "a", "s", pfproto_addr, pfcheck_kaddr, pfprint_addr },
 { "A", "s", pfproto_uaddr, pfcheck_uaddr, pfprint_uaddr },
+#endif
 { "c", "c", pfproto_csi, pfcheck_csi, pfprint_sint },
 { "C", "s", pfproto_csi, pfcheck_csi, pfprint_echr },
 { "d", "d", pfproto_xint, pfcheck_dint, pfprint_dint },
@@ -644,8 +648,10 @@ static const dt_pfconv_t _dtrace_conversions[] = {
 { "hx", "x", "short", pfcheck_xshort, pfprint_uint },
 { "hX", "X", "short", pfcheck_xshort, pfprint_uint },
 { "i", "i", pfproto_xint, pfcheck_xint, pfprint_sint },
+#ifndef _CROSS_TOOLS
 { "I", "s", pfproto_cstr, pfcheck_str, pfprint_inetaddr },
 { "k", "s", "stack", pfcheck_stack, pfprint_stack },
+#endif
 { "lc", "lc", "int", pfcheck_type, pfprint_sint }, /* a.k.a. wint_t */
 { "ld",	"d", "long", pfcheck_type, pfprint_sint },
 { "li",	"i", "long", pfcheck_type, pfprint_sint },
@@ -667,16 +673,22 @@ static const dt_pfconv_t _dtrace_conversions[] = {
 { "LG",	"G", "long double", pfcheck_type, pfprint_fp },
 { "o", "o", pfproto_xint, pfcheck_xint, pfprint_uint },
 { "p", "x", pfproto_addr, pfcheck_addr, pfprint_uint },
+#ifndef _CROSS_TOOLS
 { "P", "s", "uint16_t", pfcheck_type, pfprint_port },
+#endif
 { "s", "s", "char [] or string (or use stringof)", pfcheck_str, pfprint_cstr },
 { "S", "s", pfproto_cstr, pfcheck_str, pfprint_estr },
+#ifndef _CROSS_TOOLS
 { "T", "s", "int64_t", pfcheck_time, pfprint_time822 },
+#endif
 { "u", "u", pfproto_xint, pfcheck_xint, pfprint_uint },
 { "wc",	"wc", "int", pfcheck_type, pfprint_sint }, /* a.k.a. wchar_t */
 { "ws", "ws", pfproto_wstr, pfcheck_wstr, pfprint_wstr },
 { "x", "x", pfproto_xint, pfcheck_xint, pfprint_uint },
 { "X", "X", pfproto_xint, pfcheck_xint, pfprint_uint },
+#ifndef _CROSS_TOOLS
 { "Y", "s", "int64_t", pfcheck_time, pfprint_time },
+#endif
 { "%", "%", "void", pfcheck_type, pfprint_pct },
 { NULL, NULL, NULL, NULL, NULL }
 };
@@ -1258,6 +1270,7 @@ dt_printf_getint(dtrace_hdl_t *dtp, const dtrace_recdesc_t *recp,
 	return (0);
 }
 
+#ifndef _CROSS_TOOLS
 /*ARGSUSED*/
 static int
 pfprint_average(dtrace_hdl_t *dtp, FILE *fp, const char *format,
@@ -1309,6 +1322,7 @@ pfprint_llquantize(dtrace_hdl_t *dtp, FILE *fp, const char *format,
 {
 	return (dt_print_llquantize(dtp, fp, addr, size, normal));
 }
+#endif
 
 static int
 dt_printf_format(dtrace_hdl_t *dtp, FILE *fp, const dt_pfargv_t *pfv,
@@ -1483,6 +1497,7 @@ dt_printf_format(dtrace_hdl_t *dtp, FILE *fp, const dt_pfargv_t *pfv,
 		}
 
 		switch (rec->dtrd_action) {
+#ifndef _CROSS_TOOLS
 		case DTRACEAGG_AVG:
 			func = pfprint_average;
 			break;
@@ -1504,6 +1519,7 @@ dt_printf_format(dtrace_hdl_t *dtp, FILE *fp, const dt_pfargv_t *pfv,
 		case DTRACEACT_UMOD:
 			func = pfprint_umod;
 			break;
+#endif
 		default:
 			func = pfc->pfc_print;
 			break;
@@ -1522,6 +1538,7 @@ dt_printf_format(dtrace_hdl_t *dtp, FILE *fp, const dt_pfargv_t *pfv,
 		if (pfd->pfd_flags & DT_PFCONV_SPACE)
 			*f++ = ' ';
 
+#ifndef _CROSS_TOOLS
 		/*
 		 * If we're printing a stack and DT_PFCONV_LEFT is set, we
 		 * don't add the width to the format string.  See the block
@@ -1530,6 +1547,7 @@ dt_printf_format(dtrace_hdl_t *dtp, FILE *fp, const dt_pfargv_t *pfv,
 		 */
 		if (func == pfprint_stack && (pfd->pfd_flags & DT_PFCONV_LEFT))
 			width = 0;
+#endif
 
 		if (width != 0)
 			f += snprintf(f, sizeof (format), "%d", ABS(width));
@@ -1911,6 +1929,7 @@ dt_fprintas(const dtrace_aggdata_t **aggsdata, int naggvars, void *arg)
 
 	return (0);
 }
+#ifndef _CROSS_TOOLS
 /*ARGSUSED*/
 int
 dtrace_fprinta(dtrace_hdl_t *dtp, FILE *fp, void *fmtdata,
@@ -1963,3 +1982,4 @@ dtrace_fprinta(dtrace_hdl_t *dtp, FILE *fp, void *fmtdata,
 
 	return (i);
 }
+#endif

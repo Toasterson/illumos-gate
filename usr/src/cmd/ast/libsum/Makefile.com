@@ -26,7 +26,7 @@
 # Copyright (c) 2018, Joyent, Inc.
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 
-SHELL= /usr/bin/ksh93
+SHELL= /bin/ksh93
 
 LIBRARY= libsum.a
 VERS= .1
@@ -35,7 +35,7 @@ include ../Makefile.defs
 
 OBJECTS += $(LIBOBJS)
 
-include $(SRC)/lib/Makefile.lib
+include ../../../../lib/Makefile.lib
 include ../../Makefile.ast
 
 MAPFILES= ../mapfile-vers
@@ -73,7 +73,8 @@ sparcv9_COPTFLAG = $(sparc_COPTFLAG)
 i386_COPTFLAG = -_cc=-xO5 -_cc=-xprefetch=auto,explicit
 amd64_COPTFLAG = $(i386_COPTFLAG)
 
-all: install_h .WAIT $(LIBS)
+$(PICS): install_h
+all: install_h $(LIBS)
 
 include $(SRC)/lib/Makefile.targ
 

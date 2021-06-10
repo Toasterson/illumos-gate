@@ -23,6 +23,9 @@
  * Copyright 2009 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 /*	Copyright (c) 1984, 1986, 1987, 1988 AT&T	*/
 /*	  All Rights Reserved  	*/
 
@@ -131,6 +134,7 @@ struct ipart {
 #define	FDISK_BSDISWAP	184	/* BSDI swap */
 #define	X86BOOT		190	/* x86 Solaris boot partition */
 #define	SUNIXOS2	191	/* Solaris UNIX partition */
+#define	ALPHABOOT	192	/* Alpha Solaris boot partition */
 #define	EFI_PMBR	238	/* EFI PMBR */
 #define	EFI_FS		239	/* EFI File System (System Partition) */
 #define	MAXDOS		65535L	/* max size (sectors) for DOS partition */
@@ -152,7 +156,7 @@ struct mboot {	/* master boot block */
 	ushort_t signature;
 };
 
-#if defined(__i386) || defined(__amd64)
+#if defined(__i386) || defined(__amd64) || defined(__aarch64) || defined(__riscv)
 
 /* Byte offset of the start of the partition table within the sector */
 #define	FDISK_PART_TABLE_START	446

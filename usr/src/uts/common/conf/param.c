@@ -25,6 +25,9 @@
  * Copyright 2012 Milan Jurik. All rights reserved.
  * Copyright 2022 Garrett D'Amore <garrett@damore.org>
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -523,6 +526,18 @@ char hw_provider[] = "Oracle Corporation";
 
 char architecture[] = "amd64";
 char architecture_32[] = "i386";
+char hw_provider[SYS_NMLN] = "";
+
+#elif defined(__aarch64)
+
+char architecture[] = "aarch64";
+char architecture_32[] = "aarch32";
+char hw_provider[SYS_NMLN] = "";
+
+#elif defined(__riscv)
+
+char architecture[] = "riscv64";
+char architecture_32[] = "riscv32";
 char hw_provider[SYS_NMLN] = "";
 
 #else

@@ -70,18 +70,13 @@ SYMBOL_VERSION ILLUMOS_sqlite_2.8.15 {
 	sqlite_decode_binary;
 
 	# exported data
-	sqlite_version	{ ASSERT = { TYPE = OBJECT; SIZE = 17; }; };
-	sqlite_encoding	{ ASSERT = { TYPE = OBJECT; SIZE = 8; }; };
+	sqlite_version	;
+	sqlite_encoding	;
 };
 
 SYMBOL_VERSION SUNWprivate {
     global:
-	sqlite_temp_directory	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
+	sqlite_temp_directory	;
 	sqliteIsNumber;
 	sqliteOsFileExists;
 	sqliteStrICmp;

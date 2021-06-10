@@ -24,6 +24,9 @@
  * Copyright 2021 Joyent, Inc.
  * Copyright 2021 Oxide Computer Company
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 #include <sys/types.h>
 #include <sys/param.h>
@@ -191,6 +194,11 @@ thread_init(void)
 	 * "struct fpu", which needs to be 64-byte aligned on amd64
 	 * (and even on i386) for xsave/xrstor.
 	 */
+	lwp_cache = kmem_cache_create("lwp_cache", sizeof (klwp_t),
+	    64, NULL, NULL, NULL, NULL, NULL, 0);
+#elif defined __aarch64 || defined __riscv
+	thread_cache = kmem_cache_create("thread_cache", sizeof (kthread_t),
+	    PTR24_ALIGN, NULL, NULL, NULL, NULL, static_arena, 0);
 	lwp_cache = kmem_cache_create("lwp_cache", sizeof (klwp_t),
 	    64, NULL, NULL, NULL, NULL, NULL, 0);
 #else

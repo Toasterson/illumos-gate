@@ -10,6 +10,7 @@
 #
 
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 2012 Joyent, Inc.  All rights reserved.
 #
 
@@ -31,8 +32,8 @@ $mapfile_version 2
 
 SYMBOL_VERSION SUNWprivate_1.1 {
     global:
-	ipd_errno	{ ASSERT = { TYPE = TLS; SIZE = 4; }; };
-	ipd_errmsg	{ ASSERT = { TYPE = TLS; SIZE = 512; }; };
+	ipd_errno	;
+	ipd_errmsg	;
 	ipd_strerror;
 	ipd_open;
 	ipd_close;
@@ -41,6 +42,8 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 	ipd_status_get_config;
 	ipd_status_free;
 	ipd_ctl;
+
+	__emutls_v.*;
     local:
 	*;
 };

@@ -25,9 +25,9 @@
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 #
 
-SHELL= /usr/bin/ksh93
+SHELL= /bin/ksh93
 
-include		$(SRC)/lib/Makefile.lib
+include		../../../lib/Makefile.lib
 
 SUBDIRS=	$(MACH)
 

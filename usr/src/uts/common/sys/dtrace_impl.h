@@ -1289,6 +1289,8 @@ extern void dtrace_copy(uintptr_t, uintptr_t, size_t);
 extern void dtrace_copystr(uintptr_t, uintptr_t, size_t, volatile uint16_t *);
 #endif
 
+extern dtrace_id_t dtrace_probeid_error;
+
 /*
  * DTrace Assertions
  *

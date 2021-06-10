@@ -44,6 +44,9 @@ SRCDIR =	../common
 CFLAGS +=	$(CCVERBOSE)
 CERRWARN +=	-_gcc=-Wno-switch
 CERRWARN +=	$(CNOWARN_UNINIT)
+
+pics/ipadm_addr.o: CERRWARN += -_gcc12=-Wno-address
+
 CPPFLAGS +=	-I$(SRCDIR) -D_REENTRANT
 
 # not linted

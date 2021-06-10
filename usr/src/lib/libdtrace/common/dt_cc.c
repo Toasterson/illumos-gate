@@ -1667,8 +1667,11 @@ dt_setcontext(dtrace_hdl_t *dtp, dtrace_probedesc_t *pdp)
 	 */
 	if (isdigit(pdp->dtpd_provider[strlen(pdp->dtpd_provider) - 1]) &&
 	    ((pvp = dt_provider_lookup(dtp, pdp->dtpd_provider)) == NULL ||
-	    pvp->pv_desc.dtvd_priv.dtpp_flags & DTRACE_PRIV_PROC) &&
-	    dt_pid_create_probes(pdp, dtp, yypcb) != 0) {
+	    pvp->pv_desc.dtvd_priv.dtpp_flags & DTRACE_PRIV_PROC)
+#ifndef _CROSS_TOOLS
+	    && dt_pid_create_probes(pdp, dtp, yypcb) != 0
+#endif
+	    ) {
 		longjmp(yypcb->pcb_jmpbuf, EDT_COMPILER);
 	}
 
@@ -1803,7 +1806,7 @@ static FILE *
 dt_preproc(dtrace_hdl_t *dtp, FILE *ifp)
 {
 	int argc = dtp->dt_cpp_argc;
-	char **argv = malloc(sizeof (char *) * (argc + 5));
+	char **argv = malloc(sizeof (char *) * (argc + 6));
 	FILE *ofp = tmpfile();
 
 	char ipath[20], opath[20]; /* big enough for /dev/fd/ + INT_MAX + \0 */
@@ -1861,6 +1864,9 @@ dt_preproc(dtrace_hdl_t *dtp, FILE *ifp)
 	}
 
 	argv[argc++] = ipath;
+#if defined(_CROSS_TOOLS) || defined(__aarch64) || defined(__riscv)
+	argv[argc++] = "-o";
+#endif
 	argv[argc++] = opath;
 	argv[argc] = NULL;
 

@@ -43,12 +43,7 @@ $mapfile_version 2
 SYMBOL_VERSION SUNWprivate_1.1 {
     global:
 	__dh_gss_initialize;
-	__DH_GSS_C_NT_NETNAME	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
+	__DH_GSS_C_NT_NETNAME	;
 	__context_debug_entry;
     local:
 	*;

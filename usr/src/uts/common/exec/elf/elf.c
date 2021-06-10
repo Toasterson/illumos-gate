@@ -2036,6 +2036,12 @@ top:
 #elif defined(__amd64)
 	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
 	ehdr->e_machine = EM_AMD64;
+#elif defined(__aarch64)
+	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
+	ehdr->e_machine = EM_AARCH64;
+#elif defined(__riscv)
+	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
+	ehdr->e_machine = EM_RISCV;
 #else
 #error "no recognized 64-bit machine type is defined"
 #endif

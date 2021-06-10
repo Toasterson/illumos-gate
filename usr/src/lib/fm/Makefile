@@ -36,12 +36,20 @@ SUBDIRS = \
 	libfmd_msg \
 	libfmd_snmp \
 	libfmevent \
-	.WAIT \
 	libfmnotify \
 	topo
 
 libfmd_snmp: libfmd_adm topo
 
 topo: libfmd_agent libdiskstatus
+
+libdiagcode: libfmd_agent
+libdiskstatus: libdiagcode
+libseslog: libdiskstatus
+libfmd_adm: libseslog
+libfmd_log: libfmd_adm
+libfmd_msg: libfmd_log
+libfmevent: libfmd_snmp
+libfmnotify: libfmevent
 
 include ./Makefile.subdirs

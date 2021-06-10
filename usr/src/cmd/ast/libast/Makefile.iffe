@@ -45,5 +45,6 @@ FEATURE/float: ast/ast_common.h
 cleaniffe: FRC
 	$(RM) $(FEATURES:%=FEATURE/%) $(GENCONF) $(LCCONF)
 
+$(GENCONF:%=clean_%) $(LCCONF:%=clean_%): cleaniffe $(FEATURES:%=FEATURE/%) $(LCCONF)
 generate: cleaniffe $(FEATURES:%=FEATURE/%) $(LCCONF) \
-	.WAIT $(GENCONF:%=clean_%) $(LCCONF:%=clean_%)
+	$(GENCONF:%=clean_%) $(LCCONF:%=clean_%)

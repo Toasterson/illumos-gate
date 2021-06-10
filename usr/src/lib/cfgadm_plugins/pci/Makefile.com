@@ -51,6 +51,7 @@ LDLIBS +=	-lc -ldevice -ldevinfo -lrcm
 CERRWARN +=	-_gcc=-Wno-parentheses
 CERRWARN +=	-_gcc=-Wno-char-subscripts
 CERRWARN +=	$(CNOWARN_UNINIT)
+CERRWARN +=	-_gcc12=-Wno-address
 
 # not linted
 SMATCH=off

@@ -28,6 +28,26 @@
 
 ROOTHDRDIR=	$(ROOT)/usr/include/ast
 
+ifeq ($(HDRDIR32), $(HDRDIR64))
+
+$(ROOTHDRDIR)/%: $(HDRDIR32)/%
+	@mkdir -p tmpastinclude ; \
+	typeset boilerplate="" ; \
+	boilerplate+="/*\n" \
+	boilerplate+=" * BEGIN illumos section\n" \
+	boilerplate+=" *   This is an unstable interface; changes may be made\n" \
+	boilerplate+=" *   without notice.\n" \
+	boilerplate+=" * END illumos section\n" \
+	boilerplate+=" */\n" ; \
+	printf "# Building (diff) %s\n" "$(@F)"; \
+	{ \
+	    set +o errexit ; \
+	    print -n "$${boilerplate}" ; \
+	    cat "$(HDRDIR32)/$(@F)" ; true ;\
+	} >"tmpastinclude/$(@F)" ; \
+	$(INS) -s -m $(FILEMODE) -f $(@D) "tmpastinclude/$(@F)"
+
+else
 # Define the symbol used to distinguish between 32bit and 64bit parts of the
 # include file. We cannot use |_LP64| here because not every compiler (like
 # Studio 10/11/12) sets it by default (this doesn't harm because the AST
@@ -77,6 +97,7 @@ $(ROOTHDRDIR)/%: $(HDRDIR32)/% $(HDRDIR64)/%
 	    } >"tmpastinclude/$(@F)" ; \
 	fi
 	$(INS) -s -m $(FILEMODE) -f $(@D) "tmpastinclude/$(@F)"
+endif
 
 # Add temporary include files to the list of files to "clobber"
 CLOBBERFILES += tmpastinclude/*

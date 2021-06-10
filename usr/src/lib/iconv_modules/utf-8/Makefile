@@ -23,7 +23,7 @@
 # Use is subject to license terms.
 #
 
-include $(SRC)/Makefile.master
+include ../../../Makefile.master
 
 SUBDIRS =       $(MACH)
 $(BUILD64)SUBDIRS += $(MACH64)
@@ -62,7 +62,7 @@ $(BTS_DIR):
 	$(INS.dir)
 
 %.bt: $(GENI_SRCS)/%.src
-	$(GENICONVTBL) -o $@ -f $<
+	$(GENICONVTBL) -I $(ROOT)/usr/include -o $@ -f $<
 
 $(ICONV_DIR)/%: %
 	$(INS.file)
@@ -84,7 +84,7 @@ install: all $(BINARYTABLES) $(BTS_DIR) $(ICONV_DIR)/alias
 		$(CHMOD) 0444 $(BTS_DIR)/$$fp; \
 	done
 
-clean:
+clean clobber:
 	$(RM) $(BINARYTABLES)
 
 all clean clobber install echo: $(SUBDIRS)

@@ -45,3 +45,5 @@ LDLIBS +=	-lc
 
 SMOFF += 64bit_shift
 
+pics/sha1.o: CERRWARN += -_gcc11=-Wno-array-parameter
+

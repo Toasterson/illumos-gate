@@ -20,6 +20,7 @@
 #
 
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 1999, 2010, Oracle and/or its affiliates. All rights reserved.
 # Copyright 2016 Nexenta Systems, Inc.
 # Copyright 2020 Joyent, Inc.
@@ -117,12 +118,15 @@ CERRWARN += -_gcc=-Wno-parentheses
 CERRWARN += -_gcc=-Wno-unused-label
 CERRWARN += $(CNOWARN_UNINIT)
 CERRWARN += -_gcc=-Wno-unused-function
+CERRWARN += -_gcc=-Wno-cast-function-type
+
+ip_rcm.o: CERRWARN += -_gcc12=-Wno-address
 
 # not linted
 SMATCH=off
 
-MAPFILES = ../common/mapfile-intf $(MAPFILE.NGB)
-rcm_daemon :  LDFLAGS += $(MAPFILES:%=-Wl,-M%)
+#MAPFILES = ../common/mapfile-intf $(MAPFILE.NGB)
+#rcm_daemon :  LDFLAGS += $(MAPFILES:%=-Wl,-M%)
 
 rcm_daemon :  LDFLAGS += $(MAPFILES:%=-Wl,-M%)
 
@@ -183,6 +187,7 @@ install: all			\
 	$(ROOTETC_RCM_SCRIPT)	\
 	$(ROOTLIB_RCM_SCRIPTS)
 
+clobber: clean
 clean:
 	$(RM) $(RCM_OBJ) $(COMMON_MOD_OBJ) $($(MACH)_MOD_OBJ) $(POFILES)
 
@@ -194,7 +199,7 @@ $(POFILE):      $(POFILES)
 	$(RM) $@; cat $(POFILES) > $@
 
 $(RCM_DAEMON): $(RCM_OBJ) $(MAPFILES)
-	$(LINK.c) -o $@ $< $(RCM_OBJ) $(LDLIBS)
+	$(LINK.c) -o $@ $(RCM_OBJ) $(LDLIBS)
 	$(POST_PROCESS)
 
 SUNW_%.so: %.o
@@ -206,13 +211,13 @@ SUNW_%.so: %.o
 $(ROOTLIB_RCM):
 	$(INS.dir)
 
-$(ROOTLIB_RCM)/%: %
+$(ROOTLIB_RCM)/%: % $(ROOTLIB_RCM)
 	$(INS.file)
 
 $(ROOTLIB_RCM_MOD):
 	$(INS.dir)
 
-$(ROOTLIB_RCM_MOD)/%: %
+$(ROOTLIB_RCM_MOD)/%: % $(ROOTLIB_RCM_MOD)
 	$(INS.file)
 
 $(ROOTLIB_RCM_SCRIPT):
@@ -224,5 +229,5 @@ $(ROOTETC_RCM):
 $(ROOTETC_RCM_SCRIPT):
 	$(INS.dir)
 
-$(ROOTLIB_RCM_SCRIPT)/%: $(COMMON)/%
+$(ROOTLIB_RCM_SCRIPT)/%: $(COMMON)/% $(ROOTLIB_RCM_SCRIPT)
 	$(INS.file)

@@ -35,11 +35,12 @@ all :  TARGET = all
 clean :  TARGET = clean
 clobber :  TARGET = clobber
 install :  TARGET = install
+install_drti :  TARGET = install_drti
 yydebug :  TARGET = yydebug
 
 .KEEP_STATE:
 
-all clean clobber yydebug: $(SUBDIRS)
+all clean clobber yydebug install_drti: $(SUBDIRS)
 
 install: install_h $(SUBDIRS)
 

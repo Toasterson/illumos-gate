@@ -35,6 +35,8 @@ LDLIBS		+= -lpam -lc
 
 CPPFLAGS	+= -D_FILE_OFFSET_BITS=64
 CERRWARN	+= -_gcc=-Wno-parentheses
+pics/authtok_check.o: CERRWARN += -_gcc11=-Wno-stringop-overflow
+pics/authtok_check.o: CERRWARN += -_gcc12=-Wno-stringop-overflow
 
 # not linted
 SMATCH=off

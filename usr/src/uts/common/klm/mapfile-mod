@@ -22,6 +22,8 @@ SYMBOL_SCOPE {
 		_fini;
 		_info;
 		_init;
+		_probepoints_start;
+		_probepoints_end;
 # These are all the symbols referenced in ml/modstubs.s
 # If we want to remain a drop-in replacment for the old
 # (closed source) klm, we need to define all of these.

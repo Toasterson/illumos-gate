@@ -75,6 +75,7 @@ OBJECTS = dt_lex.o dt_grammar.o $(MACHOBJS) $(LIBSRCS:%.c=%.o) $(LIBISASRCS:%.c=
 DRTISRCS = dlink_init.c dlink_common.c
 DRTIOBJS = $(DRTISRCS:%.c=pics/%.o)
 DRTIOBJ = drti.o
+$(DRTIOBJS): | pics
 
 LIBDAUDITSRCS = dlink_audit.c dlink_common.c
 LIBDAUDITOBJS = $(LIBDAUDITSRCS:%.c=pics/%.o)
@@ -122,7 +123,7 @@ CLEANFILES += ../common/tcp.sed ../common/tcp.d
 CLEANFILES += ../common/udp.sed ../common/udp.d
 CLEANFILES += $(LIBDAUDITOBJS) $(DRTIOBJS)
 
-CLOBBERFILES += $(LIBDAUDIT) drti.o
+CLOBBERFILES += $(LIBDAUDIT) drti.o drti.o.sym.txt
 
 CPPFLAGS += -I../common -I.
 CFLAGS += $(CCVERBOSE) $(C_BIGPICFLAGS)
@@ -151,8 +152,10 @@ ROOTDLIBDIR = $(ROOT)/usr/lib/dtrace
 ROOTDLIBDIR64 = $(ROOT)/usr/lib/dtrace/64
 
 ROOTDLIBS = $(DLIBSRCS:%=$(ROOTDLIBDIR)/%)
-ROOTDOBJS = $(ROOTDLIBDIR)/$(DRTIOBJ) $(ROOTDLIBDIR)/$(LIBDAUDIT)
-ROOTDOBJS64 = $(ROOTDLIBDIR64)/$(DRTIOBJ) $(ROOTDLIBDIR64)/$(LIBDAUDIT)
+ROOTDOBJS = $(ROOTDLIBDIR)/$(LIBDAUDIT)
+ROOTDOBJS64 = $(ROOTDLIBDIR64)/$(LIBDAUDIT)
+ROOTDRTI = $(ROOTDLIBDIR)/$(DRTIOBJ)
+ROOTDRTI64 = $(ROOTDLIBDIR64)/$(DRTIOBJ)
 
 #
 # We do not build drti.o with the stack protector as otherwise
@@ -176,7 +179,8 @@ all: $(LIBS) $(DRTIOBJ) $(LIBDAUDIT)
 dt_lex.c: $(SRCDIR)/dt_lex.l dt_grammar.h
 	$(LEX) $(LFLAGS) $(SRCDIR)/dt_lex.l > $@
 
-dt_grammar.c dt_grammar.h: $(SRCDIR)/dt_grammar.y
+dt_grammar.c: dt_grammar.h
+dt_grammar.h: $(SRCDIR)/dt_grammar.y
 	$(YACC) $(YFLAGS) $(SRCDIR)/dt_grammar.y
 	@mv y.tab.h dt_grammar.h
 	@mv y.tab.c dt_grammar.c
@@ -218,7 +222,7 @@ pics/dt_lex.o pics/dt_grammar.o :  CCVERBOSE =
 ../common/sysevent.d: ../common/sysevent.sed ../common/sysevent.d.in
 	sed -f ../common/sysevent.sed < ../common/sysevent.d.in > $@
 
-../common/tcp.d: ..//common/tcp.sed ../common/tcp.d.in
+../common/tcp.d: ../common/tcp.sed ../common/tcp.d.in
 	sed -f ../common/tcp.sed < ../common/tcp.d.in > $@
 
 ../common/udp.d: ../common/udp.sed ../common/udp.d.in
@@ -233,12 +237,14 @@ pics/%.o: ../$(MACH)/%.s
 	$(POST_PROCESS_O)
 
 $(DRTIOBJ): $(DRTIOBJS)
-	$(LD) -o $@ -r $(BLOCAL) $(BREDUCE) $(DRTIOBJS)
+	$(LD) -o $@ -r $(DRTIOBJS)
+	$(NM) --defined-only $@ | $(AWK) '{print $$3 }' > $@.sym.txt
+	$(OC) --localize-symbols=$@.sym.txt $@
 	$(POST_PROCESS_O)
 
 $(LIBDAUDIT): $(LIBDAUDITOBJS)
 	$(LINK.c) -o $@ $(GSHARED) -Wl,-h$(LIBDAUDIT) $(ZTEXT) $(ZDEFS) \
-	    $(BDIRECT) $(MAPFILE.PGA:%=-Wl,-M%) $(MAPFILE.NED:%=-Wl,-M%) \
+	    $(BDIRECT) \
 	    $(LIBDAUDITOBJS) $(LIBDAUDITLIBS)
 	$(POST_PROCESS_SO)
 
@@ -272,6 +278,8 @@ $(ROOTDLIBDIR64)/%.so: %.so
 $(ROOTDLIBS): $(ROOTDLIBDIR)
 
 $(ROOTDOBJS): $(ROOTDLIBDIR)
+
+$(ROOTDRTI): $(ROOTDLIBDIR)
 
 $(ROOTDOBJS64): $(ROOTDLIBDIR64)
 

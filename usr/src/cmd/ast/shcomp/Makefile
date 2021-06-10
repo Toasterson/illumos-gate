@@ -26,10 +26,10 @@
 # Copyright (c) 2018, Joyent, Inc.
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 
-SHELL= /usr/bin/ksh93
+SHELL= /bin/ksh93
 
 include ../../Makefile.cmd
-$(SPARC_BLD)include ../../Makefile.cmd.64
+#$(SPARC_BLD)include ../../Makefile.cmd.64
 
 .KEEP_STATE:
 

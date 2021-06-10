@@ -19,6 +19,7 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright 2010 Sun Microsystems, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
@@ -39,7 +40,7 @@ include ../../Makefile.cmd
 
 POFILE =	$(PROG)_all.po
 CPPFLAGS +=	-I../common
-LDLIBS +=	-lscf -luutil -lmd5
+LDLIBS +=	-lscf -luutil -lmd
 CLOBBERFILES += $(POFILES)
 
 CERRWARN +=	$(CNOWARN_UNINIT)

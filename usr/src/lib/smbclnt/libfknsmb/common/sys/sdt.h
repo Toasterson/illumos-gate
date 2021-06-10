@@ -49,7 +49,6 @@ extern void smb_dtrace3(const char *, long, long, long);
  * These are for the few (specialized) dtrace SDT probes sprinkled
  * through the smbclnt code.  In libfknsmb map these to functions.
  */
-
 #undef	DTRACE_PROBE1
 #define	DTRACE_PROBE1(n, t1, a1) \
 	smb_dtrace1(#n, (long)a1)

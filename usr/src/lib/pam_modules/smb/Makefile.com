@@ -38,6 +38,9 @@ LDLIBS64 += -L$(ROOT)/usr/lib/smbsrv/$(MACH64)
 
 LDLIBS		+= -lsmb -lpam -lc
 
+pics/smb_passwd.o: CERRWARN += -_gcc11=-Wno-stringop-overflow
+pics/smb_passwd.o: CERRWARN += -_gcc12=-Wno-stringop-overflow
+
 all:	$(LIBS)
 
 

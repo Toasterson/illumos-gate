@@ -48,6 +48,7 @@ CERRWARN +=	-_gcc=-Wno-char-subscripts
 CERRWARN +=	$(CNOWARN_UNINIT)
 CERRWARN +=	-_gcc=-Wno-switch
 CERRWARN +=	-_gcc=-Wno-address
+pics/cfga_fp.o: CERRWARN += -_gcc11=-Wno-array-parameter
 
 # not linted
 SMATCH=off

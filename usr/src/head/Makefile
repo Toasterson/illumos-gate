@@ -24,8 +24,8 @@
 # Use is subject to license terms.
 # Copyright 2013 Garrett D'Amore <garrett@damore.org>
 # Copyright 2015 Igor Kozhukhov <ikozhukhov@gmail.com>
-# Copyright 2017 Hayashi Naoyuki
 # Copyright 2017 Nexenta Systems, Inc.
+# Copyright 2017 Hayashi Naoyuki
 #
 
 # include global definitions
@@ -384,28 +384,28 @@ assert.check	:  HDRCHK_TAIL = | grep -v "end guard wrong" | true
 
 # install rules
 
-$(ROOT)/usr/include/security/%: security/%
+$(ROOT)/usr/include/security/%: security/% $(ROOT)/usr/include/security
 	$(INS.file)
 
-$(ROOT)/usr/include/protocols/%: protocols/%
+$(ROOT)/usr/include/protocols/%: protocols/% $(ROOT)/usr/include/protocols
 	$(INS.file)
 
-$(ROOT)/usr/include/rpcsvc/%: rpcsvc/%
+$(ROOT)/usr/include/rpcsvc/%: rpcsvc/% $(ROOT)/usr/include/rpcsvc
 	$(INS.file)
 
-$(ROOT)/usr/include/kerberosv5/%: kerberosv5/%
+$(ROOT)/usr/include/kerberosv5/%: kerberosv5/% $(ROOT)/usr/include/kerberosv5
 	$(INS.file)
 
-$(ROOT)/usr/include/arpa/%: arpa/%
+$(ROOT)/usr/include/arpa/%: arpa/% $(ROOT)/usr/include/arpa
 	$(INS.file)
 
-$(ROOT)/usr/include/audio/%: audio/%
+$(ROOT)/usr/include/audio/%: audio/% $(ROOT)/usr/include/audio
 	$(INS.file)
 
-$(ROOT)/usr/include/iso/%: iso/%
+$(ROOT)/usr/include/iso/%: iso/% $(ROOT)/usr/include/iso
 	$(INS.file)
 
-$(ROOT)/usr/include/uuid/%: uuid/%
+$(ROOT)/usr/include/uuid/%: uuid/% $(ROOT)/usr/include/uuid
 	$(INS.file)
 
 $(ROOT)/usr/include/%: %

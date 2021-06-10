@@ -36,6 +36,8 @@ include		../../Makefile.pam_modules
 LDLIBS		+= -lpam -lnsl -lc
 CPPFLAGS	+= -I$(SRC)/lib/libnsl/include
 CERRWARN	+= -_gcc=-Wno-parentheses
+pics/dhkeys.o: CERRWARN += -_gcc11=-Wno-stringop-overflow
+pics/dhkeys.o: CERRWARN += -_gcc12=-Wno-stringop-overflow
 
 all:	$(LIBS)
 

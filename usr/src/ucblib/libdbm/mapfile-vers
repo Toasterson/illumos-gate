@@ -40,21 +40,21 @@ $mapfile_version 2
 
 SYMBOL_VERSION SUNW_1.1 {
     global:
-	bitno		{ ASSERT = { TYPE = OBJECT; SIZE = addrsize; }; };
-	blkno		{ ASSERT = { TYPE = OBJECT; SIZE = addrsize; }; };
+	bitno		;
+	blkno		;
 	dbmclose;
 	dbminit;
-	dbrdonly	{ ASSERT = { TYPE = OBJECT; SIZE = 4; }; };
+	dbrdonly	;
 	delete;
-	dirbuf		{ ASSERT = { TYPE = OBJECT; SIZE = 4096; }; };
-	dirf		{ ASSERT = { TYPE = OBJECT; SIZE = 4; }; };
+	dirbuf		;
+	dirf		;
 	fetch;
 	firstkey;
-	hmask		{ ASSERT = { TYPE = OBJECT; SIZE = addrsize; }; };
-	maxbno		{ ASSERT = { TYPE = OBJECT; SIZE = addrsize; }; };
+	hmask		;
+	maxbno		;
 	nextkey;
-	pagbuf		{ ASSERT = { TYPE = OBJECT; SIZE = 1024; }; };
-	pagf		{ ASSERT = { TYPE = OBJECT; SIZE = 4; }; };
+	pagbuf		;
+	pagf		;
 	store;
 };
 

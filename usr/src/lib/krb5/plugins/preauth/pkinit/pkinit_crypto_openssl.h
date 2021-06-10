@@ -51,7 +51,7 @@
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 #include <openssl/asn1_mac.h>
 #else
 #include <openssl/asn1t.h>
@@ -285,7 +285,7 @@ wrap_signeddata(unsigned char *data, unsigned int data_len,
 
 /* This handy macro borrowed from crypto/x509v3/v3_purp.c */
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x30500000L)
 #define ku_reject(x, usage) \
 	(((x)->ex_flags & EXFLAG_KUSAGE) && !((x)->ex_kusage & (usage)))
 #else

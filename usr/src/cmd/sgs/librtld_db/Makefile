@@ -19,6 +19,7 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 1995, 2010, Oracle and/or its affiliates. All rights reserved.
 
-include		$(SRC)/cmd/sgs/Makefile.sub
+include		../Makefile.sub

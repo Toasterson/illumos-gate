@@ -52,13 +52,13 @@ all:
 install:	all $(ETCPPPDIR) .WAIT $(ETCPPPSUBDIRS) .WAIT \
 		$(ETCPPPPROG) $(ETCPPPPROGROOT)
 
-$(ETCPPPDIR)/% : %
+$(ETCPPPDIR)/% : % $(ETCPPPDIR)
 		$(INS.file)
 
 $(ETCPPPDIR) $(ETCPPPSUBDIRS):
 		$(INS.dir)
 
-$(ETCPEERSDIR)/% : %
+$(ETCPEERSDIR)/% : % $(ETCPEERSDIR)
 		$(INS.file)
 
 clean clobber lint:

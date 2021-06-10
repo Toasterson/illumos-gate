@@ -43,77 +43,12 @@ $mapfile_version 2
 # functions
 SYMBOL_VERSION SUNWprivate_1.1 {
     global:
-$if _ELF64
-	_Sfextern		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 184;
-					};
-				};
-$elif _ELF32
-	_Sfextern		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 100;
-					};
-				};
-$else
-$error unknown ELFCLASS
-$endif
-	_Sfi			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	_Sfmaxr			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-$if _ELF64
-	_Sftable		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 1296;
-					};
-				};
-	_Vmextern		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[9];
-					};
-				};
-
-$elif _ELF32
-	_Sftable		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					$if _x86
-					  SIZE = 1192;
-					$elif _sparc
-					  SIZE = 1248;
-					$else
-					$error Unknown architecture
-					$endif
-					};
-				};
-	_Vmextern		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[10];
-					};
-				};
-$else
-$error unknown ELFCLASS
-$endif
-	_Vmheap			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[14];
-					};
-				};
+	_Sfextern		;
+	_Sfi			;
+	_Sfmaxr			;
+	_Sftable		;
+	_Vmextern		;
+	_Vmheap			;
 	_ast___getdelim;
 	_ast__filbuf;
 	_ast_asprintf;
@@ -216,77 +151,16 @@ $endif
 	_ast_iconv_name;
 	_ast_iconv_open;
 	_ast_iconv_write;
-$if _ELF64
-	_ast_info		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 1064;
-					};
-				};
-$elif _ELF32
-	_ast_info		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 1012;
-					};
-				};
-$else
-$error unknown ELFCLASS
-$endif
-	_ast_intercepts		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[2];
-					};
-				};
-$if _ELF64
-	_ast_lc_categories	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 560;
-					};
-				};
-$elif _ELF32
-	_ast_lc_categories	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 336;
-					};
-				};
-$else
-$error unknown ELFCLASS
-$endif
-	_ast_lc_charsets	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[72];
-					};
-				};
-	_ast_lc_languages	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[1144];
-					};
-				};
-	_ast_lc_maps		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[35];
-					};
-				};
-	_ast_lc_territories	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[909];
-					};
-				};
+	_ast_info		;
+	_ast_info		;
+	_ast_intercepts		;
+	_ast_lc_categories	;
+	_ast_lc_charsets	;
+	_ast_lc_languages	;
+	_ast_lc_maps		;
+	_ast_lc_territories	;
 	_ast_localeconv;
-	_ast_locales		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[14];
-					};
-				};
+	_ast_locales		;
 	_ast_malloc;
 	_ast_memalign;
 	_ast_memdup;
@@ -297,35 +171,15 @@ $endif
 	_ast_mktemp;
 	_ast_mktime;
 	_ast_nftw;
-	_ast_optarg		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
+	_ast_optarg		;
 	_ast_optctx;
-	_ast_opterr		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 4;
-					};
-				};
+	_ast_opterr		;
 	_ast_optesc;
 	_ast_optget;
 	_ast_opthelp;
-	_ast_optind		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 4;
-					};
-				};
+	_ast_optind		;
 	_ast_optjoin;
-	_ast_optopt		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 4;
-					};
-				};
+	_ast_optopt		;
 	_ast_optstr;
 	_ast_optusage;
 	_ast_pathaccess;
@@ -495,80 +349,15 @@ $endif
 	_ccmapcpy;
 	_ccmapstr;
         _dtopen;
-$if _ELF64
-	_error_info_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 176;
-					};
-				};
-$elif _ELF32
-	_error_info_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 120;
-					};
-				};
-$else
-$error unknown ELFCLASS
-$endif
+	_error_info_		;
 	_fini;
-	_hash_info_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
+	_hash_info_		;
 	_iblocks;
         _init;
-	_mode_permmap_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 96;
-					};
-				};
-$if _ELF64
-	_mode_table_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 240;
-					};
-				};
-	_opt_info_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 176;
-					};
-				};
-	_proc_info_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 72;
-					};
-				};
-
-$elif _ELF32
-	_mode_table_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 200;
-					};
-				};
-	_opt_info_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 128;
-					};
-				};
-	_proc_info_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 52;
-					};
-				};
-$else
-$error unknown ELFCLASS
-$endif
+	_mode_permmap_		;
+	_mode_table_		;
+	_opt_info_		;
+	_proc_info_		;
 	_re_comp;
 	_re_exec;
 	_re_putc;
@@ -576,23 +365,7 @@ $endif
 	_reg_classfun;
 	_reg_drop;
 	_reg_fatal;
-$if _ELF64
-	_reg_state		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 3888;
-					};
-				};
-$elif _ELF32
-	_reg_state		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 2784;
-					};
-				};
-$else
-$error unknown ELFCLASS
-$endif
+	_reg_state		;
 	_sfcvt;
 	_sfdlen;
 	_sfexcept;
@@ -615,12 +388,7 @@ $endif
 	_sfsetpool;
 	_sfstrtod;
 	_sftype;
-	_sig_info_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[3];
-					};
-				};
+	_sig_info_		;
 	_stdgets;
 	_stdopen;
 	_stdprintf;
@@ -900,12 +668,7 @@ $endif
 	tvsleep;
 	tvtouch;
 	typefix;
-	univ_env		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 13;
-					};
-				};
+	univ_env		;
 	vecargs;
 	vecfile;
 	vecfree;
@@ -930,121 +693,31 @@ $endif
 	vmtrbusy;
 	vmwalk;
 	wc2utf8;
-    local:
-	*;
-};
+#    local:
+#	*;
+#};
 
 # data
-SYMBOL_VERSION SUNWprivate_1.1 {
-    global:
-	Dtbag			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Dthash			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Dtlist			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Dtobag			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Dtoset			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Dtqueue			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Dtset			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Dtstack			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Dttree			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Vmbest			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Vmdcheap		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Vmdcsbrk		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Vmdebug			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Vmheap			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Vmlast			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Vmpool			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Vmprofile		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	Vmregion		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
+#SYMBOL_VERSION SUNWprivate_1.1 {
+#    global:
+	Dtbag			;
+	Dthash			;
+	Dtlist			;
+	Dtobag			;
+	Dtoset			;
+	Dtqueue			;
+	Dtset			;
+	Dtstack			;
+	Dttree			;
+	Vmbest			;
+	Vmdcheap		;
+	Vmdcsbrk		;
+	Vmdebug			;
+	Vmheap			;
+	Vmlast			;
+	Vmpool			;
+	Vmprofile		;
+	Vmregion		;
 	_DATA_dtlist;
 	_DATA_dttree;
 	_DATA_sigdata;
@@ -1054,174 +727,24 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 	_DATA_vmlast;
 	_DATA_vmpool;
 	_DATA_vmprofile;
-$if _ELF64
-	_Sfstderr		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 176;
-					};
-				};
-	_Sfstdin		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 176;
-					};
-				};
-	_Sfstdout		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 176;
-					};
-				};
-	_Stak_data		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 176;
-					};
-				};
-	_ast_conf_data		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 31440;
-					};
-				};
-$elif _ELF32
-	_Sfstderr		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					$if _x86
-					  SIZE = 104;
-					$elif _sparc
-					  SIZE = 112;
-					$else
-					$error Unknown architecture
-					$endif
-					};
-				};
-	_Sfstdin		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					$if _x86
-					  SIZE = 104;
-					$elif _sparc
-					  SIZE = 112;
-					$else
-					$error Unknown architecture
-					$endif
-					};
-				};
-	_Sfstdout		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					$if _x86
-					  SIZE = 104;
-					$elif _sparc
-					  SIZE = 112;
-					$else
-					$error Unknown architecture
-					$endif
-					};
-				};
-	_Stak_data		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					$if _x86
-					  SIZE = 104;
-					$elif _sparc
-					  SIZE = 112;
-					$else
-					$error Unknown architecture
-					$endif
-					};
-				};
-	_ast_conf_data		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					$if _x86
-					  SIZE = 26724;
-					$elif _sparc
-					  SIZE = 31440;
-					$else
-					$error Unknown architecture
-					$endif
-					};
-				};
-$else
-$error unknown ELFCLASS
-$endif
-	_ast_conf_ndata		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 4;
-					};
-				};
-	_ast_conf_nprefix	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 4;
-					};
-				};
-	_ast_conf_prefix	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 396;
-					};
-				};
+	_Sfstderr		;
+	_Sfstdin		;
+	_Sfstdout		;
+	_Stak_data		;
+	_ast_conf_data		;
+	_ast_conf_ndata		;
+	_ast_conf_nprefix	;
+	_ast_conf_prefix	;
 	_ccmap;
-	_error_infop_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	_opt_infop_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	_tm_data_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[7];
-					};
-				};
-	_tm_datap_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	_tm_info_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize[6];
-					};
-				};
-	_tm_infop_		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	sfstderr		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	sfstdin			{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
-	sfstdout		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
+	_error_infop_		;
+	_opt_infop_		;
+	_tm_data_		;
+	_tm_datap_		;
+	_tm_info_		;
+	_tm_infop_		;
+	sfstderr		;
+	sfstdin			;
+	sfstdout		;
     local:
 	*;
 };

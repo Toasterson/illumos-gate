@@ -22,6 +22,7 @@
 # Use is subject to license terms.
 # Copyright 2015 Joyent, Inc.
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 2018, Joyent, Inc.
 
 PROG=		dladm
@@ -32,7 +33,7 @@ CFGFILES=	secobj.conf
 ROOTCFGDIR=	$(ROOTETC)/dladm
 ROOTCFGFILES=	$(CFGFILES:%=$(ROOTCFGDIR)/%)
 
-include		$(SRC)/cmd/Makefile.cmd
+include 	../Makefile.cmd
 include		$(SRC)/cmd/Makefile.ctf
 
 XGETFLAGS +=	-a -x $(PROG).xcl
@@ -66,7 +67,7 @@ install:	all $(ROOTSBINPROG) $(ROOTCFGDIR) $(ROOTCFGFILES)
 $(ROOTCFGDIR):
 		$(INS.dir)
 
-$(ROOTCFGDIR)/%: $(ROOTCFGDIR) %
+$(ROOTCFGDIR)/%: % $(ROOTCFGDIR)
 		$(INS.file)
 
 include		$(SRC)/cmd/Makefile.targ

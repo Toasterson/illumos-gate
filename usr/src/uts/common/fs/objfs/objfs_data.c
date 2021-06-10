@@ -152,6 +152,12 @@ static section_desc_t data_sections[] = {
 	    SHT_NOBITS, SHF_WRITE | SHF_ALLOC, 0),
 	SECT_DATA(".bss", bss, bss_size,
 	    SHT_NOBITS, SHF_WRITE | SHF_ALLOC, 0),
+	SECT_DATA(".text", dso_text, dso_text_size,
+	    SHT_NOBITS, SHF_ALLOC | SHF_EXECINSTR, 0),
+	SECT_DATA(".data", dso_data, dso_data_size,
+	    SHT_NOBITS, SHF_WRITE | SHF_ALLOC, 0),
+	SECT_DATA(".bss", dso_bss, dso_bss_size,
+	    SHT_NOBITS, SHF_WRITE | SHF_ALLOC, 0),
 	SECT_INFO,
 	SECT_FILENAME
 };
@@ -626,7 +632,11 @@ objfs_data_read(vnode_t *vp, uio_t *uio, int ioflag, cred_t *cr,
 		ehdr.e_shentsize = sizeof (Elf32_Shdr);
 #endif
 
-#ifdef __sparc
+#if defined(__aarch64)
+		ehdr.e_machine = EM_AARCH64;
+#elif defined(__riscv)
+		ehdr.e_machine = EM_RISCV;
+#elif defined(__sparc)
 #ifdef __sparcv9
 		ehdr.e_machine = EM_SPARCV9;
 #else

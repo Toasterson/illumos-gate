@@ -19,6 +19,7 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 2006, 2010, Oracle and/or its affiliates. All rights reserved.
 #
 
@@ -55,7 +56,7 @@ SYMBOL_VERSION SUNW_1.1 {
 
 SYMBOL_VERSION SUNW_0.7 {
     global:
-	pkgdir	{ ASSERT = { TYPE = OBJECT; SIZE = addrsize; }; };
+	pkgdir	;
 	read_vtoc;
 	write_vtoc;
 };
@@ -74,12 +75,7 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 	ckgid_err;
 	ckgid_hlp;
 	ckgid_val;
-	ckindent	{
-			  ASSERT = {
-				  TYPE = OBJECT;
-				  SIZE = 4;
-				};
-			};
+	ckindent	;
 	ckint;
 	ckint_err;
 	ckint_hlp;
@@ -93,12 +89,7 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 	ckpath_hlp;
 	ckpath_stx;
 	ckpath_val;
-	ckquit		{
-			  ASSERT = {
-				  TYPE = OBJECT;
-				  SIZE = 4;
-				};
-			};
+	ckquit		;
 	ckrange;
 	ckrange_err;
 	ckrange_hlp;
@@ -116,12 +107,7 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 	ckuid_err;
 	ckuid_hlp;
 	ckuid_val;
-	ckwidth		{
-			  ASSERT = {
-				  TYPE = OBJECT;
-				  SIZE = 4;
-				};
-			};
+	ckwidth		;
 	ckyorn;
 	ckyorn_err;
 	ckyorn_hlp;
@@ -151,12 +137,7 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 	_moddevtabrec;
 	_opendevtab;
 	_opendgrptab;
-	pkgfile		{
-			  ASSERT = {
-				  TYPE = OBJECT;
-				  SIZE = addrsize;
-				};
-			};
+	pkgfile		;
 	pkginfo;
 	pkginfofind;
 	pkgnmchk;
@@ -185,7 +166,7 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 };
 
 
-$if _sparc || (_x86 && _ELF32)
+#$if _sparc || (_x86 && _ELF32)
 # The following applies to sparc (32/64-bit), and 32-bit x86:
 #
 # It was a mistake ever to have exported these symbols from libadm.
@@ -193,20 +174,28 @@ $if _sparc || (_x86 && _ELF32)
 # except for 'circf' and 'sed', which do not exist in libgen and
 # are being retained as dummy variables in libadm.
 
-SYMBOL_VERSION SUNW_0.7 {
-    global:
-	circf	{ ASSERT = { TYPE = OBJECT; SIZE = 4; }; };
-	sed	{ ASSERT = { TYPE = OBJECT; SIZE = 4; }; };
-	nbra	{ TYPE = DATA; FILTER = libgen.so.1; SIZE = addrsize; };
-	loc1	{ TYPE = DATA; FILTER = libgen.so.1; SIZE = addrsize; };
-	loc2	{ TYPE = DATA; FILTER = libgen.so.1; SIZE = addrsize; };
-	locs	{ TYPE = DATA; FILTER = libgen.so.1; SIZE = addrsize; };
-};
-
-SYMBOL_VERSION SUNWprivate_1.1 {
-    global:
-	advance	{ TYPE = FUNCTION; FILTER = libgen.so.1; };
-	compile	{ TYPE = FUNCTION; FILTER = libgen.so.1; };
-	step	{ TYPE = FUNCTION; FILTER = libgen.so.1; };
-};
-$endif
+#SYMBOL_VERSION SUNW_0.7 {
+#    global:
+#	circf;
+#	sed;
+#	nbra		{ TYPE = DATA; FILTER = libgen.so.1; SIZE = 0x4 };
+#$if _ELF32
+#	loc1		{ TYPE = DATA; FILTER = libgen.so.1; SIZE = 0x4 };
+#	loc2		{ TYPE = DATA; FILTER = libgen.so.1; SIZE = 0x4 };
+#	locs		{ TYPE = DATA; FILTER = libgen.so.1; SIZE = 0x4 };
+#$elif _ELF64
+#	loc1		{ TYPE = DATA; FILTER = libgen.so.1; SIZE = 0x8 };
+#	loc2		{ TYPE = DATA; FILTER = libgen.so.1; SIZE = 0x8 };
+#	locs		{ TYPE = DATA; FILTER = libgen.so.1; SIZE = 0x8 };
+#$else
+#$error unknown ELFCLASS
+#$endif
+#};
+#
+#SYMBOL_VERSION SUNWprivate_1.1 {
+#   global:
+#	advance		{ TYPE = FUNCTION; FILTER = libgen.so.1 };
+#	compile		{ TYPE = FUNCTION; FILTER = libgen.so.1 };
+#	step		{ TYPE = FUNCTION; FILTER = libgen.so.1 };
+#};
+#$endif

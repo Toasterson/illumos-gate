@@ -468,6 +468,7 @@ dt_dprintf(const char *format, ...)
 int
 dt_ioctl(dtrace_hdl_t *dtp, int val, void *arg)
 {
+#ifndef _CROSS_TOOLS
 	const dtrace_vector_t *v = dtp->dt_vector;
 
 	if (v != NULL)
@@ -475,6 +476,7 @@ dt_ioctl(dtrace_hdl_t *dtp, int val, void *arg)
 
 	if (dtp->dt_fd >= 0)
 		return (ioctl(dtp->dt_fd, val, arg));
+#endif
 
 	errno = EBADF;
 	return (-1);

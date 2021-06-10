@@ -24,6 +24,7 @@
 #
 # Copyright 2016 RackTop Systems.
 # Copyright 2019 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2017 Hayashi Naoyuki
 #
 
 pics/%.o:	$(SRCDIR)/common/%.c
@@ -45,7 +46,11 @@ pics/%64.o:	$(SRCDIR)/common/%.c
 $(LIBLINKS):
 		-$(RM) $@; $(SYMLINK) $(DYNLIB) $@
 
-$(PICS):	pics
+$(PICS):	|pics
+
+.PHONY:		_bltdefs
+$(PICS):	_bltdefs
+_bltdefs:	$(BLTDEFS) $(BLTDATA)
 
 include		$(SRC)/lib/Makefile.targ
 
@@ -57,6 +62,6 @@ chkmsg:		$(LIBSRCS) $(CHKSRCS)
 		sh $(CHKMSG) $(CHKMSGFLAGS) $(LIBSRCS) $(CHKSRCS)
 
 $(BLTDEFS) + \
-$(BLTDATA) + \
+$(BLTDATA)  \
 $(BLTMESG):	$(SGSMSGALL)
 		$(SGSMSG) $(SGSMSGFLAGS) $(SGSMSGALL)

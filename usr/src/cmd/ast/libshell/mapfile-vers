@@ -122,37 +122,19 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 	nv_unset;
 
 	# semi-private, needed for shcomp
-$if _ELF64
-	$if _x86
-	sh	{ ASSERT = { TYPE = OBJECT; SIZE = 1888; }; };
-	$elif _sparc
-	sh	{ ASSERT = { TYPE = OBJECT; SIZE = 1920; }; };
-	$else
-	$error Unknown architecture
-	$endif
-$elif _ELF32
-	$if _x86
-	sh	{ ASSERT = { TYPE = OBJECT; SIZE = 1216; }; };
-	$elif _sparc
-	sh	{ ASSERT = { TYPE = OBJECT; SIZE = 1224; }; };
-	$else
-	$error Unknown architecture
-	$endif
-$else
-$error unknown ELFCLASS
-$endif
-	e_dict	{ ASSERT = { TYPE = OBJECT; SIZE = 9; }; };
+	sh	;
+	e_dict	;
 
-    local:
-	*;
-};
+#    local:
+#	*;
+#};
 
 # Builtin shell commands
 # (see libshell/common/include/builtins.h)
 # Note: We have to export all the |b_*()| symbols that the "builtin" command
 # can load builtins which are not enabled by the default OS/Net configuration.
-SYMBOL_VERSION SUNWprivate_1.1 {
-    global:
+#SYMBOL_VERSION SUNWprivate_1.1 {
+#    global:
 	B_echo;
 	B_login;
 	b_alarm;

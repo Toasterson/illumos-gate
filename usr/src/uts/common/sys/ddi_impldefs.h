@@ -25,6 +25,9 @@
  * Copyright (c) 2016 by Delphix. All rights reserved.
  * Copyright 2022 Tintri by DDN, Inc. All rights reserved.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 #ifndef _SYS_DDI_IMPLDEFS_H
 #define	_SYS_DDI_IMPLDEFS_H
@@ -930,6 +933,52 @@ typedef struct ddi_dma_impl {
 	void		(*dmai_fault_notify)(struct ddi_dma_impl *handle);
 	int		dmai_fault;
 	ndi_err_t	dmai_error;
+} ddi_dma_impl_t;
+
+#elif defined(__aarch64)
+typedef struct ddi_dma_impl {
+	ddi_dma_cookie_t *dmai_cookie;
+	uint_t		dmai_ncookies;
+	uint_t		dmai_curcookie;
+	void		*dmai_private;
+
+	uint_t		dmai_minxfer;
+	uint_t		dmai_burstsizes;
+	uint_t		dmai_rflags;
+	uint_t		dmai_nwin;
+	dev_info_t	*dmai_rdip;
+	ddi_dma_attr_t	dmai_attr;
+
+	ddi_dma_obj_t	dmai_object;
+
+	int		(*dmai_fault_check)(struct ddi_dma_impl *handle);
+	void		(*dmai_fault_notify)(struct ddi_dma_impl *handle);
+	int		dmai_fault;
+	ndi_err_t	dmai_error;
+
+} ddi_dma_impl_t;
+
+#elif defined(__riscv)
+typedef struct ddi_dma_impl {
+	ddi_dma_cookie_t *dmai_cookie;
+	uint_t		dmai_ncookies;
+	uint_t		dmai_curcookie;
+	void		*dmai_private;
+
+	uint_t		dmai_minxfer;
+	uint_t		dmai_burstsizes;
+	uint_t		dmai_rflags;
+	uint_t		dmai_nwin;
+	dev_info_t	*dmai_rdip;
+	ddi_dma_attr_t	dmai_attr;
+
+	ddi_dma_obj_t	dmai_object;
+
+	int		(*dmai_fault_check)(struct ddi_dma_impl *handle);
+	void		(*dmai_fault_notify)(struct ddi_dma_impl *handle);
+	int		dmai_fault;
+	ndi_err_t	dmai_error;
+
 } ddi_dma_impl_t;
 
 #else

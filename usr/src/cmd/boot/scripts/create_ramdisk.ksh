@@ -20,6 +20,7 @@
 # CDDL HEADER END
 #
 
+# Copyright 2017 Hayashi Naoyuki
 # Copyright 2016 Toomas Soome <tsoome@me.com>
 # Copyright 2009 Sun Microsystems, Inc.  All rights reserved.
 # Use is subject to license terms.
@@ -112,7 +113,7 @@ if [ $format_set -eq 0 -a "$FORMAT" = hsfs ]; then
 	fi
 fi
 
-[[ "$FORMAT" =~ ^(cpio|ufs|ufs-nocompress)$ ]] || FORMAT=ufs
+echo "$FORMAT" | egrep -q '^(cpio|ufs|ufs-nocompress)$' || FORMAT=ufs
 
 case $PLATFORM in
 i386|i86pc)	PLATFORM=i86pc
@@ -125,6 +126,21 @@ sun4u|sun4v)	ISA=sparc
 		BOOT_ARCHIVE_SUFFIX=boot_archive
 		compress=no
 		;;
+alpha)	ISA=alpha
+		ARCH64=none
+		BOOT_ARCHIVE_SUFFIX=boot_archive
+		compress=no
+	;;
+aarch64)	ISA=aarch64
+		ARCH64=none
+		BOOT_ARCHIVE_SUFFIX=boot_archive
+		compress=no
+	;;
+riscv64)	ISA=riscv64
+		ARCH64=none
+		BOOT_ARCHIVE_SUFFIX=boot_archive
+		compress=no
+	;;
 *)		usage
 		;;
 esac
@@ -337,7 +353,7 @@ function create_ufs_archive
 	# sanity check the archive before moving it into place
 	#
 	ARCHIVE_SIZE=`ls -l "${archive}-new" 2> /dev/null | nawk '{ print $5 }'`
-	if [ $compress = yes ] || [ $ISA = sparc ] ; then
+	if [ $compress = yes ] || [ $ISA != i386 ] ; then
 		#
 		# 'file' will report "English text" for uncompressed
 		# boot_archives.  Checking for that doesn't seem stable,

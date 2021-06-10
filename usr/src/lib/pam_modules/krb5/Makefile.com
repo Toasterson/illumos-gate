@@ -49,6 +49,10 @@ CPPFLAGS +=	-I../../../gss_mechs/mech_krb5/include \
 
 CERRWARN +=	-_gcc=-Wno-parentheses
 CERRWARN +=	-_gcc=-Wno-unused-function
+pics/krb5_authenticate.o: CERRWARN += -_gcc11=-Wno-stringop-overflow
+pics/krb5_authenticate.o: CERRWARN += -_gcc12=-Wno-stringop-overflow
+pics/krb5_password.o: CERRWARN += -_gcc11=-Wno-stringop-overflow
+pics/krb5_password.o: CERRWARN += -_gcc12=-Wno-stringop-overflow
 
 # not linted
 SMATCH=off

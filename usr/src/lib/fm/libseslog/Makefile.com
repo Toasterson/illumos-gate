@@ -40,6 +40,8 @@ INCS +=		-I$(SRCDIR)
 LDLIBS +=	-lc -lnvpair
 CPPFLAGS +=	$(INCS)
 
+pics/libseslog.o: CERRWARN += -_gcc12=-Wno-address
+
 # not linted
 SMATCH=off
 

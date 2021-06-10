@@ -95,28 +95,13 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 	krb5_dbekd_decrypt_key_data;
 	krb5_dbekd_encrypt_key_data;
 	krb5_def_store_mkey;
-	krb5_kt_kdb_ops		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 48;
-					};
-				};
+	krb5_kt_kdb_ops		;
 	krb5_ktkdb_close;
 	krb5_ktkdb_get_entry;
 	krb5_ktkdb_resolve;
 	krb5_ktkdb_set_context;
-	krb5_mkey_pwd_prompt1	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 4;
-					};
-				};
-	krb5_mkey_pwd_prompt2	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = 4;
-					};
-				};
+	krb5_mkey_pwd_prompt1	;
+	krb5_mkey_pwd_prompt2	;
 	ulog_add_update;
 	ulog_conv_2logentry;
 	ulog_delete_update;

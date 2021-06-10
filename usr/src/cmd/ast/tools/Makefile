@@ -13,7 +13,7 @@
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 #
 
-SHELL= /usr/bin/ksh93
+SHELL= /bin/ksh93
 
 CTOOLS= proto lcgen
 SHTOOLS= iffe package gentab
@@ -21,12 +21,21 @@ SHTOOLS= iffe package gentab
 TOOLS= $(CTOOLS) $(SHTOOLS) probe
 OBJS= $(CTOOLS:%=%.o)
 
-include $(SRC)/cmd/Makefile.cmd
+include ../../Makefile.cmd
 include ../Makefile.ast
+include ../../../Makefile.native
 
 CC= $(NATIVECC)
 LD= $(NATIVELD)
 CFLAGS= $(NATIVE_CFLAGS)
+LDFLAGS= $(NATIVE_LDFLAGS)
+CPPFLAGS=
+LDCHECKS=
+STRIP= strip
+
+$(info CC $(CC))
+$(info NATIVECC $(NATIVECC))
+$(info COMPILE.c $(COMPILE.c))
 
 all install install_h: $(TOOLS)
 _msg _feature:

@@ -22,6 +22,7 @@
 #
 # Copyright (c) 1992, 2010, Oracle and/or its affiliates. All rights reserved.
 # Copyright 2015 RackTop Systems.
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 2018, Joyent, Inc.
 #
 
@@ -87,6 +88,7 @@ $(MOUNT): 	LDLIBS += -lscf
 $(TYPEPROG) : 	LDLIBS += -lrpcsvc -lsocket -lnsl -lsldap -lkstat -lscf
 
 CFLAGS +=	$(CCVERBOSE) -D_FILE_OFFSET_BITS=64
+CFLAGS +=	-_gcc=-fcommon
 CPPFLAGS=	-I. -I.. -I../nfs/lib $(CPPFLAGS.master) -D_REENTRANT  \
 			$(MALLOC_DEBUG)
 
@@ -96,6 +98,10 @@ CERRWARN +=	-_gcc=-Wno-switch
 CERRWARN +=	$(CNOWARN_UNINIT)
 CERRWARN +=	-_gcc=-Wno-unused-label
 CERRWARN +=	-_gcc=-Wno-unused-function
+CERRWARN +=	-_gcc=-Wno-unused-but-set-parameter
+CERRWARN +=	-_gcc=-Wno-unused-but-set-variable
+
+autod_parse.o: CERRWARN += -_gcc12=-Wno-address
 
 # not linted
 SMATCH=off
@@ -124,6 +130,7 @@ $(MOUNT):	$(MOUNTOBJS)
 		$(LINK.c) -o $@ $(MOUNTOBJS) $(LDLIBS)
 		$(POST_PROCESS)
 
+$(TYPEOBJS): webnfs.h
 $(TYPEPROG):	webnfs.h $(TYPEOBJS)
 		$(LINK.c) -o $@ $(TYPEOBJS) $(LDLIBS)
 		$(POST_PROCESS)
@@ -213,6 +220,7 @@ lint:
 	$(LINT.c) $(MOUNTSRCS)
 	$(LINT.c) $(TYPESRCS)
 
+clobber: clean
 clean:	clean_dump
 	$(RM) $(OBJS) webnfs_xdr.c webnfs_client.c webnfs.h webnfs.x
 

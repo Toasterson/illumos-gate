@@ -91,7 +91,11 @@ pics/%_sparc_64.o: \
 $(LIBLINKS):
 		$(RM) $@; $(SYMLINK) $(DYNLIB) $@
 
-$(PICS):	pics
+$(PICS):	|pics
+
+.PHONY:		_bltdefs
+$(PICS):	_bltdefs
+_bltdefs:	$(BLTDEFS) $(BLTDATA)
 
 include		$(SRC)/lib/Makefile.targ
 

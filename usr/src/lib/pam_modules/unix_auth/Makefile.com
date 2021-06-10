@@ -30,6 +30,8 @@ OBJECTS=	unix_auth.o
 include		../../Makefile.pam_modules
 
 LDLIBS		+= -lpam -lsecdb -lc
+pics/unix_auth.o: CERRWARN += -_gcc11=-Wno-stringop-overflow
+pics/unix_auth.o: CERRWARN += -_gcc12=-Wno-stringop-overflow
 
 all:	$(LIBS)
 

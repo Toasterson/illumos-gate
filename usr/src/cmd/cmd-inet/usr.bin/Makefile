@@ -126,10 +126,11 @@ ROOTRSHSYMLINK=	$(ROOT)/usr/ucb/rsh
 ROOTREMSHSYMLINK=$(ROOT)/usr/bin/remsh
 
 .KEEP_STATE:
+.NOTPARALLEL:
 
 all: $(ALL) $(SUBDIRS)
 
-install: all .WAIT $(ROOTPROG) $(ROOTSUIDPROG) \
+install: $(ALL) $(SUBDIRS) $(ROOTPROG) $(ROOTSUIDPROG) \
 	$(SUBDIRS) $(ROOTSUNWRCP) $(ROOTRSHSYMLINK) $(ROOTREMSHSYMLINK)
 
 # Messaging - copy $POFILES to $POFILE to work with the parent directory

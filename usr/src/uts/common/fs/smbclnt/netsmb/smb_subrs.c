@@ -125,12 +125,13 @@ smb_errmsg(int cel, const char *func_name, const char *fmt, ...)
 		 * Add a prefix to the fmt string,
 		 * then let vcmn_err do the args.
 		 */
-		(void) snprintf(buf, sizeof (buf), "?%s: %s", func_name, fmt);
-		DTRACE_PROBE3(debugmsg3,
+		char fmt_buf[100];
+		(void) snprintf(fmt_buf, sizeof (fmt_buf), "?%s: %s", func_name, fmt);
+		(void) vsnprintf(buf, sizeof (buf), fmt_buf, adx);
+		DTRACE_PROBE2(debugmsg3,
 		    (char *), func_name,
-		    (char *), buf,
-		    va_list, adx);
-		vcmn_err(cel, buf, adx);
+		    (char *), buf);
+		cmn_err(cel, buf);
 	}
 	va_end(adx);
 }

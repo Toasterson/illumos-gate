@@ -9,6 +9,9 @@
  * Copyright 2019 OmniOS Community Edition (OmniOSce) Association.
  */
 /*
+ * Copyright 2017 Hayashi Naoyuki
+ */
+/*
  * Written by Dr Stephen N Henson (shenson@bigfoot.com) for the OpenSSL
  * project 2000.
  */
@@ -92,6 +95,7 @@
 #include <openssl/ocsp.h>
 #include <openssl/des.h>
 #include <openssl/rand.h>
+#include <openssl/evp.h>
 #include "compat.h"
 
 #define	PRINT_ANY_EXTENSION (\
@@ -273,7 +277,7 @@ KMF_PLUGIN_FUNCLIST openssl_plugin_table =
 	NULL	/* Finalize */
 };
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 static mutex_t *lock_cs;
 static long *lock_count;
 
@@ -293,12 +297,12 @@ thread_id()
 {
 	return ((unsigned long)thr_self());
 }
-#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L || LIBRESSL_VERSION_NUMBER */
+#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L) */
 
 KMF_PLUGIN_FUNCLIST *
 KMF_Plugin_Initialize()
 {
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 	int i;
 #endif
 
@@ -319,7 +323,7 @@ KMF_Plugin_Initialize()
 		(void) OBJ_create("2.5.29.54", "inhibitAnyPolicy",
 		    "X509v3 Inhibit Any-Policy");
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 		/*
 		 * Set up for thread-safe operation.
 		 * This is not required for OpenSSL 1.1
@@ -2112,14 +2116,14 @@ OpenSSL_CertGetPrintable(KMF_HANDLE_T handle, const KMF_DATA *pcert,
 	case KMF_CERT_SIGNATURE_ALG:
 	case KMF_CERT_PUBKEY_ALG:
 		{
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 			ASN1_OBJECT *alg = NULL;
 #else
 			const ASN1_OBJECT *alg = NULL;
 #endif
 
 			if (flag == KMF_CERT_SIGNATURE_ALG) {
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 				alg = xcert->sig_alg->algorithm;
 #else
 				const X509_ALGOR *sig_alg = NULL;
@@ -2130,7 +2134,7 @@ OpenSSL_CertGetPrintable(KMF_HANDLE_T handle, const KMF_DATA *pcert,
 					    sig_alg);
 #endif
 			} else {
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 				alg = xcert->cert_info->key->algor->algorithm;
 #else
 				X509_PUBKEY *key = X509_get_X509_PUBKEY(xcert);
@@ -2484,7 +2488,7 @@ static X509 *ocsp_find_signer_sk(STACK_OF(X509) *certs, OCSP_BASICRESP *bs)
 	unsigned char tmphash[SHA_DIGEST_LENGTH], *keyhash;
 	const ASN1_OCTET_STRING *pid;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x30500000L)
 	OCSP_RESPID *id = bs->tbsResponseData->responderId;
 
 	if (id->type == V_OCSP_RESPID_NAME)
@@ -2555,7 +2559,7 @@ check_response_signature(KMF_HANDLE_T handle, OCSP_BASICRESP *bs,
 	STACK_OF(X509) *cert_stack = NULL;
 	X509 *signer = NULL;
 	X509 *issuer = NULL;
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 	EVP_PKEY *skey = NULL;
 #else
 	STACK_OF(X509) *cert_stack2 = NULL;
@@ -2615,7 +2619,7 @@ check_response_signature(KMF_HANDLE_T handle, OCSP_BASICRESP *bs,
 	}
 
 	/* Verify the signature of the response */
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 	skey = X509_get_pubkey(signer);
 	if (skey == NULL) {
 		ret = KMF_ERR_OCSP_BAD_SIGNER;
@@ -2656,7 +2660,7 @@ end:
 		X509_free(signer);
 	}
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 	if (skey != NULL) {
 		EVP_PKEY_free(skey);
 	}

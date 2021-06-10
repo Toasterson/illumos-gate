@@ -133,19 +133,9 @@ SYMBOL_VERSION SUNW_1.2 {
     global:
 	nv_alloc_fini;
 	nv_alloc_init;
-	nv_alloc_nosleep	{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
+	nv_alloc_nosleep	;
 	nv_alloc_reset;
-	nv_fixed_ops		{
-				  ASSERT = {
-					  TYPE = OBJECT;
-					  SIZE = addrsize;
-					};
-				};
+	nv_fixed_ops		;
 	nvlist_add_boolean_array;
 	nvlist_add_boolean_value;
 	nvlist_add_int8;

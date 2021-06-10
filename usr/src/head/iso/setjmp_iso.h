@@ -28,6 +28,9 @@
  * Copyright 2005 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 /*
  * An application should not include this header directly.  Instead it
@@ -69,6 +72,12 @@ extern "C" {
 #elif defined(__sparc)
 #define	_JBLEN		12	/* ABI value */
 #define	_SIGJBLEN	19	/* ABI value */
+#elif defined(__aarch64)
+#define	_JBLEN		30	/* r18-r30, sp, v8-v15 */
+#define	_SIGJBLEN	128
+#elif defined(__riscv)
+#define	_JBLEN		28	/* s0-s11, sp, ra, fs0-fs11, sgilink */
+#define	_SIGJBLEN	128	// FIXME
 #else
 #error "ISA not supported"
 #endif
@@ -78,7 +87,8 @@ namespace std {
 #endif
 
 #if defined(__i386) || defined(__amd64) || \
-	defined(__sparc) || defined(__sparcv9)
+	defined(__sparc) || defined(__sparcv9) || \
+	defined(__aarch64) || defined(__riscv)
 #if defined(_LP64) || defined(_I32LPx)
 typedef long	jmp_buf[_JBLEN];
 #else

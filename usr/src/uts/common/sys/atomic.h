@@ -25,6 +25,9 @@
  * Copyright 2005 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 #ifndef	_SYS_ATOMIC_H
 #define	_SYS_ATOMIC_H
@@ -36,6 +39,9 @@
 extern "C" {
 #endif
 
+#if defined(__GNUC__) && (defined(__aarch64) || defined(__riscv))
+#include <asm/atomic.h>
+#else
 #if defined(_KERNEL) && defined(__GNUC__) && defined(_ASM_INLINES) && \
 	(defined(__i386) || defined(__amd64))
 #include <asm/atomic.h>
@@ -263,6 +269,8 @@ extern void membar_producer(void);
  * after the available flag has been seen, i.e. it imposes load ordering.
  */
 extern void membar_consumer(void);
+
+#endif /* #if defined(__GNUC__) && (defined(__aarch64) || defined(__riscv)) */
 
 #if defined(_KERNEL)
 

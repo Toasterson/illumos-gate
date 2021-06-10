@@ -61,6 +61,8 @@ CERRWARN += -_gcc=-Wno-parentheses
 CERRWARN += -_gcc=-Wno-unused-variable
 CERRWARN += -_gcc=-Wno-extra
 
+sac.o: CERRWARN += -_gcc12=-Wno-address
+
 # too many untyped funcs
 SMATCH=off
 

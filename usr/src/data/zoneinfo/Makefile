@@ -20,6 +20,9 @@ TZFILES=	africa \
 SRCFILES=	$(TZFILES) systemv README
 TABFILES=	continent.tab country.tab zone_sun.tab
 
+CODEMGR_WS=$(shell git rev-parse --show-toplevel)
+SRC=$(CODEMGR_WS)/usr/src
+
 include		$(SRC)/data/Makefile.data
 
 ROOTTZD=	$(ROOTSHLIB)/zoneinfo
@@ -46,10 +49,10 @@ install:	$(DIRS) $(ROOTTZSRCD) $(ROOTTZTABD) $(ROOTLIBTZSRCFILES) \
 		$(ROOTLIBTZTABFILES)
 		$(ZIC) -d $(ROOTTZD) $(TZFILES)
 
-$(ROOTTZSRCD)/%: %
+$(ROOTTZSRCD)/%: % $(ROOTTZSRCD)
 		$(INS.file)
 
-$(ROOTTZTABD)/%: %
+$(ROOTTZTABD)/%: % $(ROOTTZTABD)
 		$(INS.file)
 
 $(DIRS):

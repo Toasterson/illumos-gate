@@ -104,7 +104,7 @@ translator conninfo_t < struct compound_state *P > {
 #pragma D binding "1.5" translator
 translator nfsv4opinfo_t < struct compound_state *P > {
 	noi_xid = P->req->rq_xprt->xp_xid;
-	noi_cred = P->basecr;
+	noi_cred = (cred_t *)P->basecr;
 	noi_curpath = (P->vp == NULL) ? "<unknown>" : P->vp->v_path;
 	noi_shrpath = (P->exi == NULL || P->exi->exi_export.ex_path == NULL) ?
 	    "<unknown>" : P->exi->exi_export.ex_path;

@@ -40,12 +40,7 @@ $mapfile_version 2
 
 SYMBOL_VERSION SUNW_1.3 {
     global:
-	_siguhandler	{
-			  ASSERT = {
-				  TYPE = OBJECT;
-				  SIZE = addrsize[34];
-				};
-			};
+	_siguhandler	;
 } SUNW_1.2;
 
 # Due to mistakes made early in the history of this library, there are
@@ -97,7 +92,7 @@ $endif
 	gethostid;
 	gethostname;
 	getpagesize;
-	getrusage	{ TYPE = FUNCTION; FILTER = libc.so.1; };
+	getrusage	;
 	gettimeofday;
 	getwd;
 	index;
@@ -127,21 +122,16 @@ $endif
 	sigstack;
 	sigvec;
 	sigvechandler;
-	sleep		{ TYPE = FUNCTION; FILTER = libc.so.1; };
+	sleep		;
 	sprintf;
 	srand;
 	statfs;
-	sys_siglist	{
-			  ASSERT = {
-				  TYPE = OBJECT;
-				  SIZE = addrsize[34];
-				};
-			};
+	sys_siglist	;
 	times;
-	ualarm		{ TYPE = FUNCTION; FILTER = libc.so.1; };
+	ualarm		;
 	usignal;
 	usigpause;
-	usleep		{ TYPE = FUNCTION; FILTER = libc.so.1; };
+	usleep		;
 	vfprintf;
 	vprintf;
 	vsprintf;
@@ -152,21 +142,8 @@ $endif
 	# - On sparc, they are supplied by the library
 	# - On 32-bit x86, they are filters on libc
 	# - On amd64, they are not present in this library
-$if _sparc
 	longjmp;
 	setjmp;
-$elif _x86 && _ELF32
-	longjmp		{ TYPE = FUNCTION; FILTER = libc.so.1; };
-	setjmp		{ TYPE = FUNCTION; FILTER = libc.so.1; };
-$endif
-
-$if _sparc && _ELF64
-} SUNW_0.7;
-
-SYMBOL_VERSION SUNW_0.7 {
-    global:
-	SUNW_0.7;
-$endif
 };
 
 SYMBOL_VERSION SUNWprivate_1.1 {
@@ -188,21 +165,9 @@ SYMBOL_VERSION SUNWprivate_1.1 {
 
 
 	# Handle per-platform variations
-$if _sparc
 	_longjmp;
 	_setjmp;
 	__sigcleanup;
-$if _ELF32
-	syscall		{ TYPE = FUNCTION; FILTER = libc.so.1; };
-$endif
-$endif
-
-$if _x86 && _ELF32
-	_longjmp	{ TYPE = FUNCTION; FILTER = libc.so.1; };
-	_setjmp		{ TYPE = FUNCTION; FILTER = libc.so.1; };
-	_syscall	{ TYPE = FUNCTION; FILTER = libc.so.1; };
-	_times		{ TYPE = FUNCTION; FILTER = libc.so.1; };
-$endif
 
     local:
 	*;

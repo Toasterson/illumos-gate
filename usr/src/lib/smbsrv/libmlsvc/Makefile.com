@@ -92,10 +92,12 @@ LDLIBS += -lmlrpc -lsmb -lsmbns -lshare -lsmbfs -lnsl -lpkcs11 -lmd	 \
 
 CPPFLAGS += $(INCS) -D_REENTRANT
 CPPFLAGS += -Dsyslog=smb_syslog
-$(ENABLE_SMB_PRINTING) CPPFLAGS += -DHAVE_CUPS
+$(ENABLE_SMB_PRINTING)CPPFLAGS += -DHAVE_CUPS
 
 CERRWARN += -_gcc=-Wno-unused-function
 CERRWARN += $(CNOWARN_UNINIT)
+
+pics/netr_logon.o: CERRWARN += -_gcc12=-Wno-address
 
 # not linted
 SMATCH=off

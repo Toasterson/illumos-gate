@@ -28,6 +28,8 @@ CPPFLAGS +=        -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
 CSTD=	$(CSTD_GNU99)
 
+tail.o: CERRWARN += -_gcc11=-Wno-misleading-indentation
+
 SMOFF += leaks
 
 # install rules

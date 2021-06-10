@@ -42,7 +42,7 @@ ZFS_COMMON_SRCS=	$(ZFS_COMMON_OBJS:%.o=../../../uts/common/fs/zfs/%.c)
 ZFS_SHARED_SRCS=	$(ZFS_SHARED_OBJS:%.o=../../../common/zfs/%.c)
 KERNEL_SRCS=		$(KERNEL_OBJS:%.o=../common/%.c)
 
-SRCS=$(LUA_SRCS) $(ZFS_COMMON_SRCS) $(ZFS_SHARED_SRCS) $(KERNEL_SRCS)
+#SRCS=$(LUA_SRCS) $(ZFS_COMMON_SRCS) $(ZFS_SHARED_SRCS) $(KERNEL_SRCS)
 SRCDIR=		../common
 
 # There should be a mapfile here
@@ -82,6 +82,9 @@ CERRWARN +=	-_gcc=-Wno-unused-variable
 CERRWARN +=	-_gcc=-Wno-empty-body
 CERRWARN +=	-_gcc=-Wno-unused-function
 CERRWARN +=	-_gcc=-Wno-unused-label
+CERRWARN +=	-_gcc=-Wno-unused-but-set-variable
+pics/zio_crypt.o: CERRWARN += -_gcc11=-Wno-stringop-overflow
+pics/hkdf.o: CERRWARN += -_gcc11=-Wno-stringop-overflow
 
 # not linted
 SMATCH=off
@@ -94,12 +97,13 @@ all: $(LIBS)
 include ../../Makefile.targ
 
 EXTPICS= $(DTRACE_OBJS:%=pics/%)
+$(LIBS): $(EXTPICS)
 
 pics/%.o: ../../../uts/common/fs/zfs/%.c ../common/zfs.h
 	$(COMPILE.c) -o $@ $<
 	$(POST_PROCESS_O)
 
-pics/%.o: ../../../uts/common/fs/zfs/lua/%.c
+pics/%.o: ../../../uts/common/fs/zfs/lua/%.c ../common/zfs.h
 	$(COMPILE.c) -o $@ $<
 	$(POST_PROCESS_O)
 

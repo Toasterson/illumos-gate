@@ -22,6 +22,7 @@
 # Copyright (c) 2004, 2010, Oracle and/or its affiliates. All rights reserved.
 # Copyright 2012 Milan Jurik. All rights reserved.
 # Copyright 2016 Toomas Soome <tsoome@me.com>
+# Copyright 2017 Hayashi Naoyuki
 # Copyright (c) 2018, Joyent, Inc.
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 #
@@ -92,7 +93,7 @@ proc.o :  CPPFLAGS += -D_REENTRANT
 LDLIBS += \
 	-lcontract \
 	-lkstat \
-	-lmd5 \
+	-lmd \
 	-lnvpair \
 	-lrestart \
 	-lscf \
@@ -129,6 +130,7 @@ $(POFILE): $(POFILES)
 
 install: all $(ROOTLIBSVCBINPROG)
 
+clobber: clean
 clean:
 	$(RM) $(ALLOBJS)
 

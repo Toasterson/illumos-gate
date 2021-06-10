@@ -20,6 +20,7 @@
 #
 
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright 2015 Nexenta Systems, Inc.  All rights reserved.
 # Copyright (c) 1990, 2010, Oracle and/or its affiliates. All rights reserved.
 #
@@ -44,6 +45,7 @@ CPPFLAGS +=	-D_REENTRANT -I../lib
 
 CERRWARN +=	$(CNOWARN_UNINIT)
 CERRWARN +=	-_gcc=-Wno-switch
+CTFCONVERT_HOOK = && $(CTFCONVERT_O)
 
 # not linted
 SMATCH=off

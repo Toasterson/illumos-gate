@@ -42,6 +42,7 @@ LDLIBS +=	-lc -lnvpair -lscf -lm
 CPPFLAGS +=	$(INCS) -D_REENTRANT
 
 CERRWARN +=	-_gcc=-Wno-unused-label
+pics/stmf.o: CERRWARN += -_gcc11=-Wno-array-parameter
 
 # not linted
 SMATCH=off

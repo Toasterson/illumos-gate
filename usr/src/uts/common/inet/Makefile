@@ -44,7 +44,7 @@ ROOTHDRS= $(HDRS:%=$(ROOT)/usr/include/inet/%)
 
 CHECKHDRS= $(HDRS:%.h=%.check)
 
-$(ROOTDIRS)/%: %
+$(ROOTDIRS)/%: % $(ROOTDIRS)
 	$(INS.file)
 
 .KEEP_STATE:

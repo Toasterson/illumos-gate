@@ -50,6 +50,9 @@ extern long __fsr_init_value;
 extern void __fsr(uintptr_t);
 #endif
 
+#if defined(__aarch64) || defined(__riscv)
+extern void __fpstart(void);
+#endif
 
 /*
  * Defined here for ABI reasons, must match the definition in libc.
@@ -68,7 +71,7 @@ _start_crt(int argc, char **argv, void (*exit_handler)(void))
 	 *
 	 * On SPARC, we just need to check whether the handler was NULL.
 	 */
-#if defined(__x86)
+#if defined(__x86) || defined(__aarch64) || defined(__riscv)
 	if (&_DYNAMIC != NULL)
 		(void) atexit(exit_handler);
 #elif defined(__sparc)
@@ -96,7 +99,7 @@ _start_crt(int argc, char **argv, void (*exit_handler)(void))
 		ret = __start_crt_compiler(argc, argv);
 
 	if (ret == 0) {
-#if defined(__x86)
+#if defined(__x86) || defined(__aarch64) || defined(__riscv)
 		__fpstart();
 #endif
 #if defined(__i386)		/* Not amd64 */

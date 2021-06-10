@@ -38,5 +38,8 @@ FILEMODE=	0644
 all:
 install:	$(ETCDHCPFILES)
 
-$(ETCDHCPDIR)/%: %
+$(ETCDHCPDIR)/%: % $(ETCDHCPDIR)
 		$(INS.file)
+
+$(ETCDHCPDIR):
+	$(INS.dir)

@@ -19,6 +19,7 @@
 # CDDL HEADER END
 #
 #
+# Copyright 2017 Hayashi Naoyuki
 # Copyright 2008 Sun Microsystems, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
@@ -48,13 +49,14 @@ POFILES=	generic.po
 all clean clobber delete install package: $(SUBDIRS)
 
 # definitions for install_h target
-HDRS=		../common/mallint.h
+HDRS=		mallint.h
+HDRDIR=		common
 ROOTHDRDIR=     $(ROOT)/usr/include
 ROOTHDRS=       $(HDRS:%=$(ROOTHDRDIR)/%)
 CHECKHDRS=      $(HDRS:%.h=%.check)
 
 # install rule for install_h target
-$(ROOTHDRDIR)/%: %
+$(ROOTHDRDIR)/%: $(HDRDIR)/%
 	$(INS.file)
 
 install_h: $(ROOTHDRS)

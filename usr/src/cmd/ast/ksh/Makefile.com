@@ -25,7 +25,7 @@
 # Copyright (c) 2018, Joyent, Inc.
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
 
-SHELL=/usr/bin/ksh93
+SHELL=/bin/ksh93
 
 PROG= ksh
 

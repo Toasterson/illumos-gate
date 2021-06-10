@@ -1113,6 +1113,30 @@ extern "C" {
 #ifndef R_X86_64_PC32
 #define R_X86_64_PC32                          2
 #endif /* R_X86_64_PC32 */
+#ifndef R_RISCV_32
+#define R_RISCV_32                             1
+#endif /* R_RISCV_32 */
+#ifndef R_RISCV_64
+#define R_RISCV_64                             2
+#endif /* R_RISCV_64 */
+#ifndef R_RISCV_ADD32
+#define R_RISCV_ADD32                          35
+#endif /* R_RISCV_ADD32 */
+#ifndef R_RISCV_ADD64
+#define R_RISCV_ADD64                          36
+#endif /* R_RISCV_ADD64 */
+#ifndef R_RISCV_SUB32
+#define R_RISCV_SUB32                          39
+#endif /* R_RISCV_SUB32 */
+#ifndef R_RISCV_SUB64
+#define R_RISCV_SUB64                          40
+#endif /* R_RISCV_SUB64 */
+#ifndef R_RISCV_TLS_DTPREL32
+#define R_RISCV_TLS_DTPREL32                   7
+#endif /* R_RISCV_TLS_DTPREL32 */
+#ifndef R_RISCV_TLS_DTPREL64
+#define R_RISCV_TLS_DTPREL64                   9
+#endif /* R_RISCV_TLS_DTPREL64 */
 
 #ifdef __cplusplus
 }

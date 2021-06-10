@@ -22,6 +22,9 @@
  * Copyright 2008 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
  */
+/*
+ * Copyright 2017 Hayashi Naoyuki
+ */
 
 #ifndef	_MENU_PARTITION_H
 #define	_MENU_PARTITION_H
@@ -44,7 +47,7 @@ int	p_gpart(void);
 int	p_hpart(void);
 int	p_ipart(void);
 
-#if defined(i386)
+#if defined(i386) || defined(__amd64) || defined(__aarch64) || defined(__riscv)
 int	p_jpart(void);
 #endif			/* defined(i386) */
 
