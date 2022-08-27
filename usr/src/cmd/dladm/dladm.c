@@ -9964,7 +9964,7 @@ typedef struct showoverlay_state {
 	const char		*sho_linkname;
 	dladm_overlay_propinfo_handle_t sho_info;
 	uint8_t			sho_value[DLADM_OVERLAY_PROP_SIZEMAX];
-	uint32_t		sho_size;
+	size_t			sho_size;
 } showoverlay_state_t;
 
 typedef struct showoverlay_fma_state {
