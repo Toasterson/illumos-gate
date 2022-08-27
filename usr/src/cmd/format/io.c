@@ -481,7 +481,7 @@ reprompt:
 #else
 			efi_deflt = (efi_deflt_t *)deflt;
 #endif
-			fmt_print("[%llu]", efi_deflt->start_sector);
+			fmt_print("[%"PRIu64"]", efi_deflt->start_sector);
 			break;
 		case FIO_CSTR:
 		case FIO_MSTR:
@@ -569,7 +569,7 @@ reprompt:
 			efi_deflt = (efi_deflt_t *)deflt;
 #endif
 
-			fmt_print("[%llub, %llue, %llumb, %llugb, %llutb]",
+			fmt_print("[%"PRIu64"b, %"PRIu64"e, %"PRIu64"mb, %"PRIu64"gb, %"PRIu64"tb]",
 			    efi_deflt->end_sector,
 			    efi_deflt->start_sector + efi_deflt->end_sector - 1,
 			    (efi_deflt->end_sector * cur_blksz) /
@@ -823,7 +823,7 @@ reprompt:
 		 * Check to be sure it is within the legal bounds.
 		 */
 		if ((bn < bounds->lower) || (bn > bounds->upper)) {
-			err_print("`%lu' is out of range [%llu-%llu].\n", bn,
+			err_print("`%u' is out of range [%llu-%llu].\n", bn,
 			    bounds->lower, bounds->upper);
 			break;
 		}
@@ -889,7 +889,7 @@ reprompt:
 		 * Check to be sure it is within the legal bounds.
 		 */
 		if ((bn < bounds->lower) || (bn > bounds->upper)) {
-			err_print("`%lu' is out of range [%llu-%llu].\n", bn,
+			err_print("`%u' is out of range [%llu-%llu].\n", bn,
 			    bounds->lower, bounds->upper);
 			break;
 		}
@@ -1587,7 +1587,7 @@ or g(gigabytes)\n");
 			 */
 			if (blokno < efi_deflt->start_sector) {
 				err_print("End Sector must fall on or after "
-				    "start sector %llu\n",
+				    "start sector %"PRIu64"\n",
 				    efi_deflt->start_sector);
 				break;
 			}
