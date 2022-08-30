@@ -860,6 +860,7 @@ boot_ufs_getdents(int fd, struct dirent *dep, unsigned size)
 	 */
 	int n;
 	fileid_t *fp;
+	fileid_t fx;
 	unsigned long oldoff, oldblok;
 
 #define	SLOP (sizeof (struct dirent) - offsetof(struct dirent, d_name[1]))
@@ -874,7 +875,6 @@ boot_ufs_getdents(int fd, struct dirent *dep, unsigned size)
 			 * If file is a symbolic link, we'll follow
 			 * it JIC it points to a directory!
 			 */
-			fileid_t fx;
 			char pn[MAXPATHLEN];
 			fp->fi_count = DEV_BSIZE;
 			fp->fi_blocknum = fsbtodb(&fp->fi_devp->un_fs.di_fs,
