@@ -216,7 +216,9 @@ exit_diff:
 	case AUDIT_GET_DIFFS_ERR:
 		if (buf != NULL)
 			free(buf);
-		*bufptr = err_buf;
+		*bufptr = malloc(sizeof(err_buf));
+		if (*bufptr)
+			memcpy(*bufptr, err_buf, sizeof(err_buf));
 		break;
 	case AUDIT_GET_DIFFS_NO_DIFFS:
 		if (buf != NULL)
