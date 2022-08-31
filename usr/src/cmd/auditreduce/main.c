@@ -824,7 +824,7 @@ rename_outfile(void)
 			    ar, f_outtemp, f_newfile);
 			return (-1);
 		}
-		f_outfile = f_newfile;
+		f_outfile = strdup(f_newfile);
 #else
 		if (rename(f_outtemp, f_outfile) == -1) {
 			(void) fprintf(stderr,
