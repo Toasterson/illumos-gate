@@ -74,8 +74,8 @@ expand(list, wh)
 {
 	register struct namelist *nl, *prev;
 	register int n;
-	char pathbuf[LINESIZE];
-	char *argvbuf[GAVSIZ];
+	static char pathbuf[LINESIZE];
+	static char *argvbuf[GAVSIZ];
 
 	if (debug) {
 		printf("expand(%x, %d)\nlist = ", list, wh);
