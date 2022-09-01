@@ -57,6 +57,7 @@ LDLIBS += -ldevinfo -lc
 CFLAGS += $(C_BIGPICFLAGS)
 CFLAGS64 += $(C_BIGPICFLAGS64)
 
+pics/smb_info.o: CERRWARN += -_gcc12=-Wno-dangling-pointer
 
 .KEEP_STATE:
 

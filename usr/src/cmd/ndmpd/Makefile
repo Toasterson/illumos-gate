@@ -76,6 +76,8 @@ CERRWARN += $(CNOWARN_UNINIT)
 CERRWARN += -_gcc=-Wno-address
 CERRWARN += -_gcc=-Wno-cast-function-type
 
+tlm/tlm_restore_writer.o: CERRWARN +=  -_gcc12=-Wno-dangling-pointer
+
 LDLIBS   += -lsocket -lnsl -lzfs -lsec -lndmp -lmd -lnvpair -lumem -lbsm -lgen -lcmdutils -linetutil
 
 OBJS= \
