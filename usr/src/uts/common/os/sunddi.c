@@ -814,6 +814,12 @@ ddi_dma_unbind_handle(ddi_dma_handle_t h)
 	if (dip != ddi_root_node())
 		dip = (dev_info_t *)DEVI(dip)->devi_bus_dma_unbindhdl;
 	funcp = DEVI(rdip)->devi_bus_dma_unbindfunc;
+	/*
+	 * No unbind function is cached for a node without a parent, such as
+	 * the root node; a handle allocated against it cannot be bound.
+	 */
+	if (funcp == NULL)
+		return (DDI_FAILURE);
 	return ((*funcp)(dip, rdip, h));
 }
 
@@ -7071,6 +7077,12 @@ ddi_dma_buf_bind_handle(ddi_dma_handle_t handle, struct buf *bp,
 	if (dip != ddi_root_node())
 		dip = (dev_info_t *)DEVI(dip)->devi_bus_dma_bindhdl;
 	funcp = DEVI(rdip)->devi_bus_dma_bindfunc;
+	/*
+	 * No bind function is cached for a node without a parent, such as
+	 * the root node, although a handle can be allocated against it.
+	 */
+	if (funcp == NULL)
+		return (DDI_DMA_NOMAPPING);
 	return ((*funcp)(dip, rdip, handle, &dmareq, cookiep, ccountp));
 }
 
@@ -7109,6 +7121,12 @@ ddi_dma_addr_bind_handle(ddi_dma_handle_t handle, struct as *as,
 	if (dip != ddi_root_node())
 		dip = (dev_info_t *)DEVI(dip)->devi_bus_dma_bindhdl;
 	funcp = DEVI(rdip)->devi_bus_dma_bindfunc;
+	/*
+	 * No bind function is cached for a node without a parent, such as
+	 * the root node, although a handle can be allocated against it.
+	 */
+	if (funcp == NULL)
+		return (DDI_DMA_NOMAPPING);
 	return ((*funcp)(dip, rdip, handle, &dmareq, cookiep, ccountp));
 }
 
