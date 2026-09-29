@@ -404,7 +404,20 @@ segdev_create(struct seg **segpp, void *argsp)
 	 * vp to hang pages on.
 	 */
 	sdp->vp = specfind(a->dev, VCHR);
-	ASSERT(sdp->vp != NULL);
+	if (sdp->vp == NULL) {
+		/*
+		 * specfind() only returns a vnode whose cached path is visible
+		 * in the current zone. A descriptor passed in from another
+		 * zone, or a vnode created with makespecvp() and never given a
+		 * path, has none: fail the mapping rather than dereference
+		 * NULL below.
+		 */
+		hat_unload(seg->s_as->a_hat, seg->s_base, seg->s_size,
+		    HAT_UNLOAD_UNMAP);
+		rw_destroy(&sdp->lock);
+		kmem_free(sdp, sizeof (*sdp));
+		return (ENODEV);
+	}
 
 	seg->s_ops = &segdev_ops;
 	seg->s_data = sdp;
