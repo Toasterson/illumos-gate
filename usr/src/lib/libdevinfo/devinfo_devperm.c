@@ -338,6 +338,7 @@ static int
 check_driver_match(char *path, char *line)
 {
 	char *drv, *driver, *lasts;
+	char drvname[MAXNAMELEN];
 	char *devfs_path = NULL;
 	char saveline[MAX_LINELEN];
 	char *p;
@@ -356,7 +357,16 @@ check_driver_match(char *path, char *line)
 		free(devfs_path);
 
 		if (node) {
+			/*
+			 * The driver name lives in the snapshot, so copy it
+			 * before di_fini() frees the snapshot.
+			 */
 			drv = di_driver_name(node);
+			if (drv != NULL) {
+				(void) strlcpy(drvname, drv, sizeof (drvname));
+			} else {
+				drvname[0] = '\0';
+			}
 			di_fini(node);
 		} else {
 			return (0);
@@ -377,7 +387,7 @@ check_driver_match(char *path, char *line)
 		if (strcmp(driver, "driver") == 0) {
 			driver = strtok_r(NULL, ", \t\n", &lasts);
 			while (driver) {
-				if (strcmp(driver, drv) == 0) {
+				if (strcmp(driver, drvname) == 0) {
 					return (0);
 				}
 				driver = strtok_r(NULL, ", \t\n", &lasts);
