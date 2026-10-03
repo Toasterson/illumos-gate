@@ -61,7 +61,7 @@ cat <<EOM
 /dev/vt/console_user	0600	/dev/mouse:/dev/kbd
 /dev/vt/console_user	0600	/dev/sound/*		# audio devices
 /dev/vt/console_user	0600	/dev/fbs/*		# frame buffers
-/dev/vt/console_user	0600	/dev/dri/*		# dri devices
+/dev/vt/console_user	0600	/dev/dri/*	driver=i915,radeon	# dri devices
 /dev/vt/console_user	0400	/dev/removable-media/dsk/*	# removable media
 /dev/vt/console_user	0400	/dev/removable-media/rdsk/*	# removable media
 /dev/vt/console_user	0400	/dev/hotpluggable/dsk/*		# hotpluggable storage

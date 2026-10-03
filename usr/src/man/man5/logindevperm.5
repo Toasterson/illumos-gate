@@ -3,7 +3,7 @@
 .\" The contents of this file are subject to the terms of the Common Development and Distribution License (the "License").  You may not use this file except in compliance with the License.
 .\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE or http://www.opensolaris.org/os/licensing.  See the License for the specific language governing permissions and limitations under the License.
 .\" When distributing Covered Code, include this CDDL HEADER in each file and include the License file at usr/src/OPENSOLARIS.LICENSE.  If applicable, add the following below this CDDL HEADER, with the fields enclosed by brackets "[]" replaced with your own identifying information: Portions Copyright [yyyy] [name of copyright owner]
-.TH LOGINDEVPERM 5 "Sep 25, 2008"
+.TH LOGINDEVPERM 5 "October 3, 2026"
 .SH NAME
 logindevperm, fbtab \- login-based device permissions
 .SH SYNOPSIS
@@ -101,6 +101,14 @@ driver=usb_mid,scsa2usb,usbprn  # libusb devices
 
 .sp
 .LP
+The default entry for the Direct Rendering Manager devices,
+\fB/dev/dri/*\fR, is limited in this way to the \fBi915\fR and \fBradeon\fR
+drivers.
+The minor nodes of other drivers under \fB/dev/dri\fR keep the owner, group
+and permissions given to them when the driver was installed (see the
+\fB-m\fR option of \fBadd_drv\fR(8)).
+.sp
+.LP
 Due to the persistence of \fBdevfs\fR(4FS) minor node management, the user
 should be logged in as root if the list of minor nodes will be reduced and the
 devices should all be plugged in.
@@ -134,6 +142,7 @@ File that contains user group information.
 .BR ugen (4D),
 .BR passwd (5),
 .BR regexp (7),
+.BR add_drv (8),
 .BR ttymon (8)
 .SH NOTES
 .sp
