@@ -12,6 +12,7 @@
 #
 # Copyright 2013 Pluribus Networks Inc.
 # Copyright 2019 Joyent, Inc.
+# Copyright 2026 Till Wegmueller
 #
 
 PROG =		bhyvectl
