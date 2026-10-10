@@ -1168,6 +1168,23 @@ vm_snapshot_devices(int data_fd, nvlist_t *list, struct vm_snapshot_meta *meta,
 	return (ret);
 }
 
+/*
+ * Find a device which cannot be saved, so that a checkpoint can be refused
+ * before the VM is stopped.
+ */
+static struct pci_devinst *
+vm_snapshot_unsupported_dev(void)
+{
+	struct pci_devinst *pdi = NULL;
+
+	while ((pdi = pci_next(pdi)) != NULL) {
+		if (pdi->pi_d->pe_snapshot == NULL)
+			return (pdi);
+	}
+
+	return (NULL);
+}
+
 void
 checkpoint_cpu_add(int vcpu)
 {
@@ -1310,15 +1327,22 @@ vm_restore(struct vmctx *ctx, struct restore_state *rstate)
 
 static int
 vm_checkpoint(struct vmctx *ctx, int vmmem_fd, int kdata_fd, int meta_fd,
-    bool stop_vm)
+    bool stop_vm, char *errmsg, size_t errlen)
 {
 	nvlist_t *meta_nvl = NULL, *kern_nvl = NULL, *dev_nvl = NULL;
+	struct pci_devinst *pdi;
 	char *meta_buf = NULL;
 	size_t meta_len = 0;
 	void *buffer;
 	off_t offset = 0;
 	bool vm_paused = false;
 	int error, ret;
+
+	if ((pdi = vm_snapshot_unsupported_dev()) != NULL) {
+		(void) snprintf(errmsg, errlen,
+		    "device %s does not support checkpoints", pdi->pi_name);
+		return (ENOTSUP);
+	}
 
 	buffer = malloc(SNAPSHOT_BUFFER_SIZE);
 	if (buffer == NULL)
@@ -1448,6 +1472,7 @@ vm_do_checkpoint(struct vmctx *ctx, const nvlist_t *nvl)
 	boolean_t suspend;
 	int32_t *fds;
 	uint_t nfds;
+	char errmsg[128] = "";
 	int error;
 
 	if (nvlist_alloc(&reply, NV_UNIQUE_NAME, 0) != 0)
@@ -1459,10 +1484,13 @@ vm_do_checkpoint(struct vmctx *ctx, const nvlist_t *nvl)
 	    &nfds) != 0 || nfds != 3) {
 		error = EINVAL;
 	} else {
-		error = vm_checkpoint(ctx, fds[0], fds[1], fds[2], suspend);
+		error = vm_checkpoint(ctx, fds[0], fds[1], fds[2], suspend,
+		    errmsg, sizeof (errmsg));
 	}
-	if (error != 0)
-		(void) nvlist_add_string(reply, "error", strerror(error));
+	if (error != 0) {
+		(void) nvlist_add_string(reply, "error",
+		    errmsg[0] != '\0' ? errmsg : strerror(error));
+	}
 
 	return (reply);
 }
