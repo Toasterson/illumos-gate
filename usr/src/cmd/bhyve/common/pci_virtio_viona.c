@@ -37,6 +37,7 @@
  * Copyright 2019 Joyent, Inc.
  * Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
  * Copyright 2026 Oxide Computer Company
+ * Copyright 2026 Till Wegmueller
  */
 
 #include <sys/param.h>

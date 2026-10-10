@@ -38,6 +38,7 @@
  * Copyright 2015 Pluribus Networks Inc.
  * Copyright 2019 Joyent, Inc.
  * Copyright 2023 Oxide Computer Company
+ * Copyright 2026 Till Wegmueller
  */
 
 #include <sys/cdefs.h>
