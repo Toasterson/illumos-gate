@@ -2182,8 +2182,6 @@ vi_pci_snapshot_consts(struct virtio_consts *vc, struct vm_snapshot_meta *meta)
 	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_nvq, meta, ret, done);
 	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_max_nvq, meta, ret, done);
 	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_cfgsize, meta, ret, done);
-	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_hv_caps_legacy, meta, ret, done);
-	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_hv_caps_modern, meta, ret, done);
 
 done:
 	return (ret);
@@ -2248,15 +2246,38 @@ vi_pci_snapshot(struct vm_snapshot_meta *meta)
 	if (ret != 0)
 		goto done;
 
-	/*
-	 * Apply the negotiated features again so that the device rebuilds the
-	 * state which depends on them, such as the number of queues of a
-	 * multi-queue device, as it did when the guest negotiated them.
-	 */
-	if (meta->op == VM_SNAPSHOT_RESTORE && vs->vs_negotiated_caps != 0 &&
-	    vc->vc_apply_features != NULL) {
-		(*vc->vc_apply_features)(DEV_SOFTC(vs),
-		    &vs->vs_negotiated_caps);
+	if (meta->op == VM_SNAPSHOT_RESTORE && vs->vs_negotiated_caps != 0) {
+		const bool modern =
+		    (vs->vs_negotiated_caps & VIRTIO_F_VERSION_1) != 0;
+		uint64_t offered;
+
+		/*
+		 * The features which the guest negotiated must still be
+		 * offered, which might not be the case if the backend of the
+		 * device has changed.
+		 */
+		if (vc->vc_hv_features != NULL)
+			offered = vc->vc_hv_features(DEV_SOFTC(vs), modern);
+		else
+			offered = vi_hv_features(vs, modern);
+		if ((vs->vs_negotiated_caps & ~offered) != 0) {
+			EPRINTLN("%s: negotiated features 0x%" PRIx64
+			    " are no longer offered", vc->vc_name,
+			    vs->vs_negotiated_caps & ~offered);
+			ret = ENOTSUP;
+			goto done;
+		}
+
+		/*
+		 * Apply the negotiated features again so that the device
+		 * rebuilds the state which depends on them, such as the number
+		 * of queues of a multi-queue device, as it did when the guest
+		 * negotiated them.
+		 */
+		if (vc->vc_apply_features != NULL) {
+			(*vc->vc_apply_features)(DEV_SOFTC(vs),
+			    &vs->vs_negotiated_caps);
+		}
 	}
 
 	/* Save virtio consts */
