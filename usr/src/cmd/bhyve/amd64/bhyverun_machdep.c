@@ -63,6 +63,7 @@
 #include "fwctl.h"
 #include "ioapic.h"
 #include "inout.h"
+#include "ipc.h"
 #ifndef	__FreeBSD__
 #include "kernemu_dev.h"
 #endif
@@ -94,7 +95,11 @@ bhyve_usage(int code)
 		"       -A: create ACPI tables\n"
 #else
 		"       %2$.*3$s [-k <config_file>] [-l <lpc>] [-m mem] [-o <var>=<value>]\n"
+#ifdef	BHYVE_SNAPSHOT
+		"       %2$.*3$s [-r <file>] [-s <pci>] [-U uuid] vmname\n"
+#else
 		"       %2$.*3$s [-s <pci>] [-U uuid] vmname\n"
+#endif
 #endif
 		"       -a: local apic is in xAPIC mode (deprecated)\n"
 #ifndef __FreeBSD__
@@ -121,6 +126,9 @@ bhyve_usage(int code)
 #ifdef	__FreeBSD__
 		"       -p: pin 'vcpu' to 'hostcpu'\n"
 #endif
+#ifdef	BHYVE_SNAPSHOT
+		"       -r: path to checkpoint file\n"
+#endif
 		"       -S: guest memory cannot be swapped\n"
 		"       -s: <slot,driver,configinfo> PCI slot config\n"
 		"       -U: UUID\n"
@@ -144,7 +152,11 @@ bhyve_optparse(int argc, char **argv)
 	optstr = "aehuwxACDHIPSWYk:f:o:p:G:c:s:m:l:K:U:";
 #else
 	/* +d, +B, -p */
+#ifdef	BHYVE_SNAPSHOT
+	optstr = "adehuwxACDHIPSWYk:f:o:G:c:s:m:l:B:K:U:r:";
+#else
 	optstr = "adehuwxACDHIPSWYk:f:o:G:c:s:m:l:B:K:U:";
+#endif
 #endif
 	while ((c = getopt(argc, argv, optstr)) != -1) {
 		switch (c) {
@@ -216,6 +228,11 @@ bhyve_optparse(int argc, char **argv)
 				exit(4);
 			else
 				break;
+#ifdef	BHYVE_SNAPSHOT
+		case 'r':
+			restore_file = optarg;
+			break;
+#endif
 		case 'S':
 			set_config_bool("memory.wired", true);
 			break;
@@ -293,6 +310,7 @@ bhyve_init_config(void)
 	set_config_value("memory.size", "256M");
 	set_config_bool("x86.strictmsr", true);
 	set_config_value("lpc.fwcfg", "bhyve");
+	set_config_value("rundir", BHYVE_RUN_DIR);
 }
 
 void

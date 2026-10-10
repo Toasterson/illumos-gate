@@ -23,8 +23,9 @@
 .\" SUCH DAMAGE.
 .\"
 .\" Portions Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
+.\" Portions Copyright 2026 Till Wegmueller
 .\"
-.Dd May 4, 2020
+.Dd October 10, 2026
 .Dt BHYVECTL 8
 .Os
 .Sh NAME
@@ -41,6 +42,7 @@
 .Op Fl -force-poweroff
 .Op Fl -checkpoint= Ns Ar <filename>
 .Op Fl -suspend= Ns Ar <filename>
+.Op Fl -rundir= Ns Ar <path>
 .Sh DESCRIPTION
 The
 .Nm
@@ -74,6 +76,48 @@ Inject a non-maskable interrupt (NMI) into the VM.
 Force the VM to reset.
 .It Fl -force-poweroff
 Force the VM to power off.
+.It Fl -checkpoint= Ns Ar <filename>
+Save a checkpoint of the running VM.
+The guest memory is written to
+.Ar <filename> ,
+the device and vCPU state to
+.Ar <filename> Ns Pa .kern
+and a description of both to
+.Ar <filename> Ns Pa .meta .
+The VM is paused while the checkpoint is taken and then continues to run.
+The checkpoint can be restored with the
+.Fl r
+option of
+.Xr bhyve 8 .
+.Pp
+A checkpoint can only be taken if every device of the VM supports it.
+This is the case for the
+.Sy ahci ,
+.Sy e1000 ,
+.Sy fbuf ,
+.Sy hostbridge ,
+.Sy lpc ,
+.Sy virtio-blk ,
+.Sy virtio-net ,
+.Sy virtio-net-viona ,
+.Sy virtio-rnd
+and
+.Sy xhci
+emulations, including the devices attached to them, and for the PS/2
+keyboard and mouse.
+.It Fl -suspend= Ns Ar <filename>
+Save a checkpoint as for
+.Fl -checkpoint ,
+then destroy the VM.
+The
+.Xr bhyve 8
+process exits with status 5 once the checkpoint has been written.
+.It Fl -rundir= Ns Ar <path>
+The directory containing the control socket of the
+.Xr bhyve 8
+process.
+The default is
+.Pa /var/run/bhyve .
 .El
 .Sh EXIT STATUS
 .Ex -std
@@ -81,5 +125,12 @@ Force the VM to power off.
 Destroy the VM called fbsd10:
 .Pp
 .Dl "bhyvectl --vm=fbsd10 --destroy"
+.Pp
+Suspend the VM called fbsd10 to a checkpoint and resume it later:
+.Bd -literal -offset indent
+bhyvectl --vm=fbsd10 --suspend=/var/tmp/fbsd10.ckp
+bhyve -r /var/tmp/fbsd10.ckp -c 2 -m 1G -s 0,hostbridge -s 1,lpc \e
+    -s 2,virtio-blk,/my/image -l com1,stdio fbsd10
+.Ed
 .Sh SEE ALSO
 .Xr bhyve 8

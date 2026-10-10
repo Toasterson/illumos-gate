@@ -29,6 +29,8 @@
 
 #include <sys/types.h>
 
+#include <pthread.h>
+
 #include "bhyvegc.h"
 #include "console.h"
 
@@ -46,6 +48,26 @@ static struct {
 	void			*ptr_arg;
 	int			ptr_priority;
 } console;
+
+#ifdef BHYVE_SNAPSHOT
+/*
+ * Held for writing while the VM is paused for a checkpoint, so that input
+ * events are not delivered to the devices while their state is being saved.
+ */
+static pthread_rwlock_t console_event_lock = PTHREAD_RWLOCK_INITIALIZER;
+
+void
+console_pause(void)
+{
+	pthread_rwlock_wrlock(&console_event_lock);
+}
+
+void
+console_resume(void)
+{
+	pthread_rwlock_unlock(&console_event_lock);
+}
+#endif
 
 void
 console_init(int w, int h, void *fbaddr)
@@ -106,13 +128,25 @@ console_ptr_register(ptr_event_func_t event_cb, void *arg, int pri)
 void
 console_key_event(int down, uint32_t keysym, uint32_t keycode)
 {
+#ifdef BHYVE_SNAPSHOT
+	pthread_rwlock_rdlock(&console_event_lock);
+#endif
 	if (console.kbd_event_cb)
 		(*console.kbd_event_cb)(down, keysym, keycode, console.kbd_arg);
+#ifdef BHYVE_SNAPSHOT
+	pthread_rwlock_unlock(&console_event_lock);
+#endif
 }
 
 void
 console_ptr_event(uint8_t button, int x, int y)
 {
+#ifdef BHYVE_SNAPSHOT
+	pthread_rwlock_rdlock(&console_event_lock);
+#endif
 	if (console.ptr_event_cb)
 		(*console.ptr_event_cb)(button, x, y, console.ptr_arg);
+#ifdef BHYVE_SNAPSHOT
+	pthread_rwlock_unlock(&console_event_lock);
+#endif
 }

@@ -65,6 +65,9 @@
 #include "config.h"
 #include "debug.h"
 #include "pci_emul.h"
+#ifdef BHYVE_SNAPSHOT
+#include "snapshot.h"
+#endif
 #include "mevent.h"
 #include "net_utils.h"
 #include "net_backends.h"
@@ -303,6 +306,9 @@ struct e82545_softc {
 	int		esc_rx_enabled;
 	int		esc_rx_active;
 	int		esc_rx_loopback;
+#ifndef __FreeBSD__
+	bool		esc_rx_paused;
+#endif
 	uint32_t	esc_RCTL;	/* x0100 receive ctl */
 	uint32_t	esc_FCRTL;	/* x2160 flow cntl thresh, low */
 	uint32_t	esc_FCRTH;	/* x2168 flow cntl thresh, hi */
@@ -839,6 +845,12 @@ e82545_rx_callback(int fd __unused, enum ev_type type __unused, void *param)
 
 	pthread_mutex_lock(&sc->esc_mtx);
 	DPRINTF("rx_run: head %x, tail %x", sc->esc_RDH, sc->esc_RDT);
+
+#ifndef __FreeBSD__
+	/* Leave packets queued in the backend while the device is paused. */
+	if (sc->esc_rx_paused)
+		goto done1;
+#endif
 
 	if (!sc->esc_rx_enabled || sc->esc_rx_loopback) {
 		DPRINTF("rx disabled (!%d || %d) -- packet(s) dropped",
@@ -2414,11 +2426,217 @@ e82545_init(struct pci_devinst *pi, nvlist_t *nvl)
 	return (0);
 }
 
+#ifdef BHYVE_SNAPSHOT
+static int
+e82545_snapshot(struct vm_snapshot_meta *meta)
+{
+	int i;
+	int ret;
+	struct e82545_softc *sc;
+	struct pci_devinst *pi;
+	uint64_t bitmap_value;
+
+	pi = meta->dev_data;
+	sc = pi->pi_arg;
+
+	/* esc_mevp and esc_mevpitr should be reinitiated at init. */
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_mac, meta, ret, done);
+
+	/* General */
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_CTRL, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_FCAL, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_FCAH, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_FCT, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_VET, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_FCTTV, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_LEDCTL, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_PBA, meta, ret, done);
+
+	/* Interrupt control */
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_irq_asserted, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_ICR, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_ITR, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_ICS, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_IMS, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_IMC, meta, ret, done);
+
+	/*
+	 * Transmit
+	 *
+	 * The fields in the unions are in superposition to access certain
+	 * bytes in the larger uint variables.
+	 * e.g., ip_config = [ipcss|ipcso|ipcse0|ipcse1]
+	 */
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_txctx.lower_setup.ip_config, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_txctx.upper_setup.tcp_config, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_txctx.cmd_and_length, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_txctx.tcp_seg_setup.data, meta, ret, done);
+
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_tx_enabled, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_tx_active, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TXCW, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TCTL, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TIPG, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_AIT, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_tdba, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TDBAL, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TDBAH, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TDLEN, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TDH, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TDHr, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TDT, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TIDV, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TXDCTL, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_TADV, meta, ret, done);
+
+	/* Has dependency on esc_TDLEN; reoreder of fields from struct. */
+	SNAPSHOT_GUEST2HOST_ADDR_OR_LEAVE(pi->pi_vmctx, sc->esc_txdesc,
+	    sc->esc_TDLEN, true, meta, ret, done);
+
+	/* L2 frame acceptance */
+	for (i = 0; i < (int)nitems(sc->esc_uni); i++) {
+		SNAPSHOT_VAR_OR_LEAVE(sc->esc_uni[i].eu_valid, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(sc->esc_uni[i].eu_addrsel, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(sc->esc_uni[i].eu_eth, meta, ret, done);
+	}
+
+	SNAPSHOT_BUF_OR_LEAVE(sc->esc_fmcast, sizeof(sc->esc_fmcast),
+			      meta, ret, done);
+	SNAPSHOT_BUF_OR_LEAVE(sc->esc_fvlan, sizeof(sc->esc_fvlan),
+			      meta, ret, done);
+
+	/* Receive */
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_rx_enabled, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_rx_active, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_rx_loopback, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RCTL, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_FCRTL, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_FCRTH, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_rdba, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RDBAL, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RDBAH, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RDLEN, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RDH, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RDT, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RDTR, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RXDCTL, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RADV, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RSRPD, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->esc_RXCSUM, meta, ret, done);
+
+	/* Has dependency on esc_RDLEN; reoreder of fields from struct. */
+	SNAPSHOT_GUEST2HOST_ADDR_OR_LEAVE(pi->pi_vmctx, sc->esc_rxdesc,
+	    sc->esc_RDLEN, true, meta, ret, done);
+
+	/* IO Port register access */
+	SNAPSHOT_VAR_OR_LEAVE(sc->io_addr, meta, ret, done);
+
+	/* Shadow copy of MDIC */
+	SNAPSHOT_VAR_OR_LEAVE(sc->mdi_control, meta, ret, done);
+
+	/* Shadow copy of EECD */
+	SNAPSHOT_VAR_OR_LEAVE(sc->eeprom_control, meta, ret, done);
+
+	/* Latest NVM in/out */
+	SNAPSHOT_VAR_OR_LEAVE(sc->nvm_data, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->nvm_opaddr, meta, ret, done);
+
+	/* Stats */
+	SNAPSHOT_VAR_OR_LEAVE(sc->missed_pkt_count, meta, ret, done);
+	SNAPSHOT_BUF_OR_LEAVE(sc->pkt_rx_by_size, sizeof(sc->pkt_rx_by_size),
+			      meta, ret, done);
+	SNAPSHOT_BUF_OR_LEAVE(sc->pkt_tx_by_size, sizeof(sc->pkt_tx_by_size),
+			      meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->good_pkt_rx_count, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->bcast_pkt_rx_count, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->mcast_pkt_rx_count, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->good_pkt_tx_count, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->bcast_pkt_tx_count, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->mcast_pkt_tx_count, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->oversize_rx_count, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->tso_tx_count, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->good_octets_rx, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->good_octets_tx, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->missed_octets, meta, ret, done);
+
+	if (meta->op == VM_SNAPSHOT_SAVE)
+		bitmap_value = sc->nvm_mode;
+	SNAPSHOT_VAR_OR_LEAVE(bitmap_value, meta, ret, done);
+	if (meta->op == VM_SNAPSHOT_RESTORE)
+		sc->nvm_mode = bitmap_value;
+
+	if (meta->op == VM_SNAPSHOT_SAVE)
+		bitmap_value = sc->nvm_bits;
+	SNAPSHOT_VAR_OR_LEAVE(bitmap_value, meta, ret, done);
+	if (meta->op == VM_SNAPSHOT_RESTORE)
+		sc->nvm_bits = bitmap_value;
+
+	/* EEPROM data */
+	SNAPSHOT_BUF_OR_LEAVE(sc->eeprom_data, sizeof(sc->eeprom_data),
+			      meta, ret, done);
+
+done:
+	return (ret);
+}
+
+#ifndef __FreeBSD__
+/*
+ * Stop receive processing and wait for the transmit thread to become idle so
+ * that neither the device state nor guest memory changes while the device is
+ * saved or restored, and so that the saved state does not mark the receive or
+ * transmit path as active.  The transmit thread only finds new work when the
+ * guest writes TDT, which it cannot do while its vCPUs are stopped.
+ */
+static int
+e82545_pause(struct pci_devinst *pi)
+{
+	struct e82545_softc *sc = pi->pi_arg;
+
+	pthread_mutex_lock(&sc->esc_mtx);
+	sc->esc_rx_paused = true;
+	pthread_mutex_unlock(&sc->esc_mtx);
+	netbe_rx_disable(sc->esc_be);
+
+	pthread_mutex_lock(&sc->esc_mtx);
+	while (sc->esc_rx_active || sc->esc_tx_active) {
+		pthread_mutex_unlock(&sc->esc_mtx);
+		(void) usleep(10000);
+		pthread_mutex_lock(&sc->esc_mtx);
+	}
+	pthread_mutex_unlock(&sc->esc_mtx);
+
+	return (0);
+}
+
+static int
+e82545_resume(struct pci_devinst *pi)
+{
+	struct e82545_softc *sc = pi->pi_arg;
+
+	pthread_mutex_lock(&sc->esc_mtx);
+	sc->esc_rx_paused = false;
+	/* Restored descriptors may be waiting for the transmit thread. */
+	e82545_tx_start(sc);
+	pthread_mutex_unlock(&sc->esc_mtx);
+	netbe_rx_enable(sc->esc_be);
+
+	return (0);
+}
+#endif
+#endif
+
 static const struct pci_devemu pci_de_e82545 = {
 	.pe_emu = 	"e1000",
 	.pe_init =	e82545_init,
 	.pe_legacy_config = netbe_legacy_config,
 	.pe_barwrite =	e82545_write,
 	.pe_barread =	e82545_read,
+#ifdef BHYVE_SNAPSHOT
+	.pe_snapshot =	e82545_snapshot,
+#ifndef __FreeBSD__
+	.pe_pause =	e82545_pause,
+	.pe_resume =	e82545_resume,
+#endif
+#endif
 };
 PCI_EMUL_SET(pci_de_e82545);

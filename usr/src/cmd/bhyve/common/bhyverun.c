@@ -39,6 +39,7 @@
  * Copyright 2018 Joyent, Inc.
  * Copyright 2025 Oxide Computer Company
  * Copyright 2026 OmniOS Community Edition (OmniOSce) Association.
+ * Copyright 2026 Till Wegmueller
  */
 
 
@@ -91,6 +92,7 @@
 #include "debug.h"
 #include "gdb.h"
 #include "ioapic.h"
+#include "ipc.h"
 #include "mem.h"
 #include "mevent.h"
 #include "pci_emul.h"
@@ -104,6 +106,9 @@
 #include "smbiostbl.h"
 #include "privileges.h"
 #endif
+#ifdef BHYVE_SNAPSHOT
+#include "snapshot.h"
+#endif
 
 #define MB		(1024UL * 1024)
 #define GB		(1024UL * MB)
@@ -112,6 +117,10 @@ int guest_ncpus;
 uint16_t cpu_cores, cpu_sockets, cpu_threads;
 
 int raw_stdio = 0;
+
+#ifdef BHYVE_SNAPSHOT
+char *restore_file;
+#endif
 
 static const int BSP = 0;
 
@@ -361,6 +370,14 @@ paddr_guest2host(struct vmctx *ctx, uintptr_t gaddr, size_t len)
 	return (vm_map_gpa(ctx, gaddr, len));
 }
 
+#ifdef BHYVE_SNAPSHOT
+uintptr_t
+paddr_host2guest(struct vmctx *ctx, void *addr)
+{
+	return (vm_rev_map_gpa(ctx, addr));
+}
+#endif
+
 bool
 fbsdrun_virtio_msix(void)
 {
@@ -401,6 +418,9 @@ fbsdrun_start_thread(void *param)
 #endif
 
 	gdb_cpu_add(vi->vcpu);
+#ifdef BHYVE_SNAPSHOT
+	checkpoint_cpu_add(vi->vcpuid);
+#endif
 
 	vm_loop(vi->ctx, vi->vcpu);
 
@@ -694,6 +714,9 @@ main(int argc, char *argv[])
 	struct vmctx *ctx;
 	size_t memsize;
 	const char *value, *vmname;
+#ifdef BHYVE_SNAPSHOT
+	struct restore_state rstate;
+#endif
 
 	bhyve_init_config();
 
@@ -706,6 +729,19 @@ main(int argc, char *argv[])
 
 	if (argc == 1)
 		set_config_value("name", argv[0]);
+
+#ifdef BHYVE_SNAPSHOT
+	if (restore_file != NULL) {
+		if (load_restore_file(restore_file, &rstate) != 0) {
+			errx(4, "Failed to read checkpoint from '%s'",
+			    restore_file);
+		}
+		if (get_config_value("name") == NULL &&
+		    (vmname = lookup_vmname(&rstate)) != NULL) {
+			set_config_value("name", vmname);
+		}
+	}
+#endif
 
 	vmname = get_config_value("name");
 	if (vmname == NULL)
@@ -730,6 +766,21 @@ main(int argc, char *argv[])
 	error = vm_parse_memsize(value, &memsize);
 	if (error)
 		errx(EX_USAGE, "invalid memsize '%s'", value);
+
+#ifdef BHYVE_SNAPSHOT
+	if (restore_file != NULL) {
+		if (lookup_guest_ncpus(&rstate) != guest_ncpus) {
+			errx(4, "The checkpoint has %d vCPUs, but %d are "
+			    "configured", lookup_guest_ncpus(&rstate),
+			    guest_ncpus);
+		}
+		if (lookup_memsize(&rstate) != memsize) {
+			errx(4, "The checkpoint has %zu bytes of memory, but "
+			    "%zu are configured", lookup_memsize(&rstate),
+			    memsize);
+		}
+	}
+#endif
 
 	ctx = do_open(vmname);
 
@@ -852,6 +903,14 @@ main(int argc, char *argv[])
 	 */
 	setproctitle("%s", vmname);
 
+#ifdef BHYVE_SNAPSHOT
+	/*
+	 * Thread for handling bhyvectl commands.
+	 */
+	if (init_ipc_thread(ctx, get_config_value("rundir")) != 0)
+		EPRINTLN("Failed to start IPC thread; no checkpoints");
+#endif
+
 #ifndef WITHOUT_CAPSICUM
 	caph_cache_catpages();
 
@@ -871,6 +930,11 @@ main(int argc, char *argv[])
 		err(EX_OSERR, "vmentry_init() failed");
 #endif
 
+#ifdef BHYVE_SNAPSHOT
+	if (restore_file != NULL)
+		checkpoint_cpu_hold();
+#endif
+
 	/*
 	 * Add all vCPUs.
 	 */
@@ -884,6 +948,14 @@ main(int argc, char *argv[])
 		bhyve_start_vcpu(vcpu_info[vcpuid].vcpu, vcpuid == BSP,
 		    suspend);
 	}
+
+#ifdef BHYVE_SNAPSHOT
+	if (restore_file != NULL) {
+		if (vm_restore(ctx, &rstate) != 0)
+			exit(4);
+		destroy_restore_state(&rstate);
+	}
+#endif
 
 	/*
 	 * Head off to the main event dispatch loop

@@ -38,6 +38,8 @@ COMMON_OBJS = \
 	hexdump.o		\
 	ilstr.o			\
 	iov.o			\
+	ipc.o			\
+	ipc_msg.o		\
 	mem.o			\
 	mevent.o		\
 	net_backend_dlpi.o	\
@@ -63,6 +65,7 @@ COMMON_OBJS = \
 	qemu_fwcfg.o		\
 	qemu_loader.o		\
 	smbiostbl.o		\
+	snapshot.o		\
 	sockstream.o		\
 	tpm_device.o		\
 	tpm_emul_passthru.o	\
@@ -92,6 +95,7 @@ CPPFLAGS =	-I../common \
 		-I$(SRC)/uts/common \
 		-I$(SRC)/uts/intel \
 		-DWITHOUT_CAPSICUM \
+		-DBHYVE_SNAPSHOT \
 		-DOPENSSL_API_COMPAT=10101
 
 SMOFF += all_func_returns

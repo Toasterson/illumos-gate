@@ -38,6 +38,7 @@
  * Copyright 2015 Pluribus Networks Inc.
  * Copyright 2019 Joyent, Inc.
  * Copyright 2023 Oxide Computer Company
+ * Copyright 2026 Till Wegmueller
  */
 
 #include <sys/cdefs.h>
@@ -49,6 +50,8 @@
 #include <sys/mman.h>
 #include <sys/cpuset.h>
 #include <sys/fp.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,6 +75,8 @@
 
 #include "amd/vmcb.h"
 #include "intel/vmcs.h"
+
+#include "ipc.h"
 
 #define	MB	(1UL << 20)
 #define	GB	(1UL << 30)
@@ -291,6 +296,11 @@ enum {
 	SET_RTC_NVRAM,
 	RTC_NVRAM_OFFSET,
 	PMTMR_PORT,
+#ifdef BHYVE_SNAPSHOT
+	SET_CHECKPOINT_FILE,
+	SET_SUSPEND_FILE,
+#endif
+	SET_RUNDIR,
 };
 
 static void
@@ -1166,6 +1176,11 @@ setup_options(bool cpu_intel)
 		{ "pmtmr-port",		REQ_ARG,	0,	PMTMR_PORT },
 		{ "wrlock-cycle",	NO_ARG,	&wrlock_cycle,	1 },
 		{ "get-fpu",	NO_ARG,		&get_fpu,	1 },
+#ifdef BHYVE_SNAPSHOT
+		{ "checkpoint",	REQ_ARG,	0,	SET_CHECKPOINT_FILE },
+		{ "suspend",	REQ_ARG,	0,	SET_SUSPEND_FILE },
+#endif
+		{ "rundir",	REQ_ARG,	0,	SET_RUNDIR },
 	};
 
 	const struct option intel_opts[] = {
@@ -1321,6 +1336,11 @@ usage(const struct option *opts)
 		[SET_RTC_TIME] = "secs",
 		[SET_RTC_NVRAM] = "val",
 		[RTC_NVRAM_OFFSET] = "offset",
+#ifdef BHYVE_SNAPSHOT
+		[SET_CHECKPOINT_FILE] = "filename",
+		[SET_SUSPEND_FILE] = "filename",
+#endif
+		[SET_RUNDIR] = "path",
 	};
 	(void)fprintf(stderr, "Usage: %s --vm=<vmname>\n", progname);
 	for (const struct option *o = opts; o->name; o++) {
@@ -1607,6 +1627,136 @@ show_msrs(struct vcpu *vcpu)
 	return (0);
 }
 
+/*
+ * Send a request to the bhyve process running 'vmname' and wait for its reply.
+ * The descriptors in 'fds' are passed along with the request.
+ */
+static int
+ipc_send_message(const char *vmname, nvlist_t *request, const int *fds,
+    uint_t nfds, const char *rundir, nvlist_t **replyp)
+{
+	struct sockaddr_un addr;
+	nvlist_t *reply = NULL;
+	char *errmsg;
+	int err, socket_fd, ret;
+
+	socket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
+	if (socket_fd < 0) {
+		err = errno;
+		perror("Error creating bhyvectl socket");
+		return (err);
+	}
+
+	(void) memset(&addr, 0, sizeof (addr));
+	addr.sun_family = AF_UNIX;
+	ret = snprintf(addr.sun_path, sizeof (addr.sun_path), "%s/%s",
+	    rundir, vmname);
+	if ((ret < 0) || ((size_t)ret >= sizeof (addr.sun_path))) {
+		(void) fprintf(stderr, "%s: socket path too long\n", progname);
+		err = ENAMETOOLONG;
+		goto done;
+	}
+
+	if (connect(socket_fd, (struct sockaddr *)&addr, sizeof (addr)) != 0) {
+		err = errno;
+		(void) fprintf(stderr, "%s: cannot connect to %s: %s\n",
+		    progname, addr.sun_path, strerror(err));
+		goto done;
+	}
+
+	err = ipc_msg_send(socket_fd, request, fds, nfds);
+	if (err == 0)
+		err = ipc_msg_recv(socket_fd, &reply);
+	if (err != 0) {
+		(void) fprintf(stderr, "%s: IPC with %s failed: %s\n",
+		    progname, vmname, strerror(err));
+		goto done;
+	}
+
+	if (nvlist_lookup_string(reply, "error", &errmsg) == 0) {
+		(void) fprintf(stderr, "%s: IPC command failed: %s\n",
+		    progname, errmsg);
+		err = -1;
+	} else if (replyp != NULL) {
+		*replyp = reply;
+		reply = NULL;
+	}
+
+done:
+	nvlist_free(reply);
+	(void) close(socket_fd);
+	return (err);
+}
+
+#ifdef BHYVE_SNAPSHOT
+/*
+ * Create the memory, kernel data and metadata files of a checkpoint and ask
+ * bhyve to save the VM into them.  The files are written under temporary
+ * names and only replace any existing checkpoint of the same name once bhyve
+ * has reported success.
+ */
+static int
+snapshot_request(const char *vmname, const char *file, bool suspend,
+    const char *rundir)
+{
+	static const char *const exts[] = { "", ".kern", ".meta" };
+	char *paths[nitems(exts)] = { NULL };
+	char *tmppaths[nitems(exts)] = { NULL };
+	int fds[nitems(exts)];
+	nvlist_t *nvl = NULL;
+	uint_t nfds = 0;
+	int err;
+
+	for (uint_t i = 0; i < nitems(exts); i++) {
+		if (asprintf(&paths[i], "%s%s", file, exts[i]) < 0 ||
+		    asprintf(&tmppaths[i], "%s.tmp", paths[i]) < 0) {
+			err = errno;
+			goto done;
+		}
+		fds[i] = open(tmppaths[i], O_WRONLY | O_CREAT | O_TRUNC, 0600);
+		if (fds[i] < 0) {
+			err = errno;
+			(void) fprintf(stderr, "%s: cannot create %s: %s\n",
+			    progname, tmppaths[i], strerror(err));
+			goto done;
+		}
+		nfds++;
+	}
+
+	if ((err = nvlist_alloc(&nvl, NV_UNIQUE_NAME, 0)) != 0 ||
+	    (err = nvlist_add_string(nvl, "cmd", "checkpoint")) != 0 ||
+	    (err = nvlist_add_boolean_value(nvl, "suspend", suspend)) != 0) {
+		goto done;
+	}
+
+	err = ipc_send_message(vmname, nvl, fds, nfds, rundir, NULL);
+
+done:
+	for (uint_t i = 0; i < nfds; i++)
+		(void) close(fds[i]);
+	if (err != 0) {
+		for (uint_t i = 0; i < nfds; i++)
+			(void) unlink(tmppaths[i]);
+	} else {
+		/* After a suspend, the files are all that is left of the VM. */
+		for (uint_t i = 0; i < nfds; i++) {
+			if (rename(tmppaths[i], paths[i]) != 0) {
+				err = errno;
+				(void) fprintf(stderr,
+				    "%s: cannot rename %s: %s\n",
+				    progname, tmppaths[i], strerror(err));
+			}
+		}
+	}
+	for (uint_t i = 0; i < nitems(exts); i++) {
+		free(paths[i]);
+		free(tmppaths[i]);
+	}
+	nvlist_free(nvl);
+	return (err);
+}
+#endif
+
 int
 main(int argc, char *argv[])
 {
@@ -1624,6 +1774,11 @@ main(int argc, char *argv[])
 	uint64_t cs, ds, es, fs, gs, ss, tr, ldtr;
 	struct tm tm;
 	struct option *opts;
+#ifdef BHYVE_SNAPSHOT
+	char *checkpoint_file = NULL;
+	bool vm_suspend_opt = false;
+#endif
+	const char *rundir = NULL;
 
 	cpu_intel = cpu_vendor_intel();
 	opts = setup_options(cpu_intel);
@@ -1788,6 +1943,19 @@ main(int argc, char *argv[])
 		case PMTMR_PORT:
 			pmtmr_port = strtoul(optarg, NULL, 16);
 			break;
+#ifdef BHYVE_SNAPSHOT
+		case SET_CHECKPOINT_FILE:
+		case SET_SUSPEND_FILE:
+			if (checkpoint_file != NULL)
+				usage(opts);
+
+			checkpoint_file = optarg;
+			vm_suspend_opt = (ch == SET_SUSPEND_FILE);
+			break;
+#endif
+		case SET_RUNDIR:
+			rundir = optarg;
+			break;
 		default:
 			usage(opts);
 		}
@@ -1797,6 +1965,9 @@ main(int argc, char *argv[])
 
 	if (vmname == NULL)
 		usage(opts);
+
+	if (rundir == NULL)
+		rundir = BHYVE_RUN_DIR;
 
 	error = 0;
 
@@ -2245,6 +2416,13 @@ main(int argc, char *argv[])
 			printf("vm_resume error %d\n", errno);
 		}
 	}
+
+#ifdef BHYVE_SNAPSHOT
+	if (!error && checkpoint_file != NULL) {
+		error = snapshot_request(vmname, checkpoint_file,
+		    vm_suspend_opt, rundir);
+	}
+#endif
 
 	if (!error && force_reset)
 		error = vm_suspend(ctx, VM_SUSPEND_RESET);

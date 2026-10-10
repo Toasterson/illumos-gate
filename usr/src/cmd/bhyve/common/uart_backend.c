@@ -30,6 +30,7 @@
 #include <sys/types.h>
 
 #include <machine/vmm.h>
+#include <machine/vmm_snapshot.h>
 
 #include <assert.h>
 #ifndef WITHOUT_CAPSICUM
@@ -355,6 +356,16 @@ uart_rxfifo_snapshot(struct uart_softc *sc, struct vm_snapshot_meta *meta)
 	SNAPSHOT_VAR_OR_LEAVE(sc->rxfifo.size, meta, ret, done);
 	SNAPSHOT_BUF_OR_LEAVE(sc->rxfifo.buf, sizeof(sc->rxfifo.buf),
 	    meta, ret, done);
+
+#ifndef __FreeBSD__
+	if (meta->op == VM_SNAPSHOT_RESTORE &&
+	    (sc->rxfifo.size < 1 || sc->rxfifo.size > FIFOSZ ||
+	    sc->rxfifo.num < 0 || sc->rxfifo.num > sc->rxfifo.size ||
+	    sc->rxfifo.rindex < 0 || sc->rxfifo.rindex >= sc->rxfifo.size ||
+	    sc->rxfifo.windex < 0 || sc->rxfifo.windex >= sc->rxfifo.size)) {
+		ret = EINVAL;
+	}
+#endif
 
 done:
 	return (ret);

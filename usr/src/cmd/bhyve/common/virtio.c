@@ -44,6 +44,7 @@
 
 /*
  * Copyright 2026 Oxide Computer Company
+ * Copyright 2026 Till Wegmueller
  */
 
 #include <sys/stdbool.h>
@@ -67,6 +68,9 @@
 #include "config.h"
 #include "debug.h"
 #include "pci_emul.h"
+#ifdef BHYVE_SNAPSHOT
+#include "snapshot.h"
+#endif
 #include "virtio.h"
 
 /*
@@ -625,17 +629,14 @@ vi_intr_init(struct virtio_softc *vs, bool use_msix)
 }
 
 /*
- * Initialize the currently-selected virtio queue (vs->vs_curq)
+ * Map the rings of a virtqueue whose guest physical addresses have been set.
  */
-void
-vi_vq_init(struct virtio_softc *vs)
+static bool
+vi_vq_map(struct virtio_softc *vs, struct vqueue_info *vq)
 {
-	struct vqueue_info *vq;
 	uint64_t phys;
 	size_t size;
 	char *base;
-
-	vq = &vs->vs_queues[vs->vs_curq];
 
 	phys = vq->vq_desc_gpa;
 	size = vq->vq_qsize * sizeof (struct vring_desc);
@@ -643,7 +644,7 @@ vi_vq_init(struct virtio_softc *vs)
 	if (base == NULL) {
 		vi_error(vs, "Could not map queue 0x%x phys 0x%" PRIx64,
 		    vq->vq_num, phys);
-		return;
+		return (false);
 	}
 	vq->vq_desc = (struct vring_desc *)base;
 
@@ -654,7 +655,7 @@ vi_vq_init(struct virtio_softc *vs)
 	if (base == NULL) {
 		vi_error(vs, "Could not map queue 0x%x phys 0x%" PRIx64,
 		    vq->vq_num, phys);
-		return;
+		return (false);
 	}
 	vq->vq_avail = (struct vring_avail *)base;
 
@@ -665,9 +666,25 @@ vi_vq_init(struct virtio_softc *vs)
 	if (base == NULL) {
 		vi_error(vs, "Could not map queue 0x%x phys 0x%" PRIx64,
 		    vq->vq_num, phys);
-		return;
+		return (false);
 	}
 	vq->vq_used = (struct vring_used *)base;
+
+	return (true);
+}
+
+/*
+ * Initialize the currently-selected virtio queue (vs->vs_curq)
+ */
+void
+vi_vq_init(struct virtio_softc *vs)
+{
+	struct vqueue_info *vq;
+
+	vq = &vs->vs_queues[vs->vs_curq];
+
+	if (!vi_vq_map(vs, vq))
+		return;
 
 	/* Mark queue as allocated, and start at 0 when we use it. */
 	vq->vq_flags = VQ_ALLOC;
@@ -2106,3 +2123,197 @@ done:
 	if (vs->vs_mtx)
 		pthread_mutex_unlock(vs->vs_mtx);
 }
+
+#ifdef BHYVE_SNAPSHOT
+int
+vi_pci_pause(struct pci_devinst *pi)
+{
+	struct virtio_softc *vs;
+	struct virtio_consts *vc;
+
+	vs = pi->pi_arg;
+	vc = vs->vs_vc;
+
+	assert(vc->vc_pause != NULL);
+	(*vc->vc_pause)(DEV_SOFTC(vs));
+
+	return (0);
+}
+
+int
+vi_pci_resume(struct pci_devinst *pi)
+{
+	struct virtio_softc *vs;
+	struct virtio_consts *vc;
+
+	vs = pi->pi_arg;
+	vc = vs->vs_vc;
+
+	assert(vc->vc_resume != NULL);
+	(*vc->vc_resume)(DEV_SOFTC(vs));
+
+	return (0);
+}
+
+static int
+vi_pci_snapshot_softc(struct virtio_softc *vs, struct vm_snapshot_meta *meta)
+{
+	int ret;
+
+	SNAPSHOT_VAR_OR_LEAVE(vs->vs_flags, meta, ret, done);
+	SNAPSHOT_VAR_CMP_OR_LEAVE(vs->vs_mode, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(vs->vs_negotiated_caps, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(vs->vs_curq, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(vs->vs_status, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(vs->vs_isr, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(vs->vs_msix_cfg_idx, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(vs->vs_dfselect, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(vs->vs_gfselect, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(vs->vs_devcfg_gen, meta, ret, done);
+
+done:
+	return (ret);
+}
+
+static int
+vi_pci_snapshot_consts(struct virtio_consts *vc, struct vm_snapshot_meta *meta)
+{
+	int ret;
+
+	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_nvq, meta, ret, done);
+	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_max_nvq, meta, ret, done);
+	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_cfgsize, meta, ret, done);
+
+done:
+	return (ret);
+}
+
+static int
+vi_pci_snapshot_queues(struct virtio_softc *vs, struct vm_snapshot_meta *meta)
+{
+	struct virtio_consts *vc;
+	struct vqueue_info *vq;
+	int ret = 0;
+
+	vc = vs->vs_vc;
+
+	for (int i = 0; i < vc->vc_nvq; i++) {
+		uint16_t qsize;
+
+		vq = &vs->vs_queues[i];
+
+		SNAPSHOT_VAR_CMP_OR_LEAVE(vq->vq_num, meta, ret, done);
+
+		/*
+		 * The guest may have chosen a smaller queue than the device
+		 * offers, which is what vq_qsize holds before the restore.
+		 */
+		qsize = vq->vq_qsize;
+		SNAPSHOT_VAR_OR_LEAVE(qsize, meta, ret, done);
+		if (meta->op == VM_SNAPSHOT_RESTORE) {
+			if (!ISP2(qsize) || qsize > vq->vq_qsize) {
+				ret = EINVAL;
+				goto done;
+			}
+			vq->vq_qsize = qsize;
+		}
+
+		SNAPSHOT_VAR_OR_LEAVE(vq->vq_flags, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(vq->vq_last_avail, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(vq->vq_next_used, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(vq->vq_save_used, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(vq->vq_msix_idx, meta, ret, done);
+
+		SNAPSHOT_VAR_OR_LEAVE(vq->vq_pfn, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(vq->vq_desc_gpa, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(vq->vq_avail_gpa, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(vq->vq_used_gpa, meta, ret, done);
+
+		/*
+		 * The rings themselves are in guest memory, which has been
+		 * restored already; only their mappings need re-creating.
+		 */
+		if (meta->op == VM_SNAPSHOT_RESTORE && vq_ring_ready(vq)) {
+			if (!ISP2(vq->vq_qsize) || !vi_vq_map(vs, vq)) {
+				ret = EINVAL;
+				goto done;
+			}
+		}
+	}
+
+done:
+	return (ret);
+}
+
+int
+vi_pci_snapshot(struct vm_snapshot_meta *meta)
+{
+	int ret;
+	struct pci_devinst *pi;
+	struct virtio_softc *vs;
+	struct virtio_consts *vc;
+
+	pi = meta->dev_data;
+	vs = pi->pi_arg;
+	vc = vs->vs_vc;
+
+	/* Save virtio softc */
+	ret = vi_pci_snapshot_softc(vs, meta);
+	if (ret != 0)
+		goto done;
+
+	if (meta->op == VM_SNAPSHOT_RESTORE && vs->vs_negotiated_caps != 0) {
+		const bool modern =
+		    (vs->vs_negotiated_caps & VIRTIO_F_VERSION_1) != 0;
+		uint64_t offered;
+
+		/*
+		 * The features which the guest negotiated must still be
+		 * offered, which might not be the case if the backend of the
+		 * device has changed.
+		 */
+		if (vc->vc_hv_features != NULL)
+			offered = vc->vc_hv_features(DEV_SOFTC(vs), modern);
+		else
+			offered = vi_hv_features(vs, modern);
+		if ((vs->vs_negotiated_caps & ~offered) != 0) {
+			EPRINTLN("%s: negotiated features 0x%" PRIx64
+			    " are no longer offered", vc->vc_name,
+			    vs->vs_negotiated_caps & ~offered);
+			ret = ENOTSUP;
+			goto done;
+		}
+
+		/*
+		 * Apply the negotiated features again so that the device
+		 * rebuilds the state which depends on them, such as the number
+		 * of queues of a multi-queue device, as it did when the guest
+		 * negotiated them.
+		 */
+		if (vc->vc_apply_features != NULL) {
+			(*vc->vc_apply_features)(DEV_SOFTC(vs),
+			    &vs->vs_negotiated_caps);
+		}
+	}
+
+	/* Save virtio consts */
+	ret = vi_pci_snapshot_consts(vc, meta);
+	if (ret != 0)
+		goto done;
+
+	/* Save virtio queue info */
+	ret = vi_pci_snapshot_queues(vs, meta);
+	if (ret != 0)
+		goto done;
+
+	/* Save device softc, if needed */
+	if (vc->vc_snapshot != NULL) {
+		ret = (*vc->vc_snapshot)(DEV_SOFTC(vs), meta);
+		if (ret != 0)
+			goto done;
+	}
+
+done:
+	return (ret);
+}
+#endif

@@ -63,6 +63,10 @@ void	dsdt_fixed_mem32(uint32_t base, uint32_t length);
 void	dsdt_indent(int levels);
 void	dsdt_unindent(int levels);
 void	sci_init(struct vmctx *ctx);
+#ifdef BHYVE_SNAPSHOT
+struct vm_snapshot_meta;
+int	pm_snapshot(struct vm_snapshot_meta *meta);
+#endif
 #ifndef	__FreeBSD__
 void	pmtmr_init(struct vmctx *ctx);
 #endif

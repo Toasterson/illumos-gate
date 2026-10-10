@@ -27,10 +27,26 @@ for more details:
 	audio backend
 	virtio_input
 
-The draft Save/Restore functionality, added in FreeBSD commit
-483d953a86a2507355f8287c5107dc827a0ff516, has not been synced into illumos bhyve
-yet.  It is not built by default in FreeBSD, so we're not interested in taking
-it until it successfully endures more in-depth testing.
+The Save/Restore functionality, added in FreeBSD commit
+483d953a86a2507355f8287c5107dc827a0ff516, is built on illumos with
+BHYVE_SNAPSHOT defined.  The device code in '#ifdef BHYVE_SNAPSHOT' blocks
+follows FreeBSD wherever the device emulations are the same, but the framework
+in snapshot.c and the control socket in ipc.c are specific to illumos:
+
+	- The checkpoint metadata is a packed nvlist rather than JSON, since
+	  neither libucl nor libxo is available.
+
+	- The state held by the kernel is saved and restored through the
+	  vmm-data interface and the register, FPU and run-state ioctls,
+	  rather than the snapshot ioctls of the FreeBSD kernel.  The
+	  definitions from FreeBSD's <machine/vmm_snapshot.h> are only used
+	  by userspace and live in usr/src/contrib/bhyve.
+
+	- bhyvectl creates the checkpoint files and passes their descriptors
+	  to bhyve over the control socket, so that bhyve does not need the
+	  privilege to create files.
+
+Checkpoints are therefore not interchangeable between FreeBSD and illumos.
 
 The stub usr/src/compat/bhyve/stdatomic.h file only includes enough glue
 to satisfy the use of <stdatomic.h> in usr/src/cmd/bhyve/rfb.c, and in

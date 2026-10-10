@@ -397,9 +397,11 @@ usr/src/cmd/bhyve/common/bhyverun.h
 usr/src/cmd/bhyve/common/bootrom.h
 usr/src/cmd/bhyve/common/crc16.h
 usr/src/cmd/bhyve/common/debug.h
+usr/src/cmd/bhyve/common/ipc.h
 usr/src/cmd/bhyve/common/pci_irq.h
 usr/src/cmd/bhyve/common/pctestdev.h
 usr/src/cmd/bhyve/common/qemu_loader.h
+usr/src/cmd/bhyve/common/snapshot.h
 usr/src/cmd/bhyve/common/sockstream.h
 usr/src/cmd/bhyve/common/tpm_device.h
 usr/src/cmd/bhyve/common/tpm_emul.h

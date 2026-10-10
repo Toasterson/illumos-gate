@@ -211,6 +211,7 @@
 
 struct pci_devinst;
 struct vqueue_info;
+struct vm_snapshot_meta;
 
 /*
  * A virtual device, with some number (possibly 0) of virtual
@@ -337,6 +338,10 @@ struct virtio_consts {
 				/* hypervisor-provided capabilities (legacy) */
 	uint64_t vc_hv_caps_modern;
 				/* hypervisor-provided capabilities (modern) */
+	void	(*vc_pause)(void *);	/* called to pause device activity */
+	void	(*vc_resume)(void *);	/* called to resume device activity */
+	int	(*vc_snapshot)(void *, struct vm_snapshot_meta *);
+				/* called to save / restore device state */
 	/*
 	 * Optional feature bit map.
 	 */
@@ -530,5 +535,11 @@ void	vi_pci_write(struct pci_devinst *pi, int baridx, uint64_t offset,
 
 void	vi_vq_init(struct virtio_softc *);
 void	vi_legacy_vq_init(struct virtio_softc *, uint32_t);
+
+#ifdef BHYVE_SNAPSHOT
+int	vi_pci_snapshot(struct vm_snapshot_meta *meta);
+int	vi_pci_pause(struct pci_devinst *pi);
+int	vi_pci_resume(struct pci_devinst *pi);
+#endif
 
 #endif	/* _BHYVE_VIRTIO_H_ */
