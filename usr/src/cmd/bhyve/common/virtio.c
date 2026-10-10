@@ -2177,27 +2177,13 @@ done:
 static int
 vi_pci_snapshot_consts(struct virtio_consts *vc, struct vm_snapshot_meta *meta)
 {
-	int nvq;
 	int ret;
 
+	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_nvq, meta, ret, done);
 	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_max_nvq, meta, ret, done);
 	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_cfgsize, meta, ret, done);
 	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_hv_caps_legacy, meta, ret, done);
 	SNAPSHOT_VAR_CMP_OR_LEAVE(vc->vc_hv_caps_modern, meta, ret, done);
-
-	/*
-	 * A multi-queue device has queues allocated for vc_max_nvq, of which
-	 * the guest uses vc_nvq.
-	 */
-	nvq = vc->vc_nvq;
-	SNAPSHOT_VAR_OR_LEAVE(nvq, meta, ret, done);
-	if (meta->op == VM_SNAPSHOT_RESTORE && nvq != vc->vc_nvq) {
-		if (nvq < 1 || nvq > vc->vc_max_nvq) {
-			ret = EINVAL;
-			goto done;
-		}
-		vc->vc_nvq = nvq;
-	}
 
 done:
 	return (ret);
@@ -2261,6 +2247,17 @@ vi_pci_snapshot(struct vm_snapshot_meta *meta)
 	ret = vi_pci_snapshot_softc(vs, meta);
 	if (ret != 0)
 		goto done;
+
+	/*
+	 * Apply the negotiated features again so that the device rebuilds the
+	 * state which depends on them, such as the number of queues of a
+	 * multi-queue device, as it did when the guest negotiated them.
+	 */
+	if (meta->op == VM_SNAPSHOT_RESTORE && vs->vs_negotiated_caps != 0 &&
+	    vc->vc_apply_features != NULL) {
+		(*vc->vc_apply_features)(DEV_SOFTC(vs),
+		    &vs->vs_negotiated_caps);
+	}
 
 	/* Save virtio consts */
 	ret = vi_pci_snapshot_consts(vc, meta);

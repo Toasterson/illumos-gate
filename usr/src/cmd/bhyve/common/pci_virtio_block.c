@@ -306,23 +306,10 @@ pci_vtblk_snapshot(void *vsc, struct vm_snapshot_meta *meta)
 {
 	int ret;
 	struct pci_vtblk_softc *sc = vsc;
-#ifndef __FreeBSD__
-	int wce;
-#endif
 
 	SNAPSHOT_VAR_OR_LEAVE(sc->vbsc_cfg, meta, ret, done);
 	SNAPSHOT_BUF_OR_LEAVE(sc->vbsc_ident, sizeof(sc->vbsc_ident),
 			      meta, ret, done);
-
-#ifndef __FreeBSD__
-	/* The write cache follows the negotiation of VTBLK_F_FLUSH. */
-	wce = sc->vbsc_wce;
-	SNAPSHOT_VAR_OR_LEAVE(wce, meta, ret, done);
-	if (meta->op == VM_SNAPSHOT_RESTORE && wce != sc->vbsc_wce) {
-		(void) blockif_set_wce(sc->bc, wce);
-		sc->vbsc_wce = wce;
-	}
-#endif
 
 done:
 	return (ret);

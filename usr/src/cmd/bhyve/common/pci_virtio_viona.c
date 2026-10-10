@@ -63,6 +63,7 @@
 #include <libdlvnic.h>
 
 #include <machine/vmm.h>
+#include <machine/vmm_snapshot.h>
 #include <vmmapi.h>
 
 #include "bhyverun.h"
@@ -174,6 +175,11 @@ static void pci_viona_ring_init(void *, uint64_t, bool);
 static void pci_viona_reset(void *);
 static void pci_viona_ring_set_msix(void *, int);
 static void pci_viona_update_msix(void *, uint64_t);
+#ifdef BHYVE_SNAPSHOT
+static void pci_viona_pause(void *);
+static void pci_viona_resume(void *);
+static int pci_viona_snapshot(void *, struct vm_snapshot_meta *);
+#endif
 
 static virtio_capstr_t viona_caps[] = {
 	{ VIRTIO_NET_F_CSUM,		"VIRTIO_NET_F_CSUM" },
@@ -221,6 +227,11 @@ static struct virtio_consts viona_vi_consts = {
 	 */
 	.vc_hv_caps_legacy	= 0,
 	.vc_hv_caps_modern	= 0,
+#ifdef BHYVE_SNAPSHOT
+	.vc_pause		= pci_viona_pause,
+	.vc_resume		= pci_viona_resume,
+	.vc_snapshot		= pci_viona_snapshot,
+#endif
 
 	.vc_capstr =		viona_caps,
 	.vc_ncapstr =		ARRAY_SIZE(viona_caps),
@@ -617,6 +628,46 @@ pci_viona_process_ctrlq(struct vqueue_info *vq)
 	vq_endchains(vq, /* used_all_avail= */1);
 }
 
+/*
+ * Deliver the interrupts which viona has flagged as pending on the rings.
+ */
+static void
+pci_viona_process_intrs(struct pci_viona_softc *sc)
+{
+	uint_t i;
+	int entries;
+	bool assert_lintr = false;
+	const int fd = sc->vsc_vnafd;
+	const bool do_msix = pci_msix_enabled(sc->vsc_vs.vs_pi);
+	vioc_intr_poll_mq_t vipm;
+
+	vipm.vipm_nrings = VIONA_USABLE_RINGS(sc);
+
+	entries = ioctl(fd, VNA_IOC_INTR_POLL_MQ, &vipm);
+	for (i = 0; entries > 0 && i < vipm.vipm_nrings &&
+	    i < VIONA_USABLE_RINGS(sc); i++) {
+		if (!VIONA_INTR_TEST(&vipm, i))
+			continue;
+		entries--;
+		if (do_msix) {
+			pci_generate_msix(sc->vsc_vs.vs_pi,
+			    sc->vsc_queues[i].vq_msix_idx);
+		} else {
+			assert_lintr = true;
+		}
+		if (ioctl(fd, VNA_IOC_RING_INTR_CLR, i) != 0) {
+			WPRINTF("ioctl viona vq %d intr clear failed %d",
+			    i, errno);
+		}
+	}
+	if (assert_lintr) {
+		pthread_mutex_lock(&sc->vsc_mtx);
+		sc->vsc_vs.vs_isr |= VIRTIO_PCI_ISR_INTR;
+		pci_lintr_assert(sc->vsc_vs.vs_pi);
+		pthread_mutex_unlock(&sc->vsc_mtx);
+	}
+}
+
 static void *
 pci_viona_poll_thread(void *param)
 {
@@ -637,39 +688,8 @@ pci_viona_poll_thread(void *param)
 				break;
 			}
 		}
-		if (pollset.revents & POLLRDBAND) {
-			uint_t i;
-			int entries;
-			bool assert_lintr = false;
-			const bool do_msix = pci_msix_enabled(sc->vsc_vs.vs_pi);
-			vioc_intr_poll_mq_t vipm;
-
-			vipm.vipm_nrings = VIONA_USABLE_RINGS(sc);
-
-			entries = ioctl(fd, VNA_IOC_INTR_POLL_MQ, &vipm);
-			for (i = 0; entries > 0 && i < vipm.vipm_nrings &&
-			    i < VIONA_USABLE_RINGS(sc); i++) {
-				if (!VIONA_INTR_TEST(&vipm, i))
-					continue;
-				entries--;
-				if (do_msix) {
-					pci_generate_msix(sc->vsc_vs.vs_pi,
-					    sc->vsc_queues[i].vq_msix_idx);
-				} else {
-					assert_lintr = true;
-				}
-				if (ioctl(fd, VNA_IOC_RING_INTR_CLR, i) != 0) {
-					WPRINTF("ioctl viona vq %d intr "
-					    "clear failed %d", i, errno);
-				}
-			}
-			if (assert_lintr) {
-				pthread_mutex_lock(&sc->vsc_mtx);
-				sc->vsc_vs.vs_isr |= VIRTIO_PCI_ISR_INTR;
-				pci_lintr_assert(sc->vsc_vs.vs_pi);
-				pthread_mutex_unlock(&sc->vsc_mtx);
-			}
-		}
+		if (pollset.revents & POLLRDBAND)
+			pci_viona_process_intrs(sc);
 	}
 
 	pthread_exit(NULL);
@@ -1324,6 +1344,117 @@ pci_viona_set_hv_features(void *vsc, uint64_t *value)
 	}
 }
 
+#ifdef BHYVE_SNAPSHOT
+static void
+pci_viona_pause(void *vsc)
+{
+	struct pci_viona_softc *sc = vsc;
+
+	for (uint16_t i = 0; i < VIONA_NRINGS(sc); i++) {
+		while (ioctl(sc->vsc_vnafd, VNA_IOC_RING_PAUSE, i) != 0) {
+			if (errno != EINTR) {
+				WPRINTF("ioctl viona ring 0x%x pause failed %d",
+				    i, errno);
+				break;
+			}
+		}
+	}
+
+	/*
+	 * A ring may have flagged an interrupt just before it stopped.  Deliver
+	 * it now so that it is part of the interrupt state which is saved.
+	 */
+	pci_viona_process_intrs(sc);
+}
+
+static void
+pci_viona_resume(void *vsc)
+{
+	struct pci_viona_softc *sc = vsc;
+
+	/* Paused rings, and rings set up by a restore, run again on a kick. */
+	for (uint16_t i = 0; i < VIONA_NRINGS(sc); i++) {
+		if (!vq_ring_ready(VIONA_RING(sc, i)))
+			continue;
+		if (ioctl(sc->vsc_vnafd, VNA_IOC_RING_KICK, i) != 0) {
+			WPRINTF("ioctl viona ring 0x%x kick failed %d",
+			    i, errno);
+		}
+	}
+}
+
+/*
+ * The rings themselves are in guest memory and their addresses are part of
+ * the virtqueue state, so only the indexes which viona tracks in the kernel
+ * are saved here.  The negotiated features and the queue allocation for
+ * multi-queue operation have been restored by the time this is called.
+ */
+static int
+pci_viona_snapshot(void *vsc, struct vm_snapshot_meta *meta)
+{
+	struct pci_viona_softc *sc = vsc;
+	uint16_t usepairs;
+	int ret;
+
+	usepairs = sc->vsc_vq_usepairs;
+	SNAPSHOT_VAR_OR_LEAVE(usepairs, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->vsc_promisc_promisc, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->vsc_promisc_allmulti, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->vsc_promisc_umac, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sc->vsc_promisc_mmac, meta, ret, done);
+
+	if (meta->op == VM_SNAPSHOT_RESTORE) {
+		if (usepairs < 1 || VIONA_P2QS(usepairs) > VIONA_NRINGS(sc) ||
+		    !pci_viona_set_usepairs(sc, usepairs)) {
+			ret = EINVAL;
+			goto done;
+		}
+		if (pci_viona_eval_promisc(sc) != 0) {
+			ret = EIO;
+			goto done;
+		}
+	}
+
+	for (uint16_t i = 0; i < VIONA_NRINGS(sc); i++) {
+		struct vqueue_info *vq = VIONA_RING(sc, i);
+		vioc_ring_state_t vrs = { .vrs_index = i };
+
+		if (!vq_ring_ready(vq))
+			continue;
+
+		if (meta->op == VM_SNAPSHOT_SAVE &&
+		    ioctl(sc->vsc_vnafd, VNA_IOC_RING_GET_STATE, &vrs) != 0) {
+			ret = errno;
+			WPRINTF("ioctl viona ring 0x%x get state failed %d",
+			    i, ret);
+			goto done;
+		}
+
+		SNAPSHOT_VAR_OR_LEAVE(vrs.vrs_avail_idx, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(vrs.vrs_used_idx, meta, ret, done);
+
+		if (meta->op == VM_SNAPSHOT_RESTORE) {
+			vrs.vrs_qsize = vq->vq_qsize;
+			vrs.vrs_qaddr_desc = vq->vq_desc_gpa;
+			vrs.vrs_qaddr_avail = vq->vq_avail_gpa;
+			vrs.vrs_qaddr_used = vq->vq_used_gpa;
+
+			if (ioctl(sc->vsc_vnafd, VNA_IOC_RING_SET_STATE,
+			    &vrs) != 0) {
+				ret = errno;
+				WPRINTF("ioctl viona ring 0x%x set state "
+				    "failed %d", i, ret);
+				goto done;
+			}
+			pci_viona_ring_set_msix(sc, i);
+		}
+	}
+
+done:
+	return (ret);
+}
+#endif
+
 struct pci_devemu pci_de_viona = {
 	.pe_emu =		"virtio-net-viona",
 	.pe_init =		pci_viona_init,
@@ -1333,6 +1464,11 @@ struct pci_devemu pci_de_viona = {
 	.pe_barwrite =		vi_pci_write,
 	.pe_barread =		vi_pci_read,
 	.pe_baraddr =		pci_viona_baraddr,
-	.pe_lintrupdate =	pci_viona_lintrupdate
+	.pe_lintrupdate =	pci_viona_lintrupdate,
+#ifdef BHYVE_SNAPSHOT
+	.pe_snapshot =		vi_pci_snapshot,
+	.pe_pause =		vi_pci_pause,
+	.pe_resume =		vi_pci_resume,
+#endif
 };
 PCI_EMUL_SET(pci_de_viona);
