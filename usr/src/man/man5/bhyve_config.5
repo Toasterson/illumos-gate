@@ -27,7 +27,7 @@
 .\" Portions Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
 .\" Portions Copyright 2026 Oxide Computer Company
 .\"
-.Dd February 9, 2026
+.Dd October 10, 2026
 .Dt BHYVE_CONFIG 5
 .Os
 .Sh NAME
@@ -169,6 +169,11 @@ with guests that remap BARs themselves
 .It Va rtc.use_localtime Ta bool Ta true Ta
 The real time clock uses the local time of the host.
 If this is set to false, the real time clock uses UTC.
+.It Va rundir Ta path Ta Pa /var/run/bhyve Ta
+The directory in which
+.Xr bhyve 8
+creates the control socket used by
+.Xr bhyvectl 8 .
 .It Va uuid Ta string Ta Ta
 The universally unique identifier (UUID) to use in the guest's
 System Management BIOS System Information structure.

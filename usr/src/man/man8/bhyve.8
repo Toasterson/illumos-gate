@@ -26,7 +26,7 @@
 .\" Portions Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
 .\" Copyright 2026 Oxide Computer Company
 .\"
-.Dd February 9, 2026
+.Dd October 10, 2026
 .Dt BHYVE 8
 .Os
 .Sh NAME
@@ -295,6 +295,31 @@ to
 .Ar value .
 .It Fl P
 Force the guest virtual CPU to exit when a PAUSE instruction is detected.
+.It Fl r Ar file
+Restore a virtual machine from a checkpoint created by the
+.Fl -checkpoint
+or
+.Fl -suspend
+options of
+.Xr bhyvectl 8 .
+The guest memory is read from
+.Ar file ,
+the device and vCPU state from
+.Ar file Ns Pa .kern
+and the description of the checkpoint from
+.Ar file Ns Pa .meta .
+.Pp
+The virtual machine must be configured exactly as the one from which the
+checkpoint was taken, with the same number of vCPUs, the same amount of memory
+and the same PCI and LPC devices in the same slots.
+The checkpoint can only be restored on a host whose CPU saves the same FPU
+state as the one on which it was taken.
+If
+.Ar vmname
+is not given, the name recorded in the checkpoint is used.
+.Pp
+The guest does not observe the time for which it was suspended: its clocks
+continue from where they stood when the checkpoint was taken.
 .It Fl S
 Wire guest memory.
 .It Fl s Cm help
@@ -1032,6 +1057,8 @@ halted
 triple fault
 .It 4
 exited due to an error
+.It 5
+suspended to a checkpoint
 .El
 .Sh EXAMPLES
 To run a virtual machine with 1GB of memory, two virtual CPUs, a virtio
