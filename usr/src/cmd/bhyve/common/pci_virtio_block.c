@@ -313,8 +313,8 @@ pci_vtblk_snapshot(void *vsc, struct vm_snapshot_meta *meta)
 	/* The configuration reflects the backing store, which must match. */
 	SNAPSHOT_VAR_CMP_OR_LEAVE(sc->vbsc_cfg, meta, ret, done);
 #endif
-	SNAPSHOT_BUF_OR_LEAVE(sc->vbsc_ident, sizeof(sc->vbsc_ident),
-			      meta, ret, done);
+	SNAPSHOT_BUF_OR_LEAVE(sc->vbsc_ident, sizeof (sc->vbsc_ident),
+	    meta, ret, done);
 
 done:
 	return (ret);
