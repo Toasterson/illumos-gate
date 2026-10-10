@@ -987,8 +987,8 @@ vm_restore_check_devices(struct restore_state *rstate)
 			found = strcmp(pdi->pi_name, name) == 0;
 
 		if (!found) {
-			EPRINTLN("Device %s of the checkpoint is not configured",
-			    name);
+			EPRINTLN("Device %s in the checkpoint is not "
+			    "configured", name);
 			return (-1);
 		}
 	}
