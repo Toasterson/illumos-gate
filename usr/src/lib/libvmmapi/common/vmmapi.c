@@ -38,6 +38,7 @@
  * Copyright 2015 Pluribus Networks Inc.
  * Copyright 2019 Joyent, Inc.
  * Copyright 2022 Oxide Computer Company
+ * Copyright 2026 Till Wegmueller
  */
 
 #include <sys/cdefs.h>
@@ -647,7 +648,6 @@ vm_map_gpa(struct vmctx *ctx, vm_paddr_t gaddr, size_t len)
 	return (NULL);
 }
 
-#ifdef	__FreeBSD__
 vm_paddr_t
 vm_rev_map_gpa(struct vmctx *ctx, void *addr)
 {
@@ -672,7 +672,6 @@ vm_get_name(struct vmctx *ctx)
 
 	return (ctx->name);
 }
-#endif /* __FreeBSD__ */
 
 size_t
 vm_get_lowmem_size(struct vmctx *ctx)
@@ -2245,6 +2244,91 @@ int
 vm_vcpu_barrier(struct vcpu *vcpu)
 {
 	if (ioctl(vcpu->ctx->fd, VM_VCPU_BARRIER, vcpu->vcpuid) != 0) {
+		return (errno);
+	}
+
+	return (0);
+}
+
+int
+vm_pause_instance(struct vmctx *ctx)
+{
+	if (ioctl(ctx->fd, VM_PAUSE, 0) != 0) {
+		return (errno);
+	}
+
+	return (0);
+}
+
+int
+vm_resume_instance(struct vmctx *ctx)
+{
+	if (ioctl(ctx->fd, VM_RESUME, 0) != 0) {
+		return (errno);
+	}
+
+	return (0);
+}
+
+int
+vm_data_read(struct vmctx *ctx, struct vm_data_xfer *xfer)
+{
+	if (ioctl(ctx->fd, VM_DATA_READ, xfer) != 0) {
+		return (errno);
+	}
+
+	return (0);
+}
+
+int
+vm_data_write(struct vmctx *ctx, struct vm_data_xfer *xfer)
+{
+	if (ioctl(ctx->fd, VM_DATA_WRITE, xfer) != 0) {
+		return (errno);
+	}
+
+	return (0);
+}
+
+int
+vm_get_fpu_size(struct vmctx *ctx, size_t *sizep)
+{
+	struct vm_fpu_desc desc = { 0 };
+
+	if (ioctl(ctx->fd, VM_DESC_FPU_AREA, &desc) != 0) {
+		return (errno);
+	}
+
+	*sizep = desc.vfd_req_size;
+	return (0);
+}
+
+int
+vm_get_fpu(struct vcpu *vcpu, void *buf, size_t len)
+{
+	struct vm_fpu_state req = {
+		.vcpuid = vcpu->vcpuid,
+		.buf = buf,
+		.len = len,
+	};
+
+	if (ioctl(vcpu->ctx->fd, VM_GET_FPU, &req) != 0) {
+		return (errno);
+	}
+
+	return (0);
+}
+
+int
+vm_set_fpu(struct vcpu *vcpu, void *buf, size_t len)
+{
+	struct vm_fpu_state req = {
+		.vcpuid = vcpu->vcpuid,
+		.buf = buf,
+		.len = len,
+	};
+
+	if (ioctl(vcpu->ctx->fd, VM_SET_FPU, &req) != 0) {
 		return (errno);
 	}
 

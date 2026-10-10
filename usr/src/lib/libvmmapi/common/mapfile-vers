@@ -14,6 +14,7 @@
 # Copyright 2019 Joyent, Inc.
 # Copyright 2023 Oxide Computer Company
 # Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2026 Till Wegmueller
 #
 
 #
@@ -50,6 +51,8 @@ SYMBOL_VERSION ILLUMOSprivate {
 		vm_copyout;
 		vm_create;
 		vm_create_devmem;
+		vm_data_read;
+		vm_data_write;
 		vm_debug_cpus;
 		vm_destroy;
 		vm_disable_pptdev_msix;
@@ -57,6 +60,8 @@ SYMBOL_VERSION ILLUMOSprivate {
 		vm_get_desc;
 		vm_get_device_fd;
 		vm_get_devmem_offset;
+		vm_get_fpu;
+		vm_get_fpu_size;
 		vm_get_gpa_pmap;
 		vm_get_highmem_base;
 		vm_get_highmem_size;
@@ -66,6 +71,7 @@ SYMBOL_VERSION ILLUMOSprivate {
 		vm_get_lowmem_size;
 		vm_get_memflags;
 		vm_get_memseg;
+		vm_get_name;
 		vm_get_pptdev_limits;
 		vm_get_register;
 		vm_get_register_set;
@@ -98,12 +104,15 @@ SYMBOL_VERSION ILLUMOSprivate {
 		vm_munmap_memseg;
 		vm_open;
 		vm_parse_memsize;
+		vm_pause_instance;
 		vm_pmtmr_set_location;
 		vm_readwrite_kernemu_device;
 		vm_reinit;
 		vm_restart_instruction;
 		vm_resume_all_cpus;
 		vm_resume_cpu;
+		vm_resume_instance;
+		vm_rev_map_gpa;
 		vm_rtc_gettime;
 		vm_rtc_read;
 		vm_rtc_settime;
@@ -111,6 +120,7 @@ SYMBOL_VERSION ILLUMOSprivate {
 		vm_run;
 		vm_set_capability;
 		vm_set_desc;
+		vm_set_fpu;
 		vm_set_intinfo;
 		vm_set_memflags;
 		vm_set_register;
