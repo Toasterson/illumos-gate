@@ -33,6 +33,8 @@
 #include <sys/stat.h>
 #include <sys/un.h>
 
+#include <machine/vmm.h>
+
 #include <errno.h>
 #include <pthread.h>
 #include <pthread_np.h>
