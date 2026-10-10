@@ -33,6 +33,7 @@
 #include <sys/mman.h>
 
 #include <machine/vmm.h>
+#include <machine/vmm_snapshot.h>
 #include <vmmapi.h>
 
 #include <stdio.h>
@@ -471,11 +472,31 @@ done:
 	return (error);
 }
 
+#ifdef BHYVE_SNAPSHOT
+static int
+pci_fbuf_snapshot(struct vm_snapshot_meta *meta)
+{
+	int ret;
+
+	SNAPSHOT_BUF_OR_LEAVE(fbuf_sc->fb_base, FB_SIZE, meta, ret, err);
+#ifndef __FreeBSD__
+	/* The guest selects the display mode through these registers. */
+	SNAPSHOT_VAR_OR_LEAVE(fbuf_sc->memregs, meta, ret, err);
+#endif
+
+err:
+	return (ret);
+}
+#endif
+
 static const struct pci_devemu pci_fbuf = {
 	.pe_emu =	"fbuf",
 	.pe_init =	pci_fbuf_init,
 	.pe_barwrite =	pci_fbuf_write,
 	.pe_barread =	pci_fbuf_read,
 	.pe_baraddr =	pci_fbuf_baraddr,
+#ifdef BHYVE_SNAPSHOT
+	.pe_snapshot =	pci_fbuf_snapshot,
+#endif
 };
 PCI_EMUL_SET(pci_fbuf);
