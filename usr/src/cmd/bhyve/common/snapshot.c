@@ -1358,7 +1358,7 @@ vm_checkpoint(struct vmctx *ctx, int vmmem_fd, int kdata_fd, int meta_fd,
 	if ((error = nvlist_alloc(&meta_nvl, NV_UNIQUE_NAME, 0)) != 0 ||
 	    (error = nvlist_alloc(&kern_nvl, NV_UNIQUE_NAME, 0)) != 0 ||
 	    (error = nvlist_alloc(&dev_nvl, NV_UNIQUE_NAME, 0)) != 0) {
-		goto free;
+		goto out;
 	}
 
 	vm_vcpu_pause(ctx);
@@ -1439,7 +1439,7 @@ vm_checkpoint(struct vmctx *ctx, int vmmem_fd, int kdata_fd, int meta_fd,
 		 */
 		vm_destroy(ctx);
 		ipc_exit_after_reply(BHYVE_EXIT_SUSPEND);
-		goto free;
+		goto out;
 	}
 
 done:
@@ -1452,7 +1452,7 @@ done:
 	if (ret != 0)
 		EPRINTLN("Could not resume devices");
 	vm_vcpu_resume(ctx);
-free:
+out:
 	free(meta_buf);
 	nvlist_free(dev_nvl);
 	nvlist_free(kern_nvl);
