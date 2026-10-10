@@ -91,12 +91,19 @@ option of
 .Pp
 A checkpoint can only be taken if every device of the VM supports it.
 This is the case for the
+.Sy ahci ,
+.Sy e1000 ,
+.Sy fbuf ,
 .Sy hostbridge ,
 .Sy lpc ,
-.Sy virtio-blk
-and
+.Sy virtio-blk ,
+.Sy virtio-net ,
+.Sy virtio-net-viona ,
 .Sy virtio-rnd
-emulations, the PS/2 keyboard and mouse and the LPC serial ports.
+and
+.Sy xhci
+emulations, including the devices attached to them, and for the PS/2
+keyboard and mouse.
 .It Fl -suspend= Ns Ar <filename>
 Save a checkpoint as for
 .Fl -checkpoint ,
