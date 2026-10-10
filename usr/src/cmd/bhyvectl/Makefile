@@ -20,7 +20,7 @@ include ../Makefile.cmd
 include ../Makefile.cmd.64
 
 SRCS =		bhyvectl.c
-OBJS =		$(SRCS:.c=.o) humanize_number.o
+OBJS =		$(SRCS:.c=.o) humanize_number.o ipc_msg.o
 
 CLEANFILES =	$(PROG)
 CLOBBERFILES +=	$(ROOTUSRSBINPROG)
@@ -32,8 +32,10 @@ CPPFLAGS =	-I$(COMPAT)/bhyve -I$(CONTRIB)/bhyve \
 		-I$(COMPAT)/bhyve/amd64 -I$(CONTRIB)/bhyve/amd64 \
 		$(CPPFLAGS.master) \
 		-I$(SRC)/uts/intel/io/vmm \
-		-I$(SRC)/uts/intel
-LDLIBS +=	-lvmmapi
+		-I$(SRC)/uts/intel \
+		-I$(SRC)/cmd/bhyve/common \
+		-DBHYVE_SNAPSHOT
+LDLIBS +=	-lvmmapi -lnvpair -lsocket
 
 # Force c99 for everything
 CSTD=		$(CSTD_GNU99)
@@ -57,5 +59,9 @@ clean:
 include ../Makefile.targ
 
 %.o: $(CONTRIB)/bhyve/lib/libutil/%.c
+	$(COMPILE.c) -o $@ $<
+	$(POST_PROCESS_O)
+
+%.o: $(SRC)/cmd/bhyve/common/%.c
 	$(COMPILE.c) -o $@ $<
 	$(POST_PROCESS_O)

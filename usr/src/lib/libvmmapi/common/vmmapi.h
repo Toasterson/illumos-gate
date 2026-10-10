@@ -164,10 +164,8 @@ struct vmctx *vcpu_ctx(struct vcpu *vcpu);
 int	vm_parse_memsize(const char *optarg, size_t *memsize);
 int	vm_setup_memory(struct vmctx *ctx, size_t len, enum vm_mmap_style s);
 void	*vm_map_gpa(struct vmctx *ctx, vm_paddr_t gaddr, size_t len);
-#ifdef	__FreeBSD__
 /* inverse operation to vm_map_gpa - extract guest address from host pointer */
 vm_paddr_t vm_rev_map_gpa(struct vmctx *ctx, void *addr);
-#endif
 int	vm_get_gpa_pmap(struct vmctx *, uint64_t gpa, uint64_t *pte, int *num);
 int	vm_gla2gpa(struct vcpu *vcpu, struct vm_guest_paging *paging,
 		   uint64_t gla, int prot, uint64_t *gpa, int *fault);
@@ -343,6 +341,8 @@ int	vm_get_topology(struct vmctx *ctx, uint16_t *sockets, uint16_t *cores,
 
 #ifndef	__FreeBSD__
 /* illumos-specific APIs */
+struct vm_data_xfer;
+
 int	vm_pmtmr_set_location(struct vmctx *ctx, uint16_t ioport);
 int	vm_wrlock_cycle(struct vmctx *ctx);
 int vm_get_run_state(struct vcpu *vcpu, enum vcpu_run_state *state,
@@ -350,6 +350,13 @@ int vm_get_run_state(struct vcpu *vcpu, enum vcpu_run_state *state,
 int vm_set_run_state(struct vcpu *vcpu, enum vcpu_run_state state,
     uint8_t sipi_vector);
 int vm_vcpu_barrier(struct vcpu *vcpu);
+int vm_pause_instance(struct vmctx *ctx);
+int vm_resume_instance(struct vmctx *ctx);
+int vm_data_read(struct vmctx *ctx, struct vm_data_xfer *xfer);
+int vm_data_write(struct vmctx *ctx, struct vm_data_xfer *xfer);
+int vm_get_fpu_size(struct vmctx *ctx, size_t *sizep);
+int vm_get_fpu(struct vcpu *vcpu, void *buf, size_t len);
+int vm_set_fpu(struct vcpu *vcpu, void *buf, size_t len);
 #endif	/* __FreeBSD__ */
 
 #ifdef	__FreeBSD__

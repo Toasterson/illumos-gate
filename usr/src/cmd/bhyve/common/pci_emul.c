@@ -73,6 +73,9 @@
 #include "pci_lpc.h"
 #include "pci_passthru.h"
 #include "qemu_fwcfg.h"
+#ifdef BHYVE_SNAPSHOT
+#include "snapshot.h"
+#endif
 
 #define CONF1_ADDR_PORT	   0x0cf8
 #define CONF1_DATA_PORT	   0x0cfc
@@ -2445,6 +2448,154 @@ INOUT_PORT(pci_cfgdata, CONF1_DATA_PORT+1, IOPORT_F_INOUT, pci_emul_cfgdata);
 INOUT_PORT(pci_cfgdata, CONF1_DATA_PORT+2, IOPORT_F_INOUT, pci_emul_cfgdata);
 INOUT_PORT(pci_cfgdata, CONF1_DATA_PORT+3, IOPORT_F_INOUT, pci_emul_cfgdata);
 
+#ifdef BHYVE_SNAPSHOT
+#ifndef __FreeBSD__
+/*
+ * Stop a device from decoding its BARs ahead of restoring its state.  The
+ * guest may have moved BARs since the devices were created, so this is done
+ * for every device before any of them is restored; the restored assignment
+ * of one device can then not collide with the original assignment of another.
+ */
+void
+pci_snapshot_disable_decoding(struct pci_devinst *pi)
+{
+	uint16_t cmd;
+
+	cmd = pci_get_cfgdata16(pi, PCIR_COMMAND);
+	pci_set_cfgdata16(pi, PCIR_COMMAND,
+	    cmd & ~(PCIM_CMD_PORTEN | PCIM_CMD_MEMEN));
+	pci_emul_cmd_changed(pi, cmd);
+}
+#endif
+
+/*
+ * Saves/restores PCI device emulated state. Returns 0 on success.
+ */
+static int
+pci_snapshot_pci_dev(struct vm_snapshot_meta *meta)
+{
+	struct pci_devinst *pi;
+#ifndef __FreeBSD__
+	enum lintr_stat lintr_state;
+#endif
+	int i;
+	int ret;
+
+	pi = meta->dev_data;
+
+#ifndef __FreeBSD__
+	if (meta->op == VM_SNAPSHOT_RESTORE)
+		pci_snapshot_disable_decoding(pi);
+#endif
+
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msi.enabled, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msi.addr, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msi.msg_data, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msi.maxmsgnum, meta, ret, done);
+
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msix.enabled, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msix.table_bar, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msix.pba_bar, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msix.table_offset, meta, ret, done);
+	/* The table was sized when the device was created. */
+	SNAPSHOT_VAR_CMP_OR_LEAVE(pi->pi_msix.table_count, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msix.pba_offset, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msix.pba_size, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pi->pi_msix.function_mask, meta, ret, done);
+
+	SNAPSHOT_BUF_OR_LEAVE(pi->pi_cfgdata, sizeof (pi->pi_cfgdata),
+	    meta, ret, done);
+
+	for (i = 0; i < (int)nitems(pi->pi_bar); i++) {
+		SNAPSHOT_VAR_OR_LEAVE(pi->pi_bar[i].type, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(pi->pi_bar[i].size, meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(pi->pi_bar[i].addr, meta, ret, done);
+	}
+
+	/* Restore MSI-X table. */
+	for (i = 0; i < pi->pi_msix.table_count; i++) {
+		SNAPSHOT_VAR_OR_LEAVE(pi->pi_msix.table[i].addr,
+		    meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(pi->pi_msix.table[i].msg_data,
+		    meta, ret, done);
+		SNAPSHOT_VAR_OR_LEAVE(pi->pi_msix.table[i].vector_control,
+		    meta, ret, done);
+	}
+
+#ifndef __FreeBSD__
+	lintr_state = pi->pi_lintr.state;
+	SNAPSHOT_VAR_OR_LEAVE(lintr_state, meta, ret, done);
+
+	if (meta->op == VM_SNAPSHOT_RESTORE) {
+		uint16_t cmd = pci_get_cfgdata16(pi, PCIR_COMMAND);
+
+		/* Register the BARs decoded by the restored configuration. */
+		pci_emul_cmd_changed(pi,
+		    cmd & ~(PCIM_CMD_PORTEN | PCIM_CMD_MEMEN));
+
+		/*
+		 * Replay an asserted or pending INTx so that the interrupt
+		 * routing accounts for it.  The state of the interrupt
+		 * controllers themselves is restored later.
+		 */
+		if (lintr_state != IDLE)
+			pci_lintr_assert(pi);
+	}
+#endif
+
+done:
+	return (ret);
+}
+
+int
+pci_snapshot(struct vm_snapshot_meta *meta)
+{
+	struct pci_devemu *pde;
+	struct pci_devinst *pdi;
+	int ret;
+
+	assert(meta->dev_name != NULL);
+
+	pdi = meta->dev_data;
+	pde = pdi->pi_d;
+
+	if (pde->pe_snapshot == NULL)
+		return (ENOTSUP);
+
+	ret = pci_snapshot_pci_dev(meta);
+	if (ret == 0)
+		ret = (*pde->pe_snapshot)(meta);
+
+	return (ret);
+}
+
+int
+pci_pause(struct pci_devinst *pdi)
+{
+	struct pci_devemu *pde = pdi->pi_d;
+
+	if (pde->pe_pause == NULL) {
+		/* The pause/resume functionality is optional. */
+		return (0);
+	}
+
+	return (*pde->pe_pause)(pdi);
+}
+
+int
+pci_resume(struct pci_devinst *pdi)
+{
+	struct pci_devemu *pde = pdi->pi_d;
+
+	if (pde->pe_resume == NULL) {
+		/* The pause/resume functionality is optional. */
+		return (0);
+	}
+
+	return (*pde->pe_resume)(pdi);
+}
+#endif
+
 #define PCI_EMUL_TEST
 #ifdef PCI_EMUL_TEST
 /*
@@ -2614,11 +2765,58 @@ pci_emul_dior(struct pci_devinst *pi, int baridx, uint64_t offset, int size)
 	return (value);
 }
 
+#ifdef BHYVE_SNAPSHOT
+struct pci_devinst *
+pci_next(const struct pci_devinst *cursor)
+{
+	unsigned bus = 0, slot = 0, func = 0;
+	struct businfo *bi;
+	struct slotinfo *si;
+	struct funcinfo *fi;
+
+	bus = cursor ? cursor->pi_bus : 0;
+	slot = cursor ? cursor->pi_slot : 0;
+	func = cursor ? (cursor->pi_func + 1) : 0;
+
+	for (; bus < MAXBUSES; bus++) {
+		if ((bi = pci_businfo[bus]) == NULL)
+			continue;
+
+		if (slot >= MAXSLOTS)
+			slot = 0;
+
+		for (; slot < MAXSLOTS; slot++) {
+			si = &bi->slotinfo[slot];
+			if (func >= MAXFUNCS)
+				func = 0;
+			for (; func < MAXFUNCS; func++) {
+				fi = &si->si_funcs[func];
+				if (fi->fi_devi == NULL)
+					continue;
+
+				return (fi->fi_devi);
+			}
+		}
+	}
+
+	return (NULL);
+}
+
+static int
+pci_emul_snapshot(struct vm_snapshot_meta *meta __unused)
+{
+	return (0);
+}
+#endif
+
 static const struct pci_devemu pci_dummy = {
 	.pe_emu = "dummy",
 	.pe_init = pci_emul_dinit,
 	.pe_barwrite = pci_emul_diow,
 	.pe_barread = pci_emul_dior,
+#ifdef BHYVE_SNAPSHOT
+	.pe_snapshot = pci_emul_snapshot,
+#endif
 };
 PCI_EMUL_SET(pci_dummy);
 

@@ -64,6 +64,8 @@
 #include <pthread.h>
 #include <md5.h>
 
+#include <machine/vmm_snapshot.h>
+
 #include "bhyverun.h"
 #include "config.h"
 #include "debug.h"
@@ -219,6 +221,11 @@ static int pci_vtblk_cfgwrite(void *, int, int, uint32_t);
 #ifndef __FreeBSD__
 static void pci_vtblk_apply_feats(void *, uint64_t *);
 #endif
+#ifdef BHYVE_SNAPSHOT
+static void pci_vtblk_pause(void *);
+static void pci_vtblk_resume(void *);
+static int pci_vtblk_snapshot(void *, struct vm_snapshot_meta *);
+#endif
 
 static virtio_capstr_t vtblk_caps[] = {
 	{ VTBLK_F_BARRIER,	"VTBLK_F_BARRIER" },
@@ -252,6 +259,11 @@ static struct virtio_consts vtblk_vi_consts = {
 #endif
 	.vc_hv_caps_legacy =	VTBLK_S_HOSTCAPS,
 	.vc_hv_caps_modern =	VTBLK_S_HOSTCAPS,
+#ifdef BHYVE_SNAPSHOT
+	.vc_pause =		pci_vtblk_pause,
+	.vc_resume =		pci_vtblk_resume,
+	.vc_snapshot =		pci_vtblk_snapshot,
+#endif
 	.vc_capstr =		vtblk_caps,
 	.vc_ncapstr =		ARRAY_SIZE(vtblk_caps),
 };
@@ -269,6 +281,53 @@ pci_vtblk_reset(void *vsc)
 	sc->vbsc_wce = 0;
 #endif
 }
+
+#ifdef BHYVE_SNAPSHOT
+static void
+pci_vtblk_pause(void *vsc)
+{
+	struct pci_vtblk_softc *sc = vsc;
+
+	DPRINTF(("vtblk: device pause requested !"));
+	blockif_pause(sc->bc);
+}
+
+static void
+pci_vtblk_resume(void *vsc)
+{
+	struct pci_vtblk_softc *sc = vsc;
+
+	DPRINTF(("vtblk: device resume requested !"));
+	blockif_resume(sc->bc);
+}
+
+static int
+pci_vtblk_snapshot(void *vsc, struct vm_snapshot_meta *meta)
+{
+	int ret;
+	struct pci_vtblk_softc *sc = vsc;
+#ifndef __FreeBSD__
+	int wce;
+#endif
+
+	SNAPSHOT_VAR_OR_LEAVE(sc->vbsc_cfg, meta, ret, done);
+	SNAPSHOT_BUF_OR_LEAVE(sc->vbsc_ident, sizeof(sc->vbsc_ident),
+			      meta, ret, done);
+
+#ifndef __FreeBSD__
+	/* The write cache follows the negotiation of VTBLK_F_FLUSH. */
+	wce = sc->vbsc_wce;
+	SNAPSHOT_VAR_OR_LEAVE(wce, meta, ret, done);
+	if (meta->op == VM_SNAPSHOT_RESTORE && wce != sc->vbsc_wce) {
+		(void) blockif_set_wce(sc->bc, wce);
+		sc->vbsc_wce = wce;
+	}
+#endif
+
+done:
+	return (ret);
+}
+#endif
 
 static void
 pci_vtblk_done_locked(struct pci_vtblk_ioreq *io, int err)
@@ -659,5 +718,10 @@ static const struct pci_devemu pci_de_vblk = {
 	.pe_cfgread =	vi_pci_cfgread,
 	.pe_barwrite =	vi_pci_write,
 	.pe_barread =	vi_pci_read,
+#ifdef BHYVE_SNAPSHOT
+	.pe_snapshot =	vi_pci_snapshot,
+	.pe_pause =	vi_pci_pause,
+	.pe_resume =	vi_pci_resume,
+#endif
 };
 PCI_EMUL_SET(pci_de_vblk);

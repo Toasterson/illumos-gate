@@ -49,12 +49,21 @@
 
 extern int guest_ncpus;
 extern uint16_t cpu_cores, cpu_sockets, cpu_threads;
+#ifdef BHYVE_SNAPSHOT
+/* Exit status of bhyve once the VM has been suspended to a checkpoint. */
+#define	BHYVE_EXIT_SUSPEND	5
+
+extern char *restore_file;
+#endif
 
 struct vcpu;
 struct vmctx;
 struct vm_exit;
 
 extern void *paddr_guest2host(struct vmctx *ctx, uintptr_t addr, size_t len);
+#ifdef BHYVE_SNAPSHOT
+uintptr_t paddr_host2guest(struct vmctx *ctx, void *addr);
+#endif
 
 struct vcpu *fbsdrun_vcpu(int vcpuid);
 void fbsdrun_addcpu(int vcpuid, bool);

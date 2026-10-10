@@ -76,6 +76,9 @@
 #include "gdb.h"
 #include "inout.h"
 #include "mem.h"
+#ifdef BHYVE_SNAPSHOT
+#include "snapshot.h"
+#endif
 #include "spinup_ap.h"
 #include "vmexit.h"
 #include "xmsr.h"
@@ -451,7 +454,13 @@ vmexit_mtrap(struct vmctx *ctx __unused, struct vcpu *vcpu, struct vm_exit *vme)
 
 	assert(vme->inst_length == 0);
 
+#ifdef BHYVE_SNAPSHOT
+	checkpoint_cpu_suspend(vcpu_id(vcpu));
+#endif
 	gdb_cpu_mtrap(vcpu);
+#ifdef BHYVE_SNAPSHOT
+	checkpoint_cpu_resume(vcpu_id(vcpu));
+#endif
 
 	return (VMEXIT_CONTINUE);
 }
@@ -556,7 +565,13 @@ static int
 vmexit_debug(struct vmctx *ctx __unused, struct vcpu *vcpu,
     struct vm_exit *vme __unused)
 {
+#ifdef BHYVE_SNAPSHOT
+	checkpoint_cpu_suspend(vcpu_id(vcpu));
+#endif
 	gdb_cpu_suspend(vcpu);
+#ifdef BHYVE_SNAPSHOT
+	checkpoint_cpu_resume(vcpu_id(vcpu));
+#endif
 	/*
 	 * Sleep for a short period to avoid chewing up the CPU in the
 	 * window between activation of the vCPU thread and the STARTUP IPI.
