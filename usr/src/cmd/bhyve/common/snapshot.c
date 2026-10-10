@@ -963,6 +963,39 @@ vm_restore_device(struct restore_state *rstate, vm_snapshot_dev_cb func,
 	return (0);
 }
 
+/*
+ * Every device in the checkpoint must be present in the VM being restored;
+ * the converse is checked when the devices are restored.
+ */
+static int
+vm_restore_check_devices(struct restore_state *rstate)
+{
+	nvlist_t *devs;
+	nvpair_t *nvp = NULL;
+
+	if (nvlist_lookup_nvlist(rstate->meta_nvl, META_DEV_KEY, &devs) != 0) {
+		EPRINTLN("Failed to find '%s' object.", META_DEV_KEY);
+		return (-1);
+	}
+
+	while ((nvp = nvlist_next_nvpair(devs, nvp)) != NULL) {
+		const char *name = nvpair_name(nvp);
+		struct pci_devinst *pdi = NULL;
+		bool found = strcmp(name, "atkbdc") == 0;
+
+		while (!found && (pdi = pci_next(pdi)) != NULL)
+			found = strcmp(pdi->pi_name, name) == 0;
+
+		if (!found) {
+			EPRINTLN("Device %s of the checkpoint is not configured",
+			    name);
+			return (-1);
+		}
+	}
+
+	return (0);
+}
+
 static int
 vm_restore_devices(struct restore_state *rstate)
 {
@@ -1278,6 +1311,9 @@ int
 vm_restore(struct vmctx *ctx, struct restore_state *rstate)
 {
 	int error;
+
+	if (vm_restore_check_devices(rstate) != 0)
+		return (-1);
 
 	/*
 	 * Keep the emulated timers in the kernel from firing while their
