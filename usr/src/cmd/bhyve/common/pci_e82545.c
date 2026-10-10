@@ -2526,7 +2526,7 @@ e82545_snapshot(struct vm_snapshot_meta *meta)
 
 	/* Has dependency on esc_RDLEN; reoreder of fields from struct. */
 	SNAPSHOT_GUEST2HOST_ADDR_OR_LEAVE(pi->pi_vmctx, sc->esc_rxdesc,
-	    sc->esc_TDLEN, true, meta, ret, done);
+	    sc->esc_RDLEN, true, meta, ret, done);
 
 	/* IO Port register access */
 	SNAPSHOT_VAR_OR_LEAVE(sc->io_addr, meta, ret, done);

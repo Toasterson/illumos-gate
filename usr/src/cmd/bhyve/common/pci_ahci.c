@@ -2693,10 +2693,11 @@ pci_ahci_snapshot(struct vm_snapshot_meta *meta)
 			goto done;
 		}
 
+		/* A port which has not been started has neither. */
 		SNAPSHOT_GUEST2HOST_ADDR_OR_LEAVE(pi->pi_vmctx, port->cmd_lst,
-			AHCI_CL_SIZE * AHCI_MAX_SLOTS, false, meta, ret, done);
+			AHCI_CL_SIZE * AHCI_MAX_SLOTS, true, meta, ret, done);
 		SNAPSHOT_GUEST2HOST_ADDR_OR_LEAVE(pi->pi_vmctx, port->rfis, 256,
-		    false, meta, ret, done);
+		    true, meta, ret, done);
 
 		SNAPSHOT_VAR_OR_LEAVE(port->ata_ident, meta, ret, done);
 		SNAPSHOT_VAR_OR_LEAVE(port->atapi, meta, ret, done);
