@@ -902,11 +902,13 @@ main(int argc, char *argv[])
 	 */
 	setproctitle("%s", vmname);
 
+#ifdef BHYVE_SNAPSHOT
 	/*
 	 * Thread for handling bhyvectl commands.
 	 */
 	if (init_ipc_thread(ctx, get_config_value("rundir")) != 0)
-		EPRINTLN("Failed to start IPC thread");
+		EPRINTLN("Failed to start IPC thread; no checkpoints");
+#endif
 
 #ifndef WITHOUT_CAPSICUM
 	caph_cache_catpages();

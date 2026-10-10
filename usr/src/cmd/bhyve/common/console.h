@@ -50,4 +50,9 @@ void console_key_event(int down, uint32_t keysym, uint32_t keycode);
 void console_ptr_register(ptr_event_func_t event_cb, void *arg, int pri);
 void console_ptr_event(uint8_t button, int x, int y);
 
+#ifdef BHYVE_SNAPSHOT
+void console_pause(void);
+void console_resume(void);
+#endif
+
 #endif /* _CONSOLE_H_ */

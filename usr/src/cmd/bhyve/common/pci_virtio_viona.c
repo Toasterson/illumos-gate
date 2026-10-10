@@ -157,6 +157,9 @@ struct pci_viona_softc {
 
 	bool		vsc_resetting;
 	bool		vsc_msix_active;
+#ifdef BHYVE_SNAPSHOT
+	bool		vsc_pause_failed;	/* a ring did not pause */
+#endif
 
 	viona_promisc_t	vsc_promisc;		/* Current promisc mode */
 	bool		vsc_promisc_promisc;	/* PROMISC enabled */
@@ -1350,11 +1353,13 @@ pci_viona_pause(void *vsc)
 {
 	struct pci_viona_softc *sc = vsc;
 
+	sc->vsc_pause_failed = false;
 	for (uint16_t i = 0; i < VIONA_NRINGS(sc); i++) {
 		while (ioctl(sc->vsc_vnafd, VNA_IOC_RING_PAUSE, i) != 0) {
 			if (errno != EINTR) {
 				WPRINTF("ioctl viona ring 0x%x pause failed %d",
 				    i, errno);
+				sc->vsc_pause_failed = true;
 				break;
 			}
 		}
@@ -1395,6 +1400,10 @@ pci_viona_snapshot(void *vsc, struct vm_snapshot_meta *meta)
 	struct pci_viona_softc *sc = vsc;
 	uint16_t usepairs;
 	int ret;
+
+	/* The state of a ring which is still running cannot be saved. */
+	if (meta->op == VM_SNAPSHOT_SAVE && sc->vsc_pause_failed)
+		return (EBUSY);
 
 	usepairs = sc->vsc_vq_usepairs;
 	SNAPSHOT_VAR_OR_LEAVE(usepairs, meta, ret, done);

@@ -2652,7 +2652,7 @@ pci_ahci_snapshot(struct vm_snapshot_meta *meta)
 
 	/* TODO: add mtx lock/unlock */
 
-	SNAPSHOT_VAR_OR_LEAVE(sc->ports, meta, ret, done);
+	SNAPSHOT_VAR_CMP_OR_LEAVE(sc->ports, meta, ret, done);
 	SNAPSHOT_VAR_OR_LEAVE(sc->cap, meta, ret, done);
 	SNAPSHOT_VAR_OR_LEAVE(sc->ghc, meta, ret, done);
 	SNAPSHOT_VAR_OR_LEAVE(sc->is, meta, ret, done);

@@ -1690,7 +1690,9 @@ done:
 #ifdef BHYVE_SNAPSHOT
 /*
  * Create the memory, kernel data and metadata files of a checkpoint and ask
- * bhyve to save the VM into them.  The files are removed again if that fails.
+ * bhyve to save the VM into them.  The files are written under temporary
+ * names and only replace any existing checkpoint of the same name once bhyve
+ * has reported success.
  */
 static int
 snapshot_request(const char *vmname, const char *file, bool suspend,
@@ -1698,24 +1700,23 @@ snapshot_request(const char *vmname, const char *file, bool suspend,
 {
 	static const char *const exts[] = { "", ".kern", ".meta" };
 	char *paths[nitems(exts)] = { NULL };
+	char *tmppaths[nitems(exts)] = { NULL };
 	int fds[nitems(exts)];
 	nvlist_t *nvl = NULL;
 	uint_t nfds = 0;
 	int err;
 
 	for (uint_t i = 0; i < nitems(exts); i++) {
-		if (asprintf(&paths[i], "%s%s", file, exts[i]) < 0) {
+		if (asprintf(&paths[i], "%s%s", file, exts[i]) < 0 ||
+		    asprintf(&tmppaths[i], "%s.tmp", paths[i]) < 0) {
 			err = errno;
-			paths[i] = NULL;
 			goto done;
 		}
-		fds[i] = open(paths[i], O_WRONLY | O_CREAT | O_TRUNC, 0600);
+		fds[i] = open(tmppaths[i], O_WRONLY | O_CREAT | O_TRUNC, 0600);
 		if (fds[i] < 0) {
 			err = errno;
 			(void) fprintf(stderr, "%s: cannot create %s: %s\n",
-			    progname, paths[i], strerror(err));
-			free(paths[i]);
-			paths[i] = NULL;
+			    progname, tmppaths[i], strerror(err));
 			goto done;
 		}
 		nfds++;
@@ -1732,10 +1733,23 @@ snapshot_request(const char *vmname, const char *file, bool suspend,
 done:
 	for (uint_t i = 0; i < nfds; i++)
 		(void) close(fds[i]);
+	if (err != 0) {
+		for (uint_t i = 0; i < nfds; i++)
+			(void) unlink(tmppaths[i]);
+	} else {
+		/* After a suspend, the files are all that is left of the VM. */
+		for (uint_t i = 0; i < nfds; i++) {
+			if (rename(tmppaths[i], paths[i]) != 0) {
+				err = errno;
+				(void) fprintf(stderr,
+				    "%s: cannot rename %s: %s\n",
+				    progname, tmppaths[i], strerror(err));
+			}
+		}
+	}
 	for (uint_t i = 0; i < nitems(exts); i++) {
-		if (paths[i] != NULL && err != 0)
-			(void) unlink(paths[i]);
 		free(paths[i]);
+		free(tmppaths[i]);
 	}
 	nvlist_free(nvl);
 	return (err);

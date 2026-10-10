@@ -34,6 +34,7 @@
 
 #include <sys/types.h>
 #include <machine/vmm.h>
+#include <machine/vmm_snapshot.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -413,6 +414,29 @@ smi_cmd_handler(struct vmctx *ctx, int in, int port __unused,
 INOUT_PORT(smi_cmd, SMI_CMD, IOPORT_F_OUT, smi_cmd_handler);
 #ifdef	__FreeBSD__
 SYSRES_IO(SMI_CMD, 1);
+#endif
+
+#ifdef BHYVE_SNAPSHOT
+/*
+ * The SCI is asserted in the interrupt controllers, whose state is restored
+ * separately, so only whether it is asserted is recorded here.
+ */
+int
+pm_snapshot(struct vm_snapshot_meta *meta)
+{
+	int ret;
+
+	pthread_mutex_lock(&pm_lock);
+	SNAPSHOT_VAR_OR_LEAVE(pm1_enable, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pm1_status, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(pm1_control, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(gpe0_enabled, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(gpe0_active, meta, ret, done);
+	SNAPSHOT_VAR_OR_LEAVE(sci_active, meta, ret, done);
+done:
+	pthread_mutex_unlock(&pm_lock);
+	return (ret);
+}
 #endif
 
 void

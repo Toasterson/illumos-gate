@@ -83,7 +83,8 @@ ipc_msg_send(int sock, nvlist_t *nvl, const int *fds, uint_t nfds)
 
 	/* The descriptors travel with the first part of the message. */
 	while (iov.iov_len > 0) {
-		n = sendmsg(sock, &msg, 0);
+		/* The peer going away must not raise SIGPIPE in bhyve. */
+		n = sendmsg(sock, &msg, MSG_NOSIGNAL);
 		if (n < 0) {
 			if (errno == EINTR)
 				continue;
@@ -186,6 +187,8 @@ ipc_msg_recv(int sock, nvlist_t **nvlp)
 	if (err != 0)
 		goto out;
 
+	/* Only descriptors which were actually passed may be listed. */
+	(void) nvlist_remove_all(nvl, IPC_FDS_KEY);
 	if (nfds > 0) {
 		err = nvlist_add_int32_array(nvl, IPC_FDS_KEY, fds, nfds);
 		if (err != 0)

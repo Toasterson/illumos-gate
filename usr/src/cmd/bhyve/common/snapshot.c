@@ -86,11 +86,11 @@
 #include <unistd.h>
 #include <vmmapi.h>
 
-#include "bhyverun.h"
-#ifdef __amd64__
+#include "acpi.h"
 #include "atkbdc.h"
-#endif
+#include "bhyverun.h"
 #include "config.h"
+#include "console.h"
 #include "debug.h"
 #include "ipc.h"
 #include "pci_emul.h"
@@ -116,6 +116,7 @@
 #define	META_NCPUS_KEY			"ncpus"
 #define	META_VMNAME_KEY			"vmname"
 #define	META_MEMSIZE_KEY		"memsize"
+#define	META_VENDOR_KEY			"cpu_vendor"
 
 struct vm_snapshot_kern_info {
 	const char *struct_name;	/* kernel structure name */
@@ -206,16 +207,23 @@ static const int snapshot_vcpu_descs[] = {
 	VM_REG_GUEST_IDTR,
 };
 
-static cpuset_t vcpus_active, vcpus_suspended;
+struct vm_snapshot_dev_info {
+	const char *dev_name;		/* device name */
+	vm_snapshot_dev_cb snapshot_cb;	/* callback for device snapshot */
+};
+
+/* Devices other than those on the PCI bus. */
+static const struct vm_snapshot_dev_info snapshot_devs[] = {
+	{ "atkbdc",	atkbdc_snapshot },
+	{ "pm",		pm_snapshot },
+};
+
+static cpuset_t vcpus_active, vcpus_suspended, vcpus_debug;
 static pthread_mutex_t vcpu_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t vcpus_idle = PTHREAD_COND_INITIALIZER;
 static pthread_cond_t vcpus_can_run = PTHREAD_COND_INITIALIZER;
 static bool checkpoint_active;
 
-/*
- * TODO: Harden this function and all of its callers since 'base_str' is a user
- * provided string.
- */
 static char *
 strcat_extension(const char *base_str, const char *ext)
 {
@@ -626,18 +634,24 @@ restore_vm_mem(struct vmctx *ctx, struct restore_state *rstate)
 	return (vm_snapshot_mem(ctx, rstate->vmmem_fd, false) == 0 ? 0 : -1);
 }
 
-static bool
-host_is_svm(void)
+static void
+host_cpu_vendor(char vendor[13])
 {
 	uint_t regs[4];
-	char vendor[13];
 
 	do_cpuid(0, regs);
 	(void) memcpy(&vendor[0], &regs[1], sizeof (uint_t));
 	(void) memcpy(&vendor[4], &regs[3], sizeof (uint_t));
 	(void) memcpy(&vendor[8], &regs[2], sizeof (uint_t));
 	vendor[12] = '\0';
+}
 
+static bool
+host_is_svm(void)
+{
+	char vendor[13];
+
+	host_cpu_vendor(vendor);
 	return (strcmp(vendor, "AuthenticAMD") == 0 ||
 	    strcmp(vendor, "HygonGenuine") == 0);
 }
@@ -916,6 +930,11 @@ vm_restore_kern_structs(struct vmctx *ctx, struct restore_state *rstate)
 			EPRINTLN("Failed to restore %s", name);
 			return (-1);
 		}
+
+		if (meta.buffer.buf_rem != 0) {
+			EPRINTLN("Unexpected saved state for %s", name);
+			return (-1);
+		}
 	}
 
 	return (0);
@@ -960,6 +979,11 @@ vm_restore_device(struct restore_state *rstate, vm_snapshot_dev_cb func,
 		return (ret);
 	}
 
+	if (meta.buffer.buf_rem != 0) {
+		EPRINTLN("Unexpected saved state for dev: %s", name);
+		return (EINVAL);
+	}
+
 	return (0);
 }
 
@@ -981,8 +1005,10 @@ vm_restore_check_devices(struct restore_state *rstate)
 	while ((nvp = nvlist_next_nvpair(devs, nvp)) != NULL) {
 		const char *name = nvpair_name(nvp);
 		struct pci_devinst *pdi = NULL;
-		bool found = strcmp(name, "atkbdc") == 0;
+		bool found = false;
 
+		for (uint_t i = 0; !found && i < nitems(snapshot_devs); i++)
+			found = strcmp(snapshot_devs[i].dev_name, name) == 0;
 		while (!found && (pdi = pci_next(pdi)) != NULL)
 			found = strcmp(pdi->pi_name, name) == 0;
 
@@ -1012,12 +1038,14 @@ vm_restore_devices(struct restore_state *rstate)
 			return (ret);
 	}
 
-#ifdef __amd64__
-	ret = vm_restore_device(rstate, atkbdc_snapshot, "atkbdc", NULL);
-#else
-	ret = 0;
-#endif
-	return (ret);
+	for (uint_t i = 0; i < nitems(snapshot_devs); i++) {
+		ret = vm_restore_device(rstate, snapshot_devs[i].snapshot_cb,
+		    snapshot_devs[i].dev_name, NULL);
+		if (ret)
+			return (ret);
+	}
+
+	return (0);
 }
 
 static int
@@ -1025,6 +1053,8 @@ vm_pause_devices(void)
 {
 	int ret;
 	struct pci_devinst *pdi = NULL;
+
+	console_pause();
 
 	while ((pdi = pci_next(pdi)) != NULL) {
 		ret = pci_pause(pdi);
@@ -1040,18 +1070,21 @@ vm_pause_devices(void)
 static int
 vm_resume_devices(void)
 {
-	int ret;
+	int ret, error = 0;
 	struct pci_devinst *pdi = NULL;
 
 	while ((pdi = pci_next(pdi)) != NULL) {
 		ret = pci_resume(pdi);
 		if (ret) {
 			EPRINTLN("Cannot resume '%s': %d", pdi->pi_name, ret);
-			return (ret);
+			if (error == 0)
+				error = ret;
 		}
 	}
 
-	return (0);
+	console_resume();
+
+	return (error);
 }
 
 /*
@@ -1095,7 +1128,8 @@ static void
 vm_snapshot_meta_reset(struct vm_snapshot_meta *meta, const char *name,
     void *data)
 {
-	(void) memset(meta->buffer.buf_start, 0, meta->buffer.buf_size);
+	/* Clear what the previous device used. */
+	(void) memset(meta->buffer.buf_start, 0, vm_get_snapshot_size(meta));
 	meta->buffer.buf = meta->buffer.buf_start;
 	meta->buffer.buf_rem = meta->buffer.buf_size;
 	meta->dev_name = name;
@@ -1135,9 +1169,11 @@ vm_snapshot_basic_metadata(struct vmctx *ctx, nvlist_t *nvl)
 {
 	nvlist_t *basic;
 	size_t memsize;
+	char vendor[13];
 	int ret;
 
 	memsize = vm_get_lowmem_size(ctx) + vm_get_highmem_size(ctx);
+	host_cpu_vendor(vendor);
 
 	if ((ret = nvlist_alloc(&basic, NV_UNIQUE_NAME, 0)) != 0)
 		return (ret);
@@ -1146,6 +1182,7 @@ vm_snapshot_basic_metadata(struct vmctx *ctx, nvlist_t *nvl)
 	    (ret = nvlist_add_string(basic, META_VMNAME_KEY,
 	    vm_get_name(ctx))) != 0 ||
 	    (ret = nvlist_add_uint64(basic, META_MEMSIZE_KEY, memsize)) != 0 ||
+	    (ret = nvlist_add_string(basic, META_VENDOR_KEY, vendor)) != 0 ||
 	    (ret = nvlist_add_nvlist(nvl, META_BASIC_METADATA_KEY,
 	    basic)) != 0) {
 		nvlist_free(basic);
@@ -1191,14 +1228,15 @@ vm_snapshot_devices(int data_fd, nvlist_t *list, struct vm_snapshot_meta *meta,
 			return (ret);
 	}
 
-#ifdef __amd64__
-	ret = vm_snapshot_device(atkbdc_snapshot, "atkbdc", NULL,
-	    data_fd, list, meta, offset);
-#else
-	ret = 0;
-#endif
+	for (uint_t i = 0; i < nitems(snapshot_devs); i++) {
+		ret = vm_snapshot_device(snapshot_devs[i].snapshot_cb,
+		    snapshot_devs[i].dev_name, NULL, data_fd, list, meta,
+		    offset);
+		if (ret != 0)
+			return (ret);
+	}
 
-	return (ret);
+	return (0);
 }
 
 /*
@@ -1279,27 +1317,52 @@ checkpoint_cpu_hold(void)
 	pthread_mutex_unlock(&vcpu_lock);
 }
 
-static void
+/*
+ * Stop all vCPUs for a checkpoint.  This fails if the vCPUs are already held
+ * for a restore which has not completed.
+ */
+static int
 vm_vcpu_pause(struct vmctx *ctx)
 {
 
 	pthread_mutex_lock(&vcpu_lock);
+	if (checkpoint_active) {
+		pthread_mutex_unlock(&vcpu_lock);
+		return (EBUSY);
+	}
 	checkpoint_active = true;
+	/* Remember which vCPUs the debugger, or -d, holds. */
+	(void) vm_debug_cpus(ctx, &vcpus_debug);
 	vm_suspend_all_cpus(ctx);
 	while (CPU_CMP(&vcpus_active, &vcpus_suspended) != 0)
 		pthread_cond_wait(&vcpus_idle, &vcpu_lock);
 	pthread_mutex_unlock(&vcpu_lock);
+
+	return (0);
 }
 
+/*
+ * Release the vCPU threads held for a checkpoint or restore.
+ */
 static void
-vm_vcpu_resume(struct vmctx *ctx)
+vm_vcpu_release(void)
 {
 
 	pthread_mutex_lock(&vcpu_lock);
 	checkpoint_active = false;
 	pthread_mutex_unlock(&vcpu_lock);
-	vm_resume_all_cpus(ctx);
 	pthread_cond_broadcast(&vcpus_can_run);
+}
+
+static void
+vm_vcpu_resume(void)
+{
+
+	for (int vcpuid = 0; vcpuid < guest_ncpus; vcpuid++) {
+		if (!CPU_ISSET(vcpuid, &vcpus_debug))
+			(void) vm_resume_cpu(fbsdrun_vcpu(vcpuid));
+	}
+	vm_vcpu_release();
 }
 
 /*
@@ -1310,7 +1373,24 @@ vm_vcpu_resume(struct vmctx *ctx)
 int
 vm_restore(struct vmctx *ctx, struct restore_state *rstate)
 {
+	nvlist_t *basic;
+	char vendor[13], *saved_vendor;
 	int error;
+
+	/*
+	 * The vCPU state includes the state of features which differ between
+	 * CPU vendors.
+	 */
+	host_cpu_vendor(vendor);
+	if ((basic = lookup_basic_metadata_object(rstate)) == NULL ||
+	    nvlist_lookup_string(basic, META_VENDOR_KEY, &saved_vendor) != 0) {
+		return (-1);
+	}
+	if (strcmp(vendor, saved_vendor) != 0) {
+		EPRINTLN("The checkpoint was taken on a %s host, this is a %s "
+		    "host", saved_vendor, vendor);
+		return (-1);
+	}
 
 	if (vm_restore_check_devices(rstate) != 0)
 		return (-1);
@@ -1356,9 +1436,25 @@ vm_restore(struct vmctx *ctx, struct restore_state *rstate)
 		return (-1);
 	}
 
-	vm_vcpu_resume(ctx);
+	/*
+	 * The VM generation ID changes with every start of bhyve, see
+	 * vmgenc_init().  Tell the guest, so that it can account for having
+	 * been restored.
+	 */
+	if (get_config_bool("acpi_tables"))
+		acpi_raise_gpe(ctx, GPE_VMGENC);
+
+	vm_vcpu_release();
 
 	return (0);
+}
+
+static struct vmctx *suspended_ctx;
+
+static void
+vm_destroy_suspended(void)
+{
+	vm_destroy(suspended_ctx);
 }
 
 static int
@@ -1379,14 +1475,22 @@ vm_checkpoint(struct vmctx *ctx, int vmmem_fd, int kdata_fd, int meta_fd,
 		    "device %s does not support checkpoints", pdi->pi_name);
 		return (ENOTSUP);
 	}
+	if (find_config_node("tpm") != NULL) {
+		(void) snprintf(errmsg, errlen,
+		    "TPM devices do not support checkpoints");
+		return (ENOTSUP);
+	}
 
-	buffer = malloc(SNAPSHOT_BUFFER_SIZE);
+	buffer = calloc(1, SNAPSHOT_BUFFER_SIZE);
 	if (buffer == NULL)
 		return (ENOMEM);
 
 	struct vm_snapshot_meta meta = {
 		.buffer.buf_start = buffer,
 		.buffer.buf_size = SNAPSHOT_BUFFER_SIZE,
+
+		.buffer.buf = buffer,
+		.buffer.buf_rem = SNAPSHOT_BUFFER_SIZE,
 
 		.op = VM_SNAPSHOT_SAVE,
 	};
@@ -1397,7 +1501,9 @@ vm_checkpoint(struct vmctx *ctx, int vmmem_fd, int kdata_fd, int meta_fd,
 		goto out;
 	}
 
-	vm_vcpu_pause(ctx);
+	error = vm_vcpu_pause(ctx);
+	if (error != 0)
+		goto out;
 
 	error = vm_pause_devices();
 	if (error != 0) {
@@ -1470,10 +1576,11 @@ vm_checkpoint(struct vmctx *ctx, int vmmem_fd, int kdata_fd, int meta_fd,
 		}
 
 		/*
-		 * The vCPUs and devices remain paused.  bhyve exits once the
-		 * reply has been sent.
+		 * The vCPUs and devices remain paused.  bhyve destroys the VM
+		 * and exits once the reply has been sent.
 		 */
-		vm_destroy(ctx);
+		suspended_ctx = ctx;
+		(void) atexit(vm_destroy_suspended);
 		ipc_exit_after_reply(BHYVE_EXIT_SUSPEND);
 		goto out;
 	}
@@ -1487,7 +1594,7 @@ done:
 	ret = vm_resume_devices();
 	if (ret != 0)
 		EPRINTLN("Could not resume devices");
-	vm_vcpu_resume(ctx);
+	vm_vcpu_resume();
 out:
 	free(meta_buf);
 	nvlist_free(dev_nvl);

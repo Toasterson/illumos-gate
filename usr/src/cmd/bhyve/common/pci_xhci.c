@@ -3268,7 +3268,13 @@ pci_xhci_snapshot(struct vm_snapshot_meta *meta)
 		SNAPSHOT_VAR_OR_LEAVE(dev->dev_slotstate, meta, ret, done);
 
 		/* devices[i]->dev_sc */
+#ifdef __FreeBSD__
 		dev->dev_ue->ue_snapshot(dev->dev_sc, meta);
+#else
+		ret = dev->dev_ue->ue_snapshot(dev->dev_sc, meta);
+		if (ret != 0)
+			goto done;
+#endif
 
 		/* devices[i]->hci */
 		SNAPSHOT_VAR_OR_LEAVE(dev->hci.hci_address, meta, ret, done);

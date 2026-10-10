@@ -312,8 +312,13 @@ and the description of the checkpoint from
 The virtual machine must be configured exactly as the one from which the
 checkpoint was taken, with the same number of vCPUs, the same amount of memory
 and the same PCI and LPC devices in the same slots.
-The checkpoint can only be restored on a host whose CPU saves the same FPU
-state as the one on which it was taken.
+The checkpoint can only be restored on a host with a CPU from the same vendor
+that saves the same FPU state as the one on which it was taken.
+On Intel hosts, the TSC frequency of the host must also be the same, since the
+guest TSC cannot be scaled.
+Differences in the CPUID features presented to the guest are not detected.
+A checkpoint contains the complete state of the guest and must be protected
+like the guest's disks; only trusted checkpoints should be restored.
 If
 .Ar vmname
 is not given, the name recorded in the checkpoint is used.

@@ -2560,10 +2560,10 @@ e82545_snapshot(struct vm_snapshot_meta *meta)
 	SNAPSHOT_VAR_OR_LEAVE(sc->missed_octets, meta, ret, done);
 
 	if (meta->op == VM_SNAPSHOT_SAVE)
-		bitmap_value = sc->nvm_bits;
+		bitmap_value = sc->nvm_mode;
 	SNAPSHOT_VAR_OR_LEAVE(bitmap_value, meta, ret, done);
 	if (meta->op == VM_SNAPSHOT_RESTORE)
-		sc->nvm_bits = bitmap_value;
+		sc->nvm_mode = bitmap_value;
 
 	if (meta->op == VM_SNAPSHOT_SAVE)
 		bitmap_value = sc->nvm_bits;

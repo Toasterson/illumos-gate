@@ -580,6 +580,16 @@ atkbdc_snapshot(struct vm_snapshot_meta *meta)
 	SNAPSHOT_VAR_OR_LEAVE(atkbdc_sc->kbd.bwr, meta, ret, done);
 	SNAPSHOT_VAR_OR_LEAVE(atkbdc_sc->kbd.bcnt, meta, ret, done);
 
+#ifndef __FreeBSD__
+	if (meta->op == VM_SNAPSHOT_RESTORE &&
+	    (atkbdc_sc->kbd.brd < 0 || atkbdc_sc->kbd.brd >= FIFOSZ ||
+	    atkbdc_sc->kbd.bwr < 0 || atkbdc_sc->kbd.bwr >= FIFOSZ ||
+	    atkbdc_sc->kbd.bcnt < 0 || atkbdc_sc->kbd.bcnt > FIFOSZ)) {
+		ret = EINVAL;
+		goto done;
+	}
+#endif
+
 	SNAPSHOT_VAR_OR_LEAVE(atkbdc_sc->aux.irq_active, meta, ret, done);
 	SNAPSHOT_VAR_OR_LEAVE(atkbdc_sc->aux.irq, meta, ret, done);
 

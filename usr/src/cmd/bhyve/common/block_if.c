@@ -939,7 +939,9 @@ blockif_request(struct blockif_ctxt *bc, struct blockif_req *breq,
 	err = 0;
 
 	pthread_mutex_lock(&bc->bc_mtx);
+#ifdef __FreeBSD__
 	assert(!bc->bc_paused);
+#endif
 	if (!TAILQ_EMPTY(&bc->bc_freeq)) {
 		/*
 		 * Enqueue and inform the block i/o thread
@@ -1203,7 +1205,11 @@ blockif_pause(struct blockif_ctxt *bc)
 	pthread_mutex_lock(&bc->bc_mtx);
 	bc->bc_paused = 1;
 
-	/* The interface is paused. Wait for workers to finish their work */
+	/*
+	 * The interface is paused. Wait for workers to finish their work.
+	 * Completion callbacks may still submit requests, for example for the
+	 * next part of a large AHCI transfer, and these are drained as well.
+	 */
 	while (!blockif_empty(bc))
 		pthread_cond_wait(&bc->bc_work_done_cond, &bc->bc_mtx);
 	pthread_mutex_unlock(&bc->bc_mtx);

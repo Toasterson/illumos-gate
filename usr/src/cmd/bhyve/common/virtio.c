@@ -2197,10 +2197,25 @@ vi_pci_snapshot_queues(struct virtio_softc *vs, struct vm_snapshot_meta *meta)
 	vc = vs->vs_vc;
 
 	for (int i = 0; i < vc->vc_nvq; i++) {
+		uint16_t qsize;
+
 		vq = &vs->vs_queues[i];
 
 		SNAPSHOT_VAR_CMP_OR_LEAVE(vq->vq_num, meta, ret, done);
-		SNAPSHOT_VAR_OR_LEAVE(vq->vq_qsize, meta, ret, done);
+
+		/*
+		 * The guest may have chosen a smaller queue than the device
+		 * offers, which is what vq_qsize holds before the restore.
+		 */
+		qsize = vq->vq_qsize;
+		SNAPSHOT_VAR_OR_LEAVE(qsize, meta, ret, done);
+		if (meta->op == VM_SNAPSHOT_RESTORE) {
+			if (!ISP2(qsize) || qsize > vq->vq_qsize) {
+				ret = EINVAL;
+				goto done;
+			}
+			vq->vq_qsize = qsize;
+		}
 
 		SNAPSHOT_VAR_OR_LEAVE(vq->vq_flags, meta, ret, done);
 		SNAPSHOT_VAR_OR_LEAVE(vq->vq_last_avail, meta, ret, done);

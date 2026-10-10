@@ -53,6 +53,7 @@ SET_DECLARE(ipc_cmd_set, struct ipc_command);
 static struct ipc_thread_ctx {
 	struct vmctx *vmctx;
 	int sockfd;
+	char path[sizeof (((struct sockaddr_un *)NULL)->sun_path)];
 } thr_ctx;
 
 /*
@@ -60,6 +61,12 @@ static struct ipc_thread_ctx {
  * been delivered.
  */
 static int ipc_exit_status = -1;
+
+static void
+ipc_unlink_socket(void)
+{
+	(void) unlink(thr_ctx.path);
+}
 
 void
 ipc_exit_after_reply(int status)
@@ -113,11 +120,12 @@ ipc_thread(void *param)
 	for (;;) {
 		fd = accept(ctx->sockfd, NULL, NULL);
 		if (fd < 0) {
-			if (errno == EINTR || errno == ECONNABORTED)
-				continue;
-			EPRINTLN("%s: accept() failed: %s", __func__,
-			    strerror(errno));
-			break;
+			if (errno != EINTR && errno != ECONNABORTED) {
+				EPRINTLN("%s: accept() failed: %s", __func__,
+				    strerror(errno));
+				(void) sleep(1);
+			}
+			continue;
 		}
 
 		err = ipc_msg_recv(fd, &nvl);
@@ -220,10 +228,13 @@ init_ipc_thread(struct vmctx *ctx, const char *bhyve_run_dir)
 	(void) memset(&thr_ctx, 0, sizeof (thr_ctx));
 	thr_ctx.vmctx = ctx;
 	thr_ctx.sockfd = socket_fd;
+	(void) strlcpy(thr_ctx.path, addr.sun_path, sizeof (thr_ctx.path));
 
 	err = pthread_create(&ipc_pthread, NULL, ipc_thread, &thr_ctx);
 	if (err != 0)
 		goto fail;
+
+	(void) atexit(ipc_unlink_socket);
 
 	return (0);
 fail:
